@@ -9,3 +9,6 @@
 	path = lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
 	branch = v4.8.0
+[submodule "lib/surl"]
+	path = lib/surl
+	url = https://github.com/memester-xyz/surl
