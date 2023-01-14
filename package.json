@@ -1,0 +1,16 @@
+{
+  "name": "portals-sc",
+  "description": "Portals Smart Contracts",
+  "version": "1.0.0",
+  "repository": "https://github.com/portals-fi/portals-sc.git",
+  "license": "GPLv3",
+  "private": true,
+  "author": {
+    "name": "@cryptonomik",
+    "url": "SuhailG <github@suhailg.me>"
+  },
+  "devDependencies": {
+    "solhint": "^3.3.7"
+  },
+  "scripts": {}
+}
