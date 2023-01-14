@@ -81,7 +81,7 @@ contract PortalsRouterTest is Test {
             buyToken: intermediateToken
         });
 
-        bytes memory data = quote.portal(quoteParams);
+        bytes memory data = quote.swap(quoteParams);
         assertGt(data.length, 0);
     }
 
