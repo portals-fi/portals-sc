@@ -13,3 +13,6 @@ bin/
 
 # Node modules
 node_modules/
+
+##DS_store
+.DS_Store
