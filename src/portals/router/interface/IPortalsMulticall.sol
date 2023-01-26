@@ -10,7 +10,5 @@ interface IPortalsMulticall {
         uint256 amountIndex;
     }
 
-    function aggregate(IPortalsMulticall.Call[] calldata calls)
-        external
-        payable;
+    function aggregate(Call[] calldata calls) external payable;
 }
