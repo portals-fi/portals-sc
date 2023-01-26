@@ -10,38 +10,31 @@ pragma solidity ^0.8.0;
 import { IQuote } from "./interface/IQuote.sol";
 import { Script } from "forge-std/Script.sol";
 import { console2 } from "forge-std/console2.sol";
+import { stdJson } from "forge-std/StdJson.sol";
 import { Surl } from "surl/Surl.sol";
 
 contract Quote is IQuote, Script {
     using Surl for *;
+    using stdJson for string;
 
-    address constant ETH_ALT =
-        0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-
-    function swap(QuoteParams memory quoteParams)
+    function quote(QuoteParams memory quoteParams)
         public
-        returns (bytes memory)
+        returns (address, bytes memory)
     {
-        if (quoteParams.sellToken == address(0)) {
-            quoteParams.sellToken = ETH_ALT;
-        }
-        if (quoteParams.buyToken == address(0)) {
-            quoteParams.sellToken = ETH_ALT;
-        }
-        string memory url = "https://api.1inch.io/v5.0/1/swap";
+        string memory url =
+            "https://api.portals.fi/v1/portal/ethereum";
         string memory params = string.concat(
-            "?fromAddress=",
+            "?takerAddress=",
             vm.toString(address(0)),
-            "&fromTokenAddress=",
+            "&sellToken=",
             vm.toString(quoteParams.sellToken),
-            "&toTokenAddress=",
+            "&buyToken=",
             vm.toString(quoteParams.buyToken),
-            "&amount=",
+            "&sellAmount=",
             vm.toString(quoteParams.sellAmount),
-            "&slippage=",
-            vm.toString(uint256(3)),
-            "&allowPartialFill=false",
-            "&disableEstimate=true"
+            "&slippagePercentage=",
+            quoteParams.slippagePercentage,
+            "&validate=false"
         );
 
         string[] memory headers = new string[](2);
@@ -55,7 +48,8 @@ contract Quote is IQuote, Script {
             console2.log(string(data));
             revert("API ERROR");
         }
+        string memory json = string(data);
 
-        return data;
+        return (json.readAddress("tx.to"), json.readBytes("tx.data"));
     }
 }
