@@ -14,8 +14,8 @@ import { IPortalsMulticall } from "./interface/IPortalsMulticall.sol";
 import { ReentrancyGuard } from "solmate/utils/ReentrancyGuard.sol";
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 
-contract PortalsMulticall is ReentrancyGuard {
-    function aggregate(IPortalsMulticall.Call[] calldata calls)
+contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
+    function aggregate(Call[] calldata calls)
         external
         payable
         nonReentrant
