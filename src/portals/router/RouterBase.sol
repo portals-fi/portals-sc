@@ -137,7 +137,7 @@ abstract contract RouterBase is IRouterBase, Owned {
         address token,
         uint256 quantity,
         uint256 fee
-    ) internal virtual returns (uint256) {
+    ) internal returns (uint256) {
         require(fee >= baseFee && fee <= 100, "Invalid fee");
         if (token == address(0)) {
             require(
@@ -282,7 +282,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     /// @param _fee The new fee amount (less than 100 or 1%)
     function setFee(uint256 _fee) external onlyOwner {
         require(_fee <= 100, "Invalid Fee");
-        emit Fee(_fee);
         baseFee = _fee;
+        emit Fee(_fee);
     }
 }
