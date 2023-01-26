@@ -14,79 +14,201 @@ import { PortalsMulticall } from
 import { IPortalsRouter } from
     "../../../src/portals/router/interface/IPortalsRouter.sol";
 
+import { IPortalsMulticall } from
+    "../../../src/portals/router/interface/IPortalsMulticall.sol";
+
 import { Quote } from "../../utils/Quote/Quote.sol";
 import { IQuote } from "../../utils/Quote/interface/IQuote.sol";
 
+import { ERC20 } from "solmate/tokens/ERC20.sol";
+
 contract PortalsRouterTest is Test {
-    PortalsRouter public router;
-    PortalsMulticall public multicall;
-    Quote public quote;
+    uint256 mainnetFork =
+        vm.createSelectFork(vm.envString("MAINNET_RPC_URL"));
+    PortalsMulticall public multicall = new PortalsMulticall();
+    PortalsRouter public router =
+        new PortalsRouter(owner, 0, collector, address(multicall));
+    Quote public quote = new Quote();
 
-    uint256 internal ownerPrivateKey;
-    uint256 internal userPrivateKey;
-    uint256 internal collectorPivateKey;
-    uint256 internal adversaryPivateKey;
-    uint256 internal partnerPivateKey;
+    uint256 internal ownerPrivateKey = 0xDAD;
+    uint256 internal userPrivateKey = 0xB0B;
+    uint256 internal collectorPivateKey = 0xA11CE;
+    uint256 internal adversaryPivateKey = 0xC0C;
+    uint256 internal partnerPivateKey = 0xABE;
 
-    address internal owner;
-    address internal user;
-    address internal collector;
-    address internal adversary;
-    address internal partner;
+    address internal owner = vm.addr(ownerPrivateKey);
+    address internal user = vm.addr(userPrivateKey);
+    address internal collector = vm.addr(collectorPivateKey);
+    address internal adversary = vm.addr(adversaryPivateKey);
+    address internal partner = vm.addr(partnerPivateKey);
+
+    address USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    address DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address ETH = address(0);
+    address StargateUSDC = 0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56;
+    address StargateRouter =
+        0x8731d54E9D02c286767d56ac03e8037C07e01e98;
 
     function setUp() public {
-        ownerPrivateKey = 0xDAD;
-        userPrivateKey = 0xB0B;
-        collectorPivateKey = 0xA11CE;
-        adversaryPivateKey = 0xC0C;
-        partnerPivateKey = 0xABE;
-
-        owner = vm.addr(ownerPrivateKey);
-        user = vm.addr(userPrivateKey);
-        collector = vm.addr(collectorPivateKey);
-        adversary = vm.addr(adversaryPivateKey);
-        partner = vm.addr(partnerPivateKey);
-
-        multicall = new PortalsMulticall();
-
-        router =
-            new PortalsRouter(owner, 0, collector, address(multicall));
-
-        quote = new Quote();
+        startHoax(user);
     }
 
-    function testStargatePortalToSUSDCFromETH() public {
+    function test_PortalIn_Stargate_SUSDC_From_ETH_With_USDC_Intermediate(
+    ) public {
         address sellToken = address(0);
-        address intermediateToken =
-            0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
-
-        address buyToken = 0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56;
-        uint256 poolId = 1;
-
         uint256 sellAmount = 5 ether;
+
+        address intermediateToken = USDC;
+
+        address buyToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 3;
 
         IPortalsRouter.Order memory order = IPortalsRouter.Order({
             sellToken: sellToken,
             sellAmount: sellAmount,
             buyToken: buyToken,
-            minBuyAmount: 0,
+            minBuyAmount: 1,
             fee: 0,
             recipient: user,
             partner: partner
         });
 
-        IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams({
-            sellToken: sellToken,
-            sellAmount: sellAmount,
-            buyToken: intermediateToken
-        });
+        IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+            sellToken, sellAmount, intermediateToken, "0.03"
+        );
 
-        bytes memory data = quote.swap(quoteParams);
-        assertGt(data.length, 0);
+        (address target, bytes memory data) = quote.quote(quoteParams);
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            sellToken, sellAmount, target, data, type(uint256).max
+        );
+        calls[1] = IPortalsMulticall.Call(
+            intermediateToken,
+            0,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[2] = IPortalsMulticall.Call(
+            intermediateToken,
+            0,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+
+        router.portal{value: sellAmount}(order, calls);
+
+        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
+
+        assertTrue(finalBalance > initialBalance);
     }
 
-    // function testSetNumber(uint256 x) public {
-    //     counter.setNumber(x);
-    //     assertEq(counter.number(), x);
-    // }
+    function test_PortalOut_Stargate_SUSDC_To_ETH_With_USDC_Intermediate(
+    ) public {
+        test_PortalIn_Stargate_SUSDC_From_ETH_With_USDC_Intermediate();
+        // Constants
+        address sellToken = StargateUSDC;
+        uint256 sellAmount = ERC20(sellToken).balanceOf(user);
+
+        address intermediateToken = USDC;
+
+        (, bytes memory returnData) = StargateUSDC.call{value: 0}(
+            abi.encodeWithSignature(
+                "amountLPtoLD(uint256)", sellAmount
+            )
+        );
+
+        uint256 intermediateAmount = uint256(bytes32(returnData));
+
+        address buyToken = ETH;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 5;
+
+        // Order
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            sellToken: sellToken,
+            sellAmount: sellAmount,
+            buyToken: buyToken,
+            minBuyAmount: 1,
+            fee: 0,
+            recipient: user,
+            partner: partner
+        });
+
+        // External quote
+        IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+            intermediateToken, intermediateAmount, buyToken, "0.03"
+        );
+
+        (address target, bytes memory data) = quote.quote(quoteParams);
+
+        // Multicall
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+        calls[0] = IPortalsMulticall.Call(
+            sellToken,
+            0,
+            sellToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(
+            sellToken,
+            0,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "instantRedeemLocal(uint16,uint256,address)",
+                poolId,
+                0,
+                address(multicall)
+            ),
+            1
+        );
+        calls[2] = IPortalsMulticall.Call(
+            intermediateToken,
+            0,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", target, 0
+            ),
+            1
+        );
+        calls[3] = IPortalsMulticall.Call(
+            intermediateToken, 0, target, data, type(uint256).max
+        );
+        calls[4] = IPortalsMulticall.Call(
+            ETH, 0, address(user), "", type(uint256).max
+        );
+
+        // Test
+        ERC20(sellToken).approve(address(router), sellAmount);
+
+        uint256 initialBalance = user.balance;
+
+        router.portal{value: 0}(order, calls);
+
+        uint256 finalBalance = user.balance;
+
+        assertTrue(finalBalance > initialBalance);
+    }
 }
