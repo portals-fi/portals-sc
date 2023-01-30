@@ -57,6 +57,7 @@ contract PortalsRouterTest is Test {
     ) public {
         address sellToken = address(0);
         uint256 sellAmount = 5 ether;
+        uint256 value = sellAmount;
 
         address intermediateToken = USDC;
 
@@ -112,7 +113,7 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portal{value: sellAmount}(order, calls);
+        router.portal{value: value}(order, calls);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -125,6 +126,7 @@ contract PortalsRouterTest is Test {
         // Constants
         address sellToken = StargateUSDC;
         uint256 sellAmount = ERC20(sellToken).balanceOf(user);
+        uint256 value = 0;
 
         address intermediateToken = USDC;
 
@@ -205,9 +207,90 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = user.balance;
 
-        router.portal{value: 0}(order, calls);
+        router.portal{value: value}(order, calls);
 
         uint256 finalBalance = user.balance;
+
+        assertTrue(finalBalance > initialBalance);
+    }
+
+    function test_PortalIn_Stargate_SUSDC_From_DAI_With_USDC_Intermediate(
+    ) public {
+        address sellToken = DAI;
+        uint256 sellAmount = 5000 ether;
+        uint256 value = 0;
+
+        deal(address(DAI), user, sellAmount);
+        assertEq(ERC20(DAI).balanceOf(user), sellAmount);
+
+        address intermediateToken = USDC;
+
+        address buyToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 4;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            sellToken: sellToken,
+            sellAmount: sellAmount,
+            buyToken: buyToken,
+            minBuyAmount: 1,
+            fee: 0,
+            recipient: user,
+            partner: partner
+        });
+
+        IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+            sellToken, sellAmount, intermediateToken, "0.03"
+        );
+
+        (address target, bytes memory data) = quote.quote(quoteParams);
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            sellToken,
+            0,
+            sellToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", target, 0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(
+            sellToken, sellAmount, target, data, type(uint256).max
+        );
+        calls[2] = IPortalsMulticall.Call(
+            intermediateToken,
+            0,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[3] = IPortalsMulticall.Call(
+            intermediateToken,
+            0,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        ERC20(sellToken).approve(address(router), sellAmount);
+
+        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+
+        router.portal{value: value}(order, calls);
+
+        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
     }
