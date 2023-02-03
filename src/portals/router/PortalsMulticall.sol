@@ -26,11 +26,13 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
             uint256 value;
             if (call.sellToken == address(0)) {
                 value = address(this).balance;
+                _setAmount(call.data, call.amountIndex, value);
             } else {
                 balance =
                     ERC20(call.sellToken).balanceOf(address(this));
+                _setAmount(call.data, call.amountIndex, balance);
             }
-            _setAmount(call.data, call.amountIndex, balance);
+
             (bool success, bytes memory returnData) =
                 call.target.call{value: value}(call.data);
             if (!success) {

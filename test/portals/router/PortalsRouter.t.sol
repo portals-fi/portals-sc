@@ -87,11 +87,10 @@ contract PortalsRouterTest is Test {
             new IPortalsMulticall.Call[](numCalls);
 
         calls[0] = IPortalsMulticall.Call(
-            sellToken, sellAmount, target, data, type(uint256).max
+            sellToken, target, data, type(uint256).max
         );
         calls[1] = IPortalsMulticall.Call(
             intermediateToken,
-            0,
             intermediateToken,
             abi.encodeWithSignature(
                 "approve(address,uint256)", StargateRouter, 0
@@ -100,7 +99,6 @@ contract PortalsRouterTest is Test {
         );
         calls[2] = IPortalsMulticall.Call(
             intermediateToken,
-            0,
             StargateRouter,
             abi.encodeWithSignature(
                 "addLiquidity(uint256,uint256,address)",
@@ -167,7 +165,6 @@ contract PortalsRouterTest is Test {
             new IPortalsMulticall.Call[](numCalls);
         calls[0] = IPortalsMulticall.Call(
             sellToken,
-            0,
             sellToken,
             abi.encodeWithSignature(
                 "approve(address,uint256)", StargateRouter, 0
@@ -176,7 +173,6 @@ contract PortalsRouterTest is Test {
         );
         calls[1] = IPortalsMulticall.Call(
             sellToken,
-            0,
             StargateRouter,
             abi.encodeWithSignature(
                 "instantRedeemLocal(uint16,uint256,address)",
@@ -188,7 +184,6 @@ contract PortalsRouterTest is Test {
         );
         calls[2] = IPortalsMulticall.Call(
             intermediateToken,
-            0,
             intermediateToken,
             abi.encodeWithSignature(
                 "approve(address,uint256)", target, 0
@@ -196,10 +191,10 @@ contract PortalsRouterTest is Test {
             1
         );
         calls[3] = IPortalsMulticall.Call(
-            intermediateToken, 0, target, data, type(uint256).max
+            intermediateToken, target, data, type(uint256).max
         );
         calls[4] = IPortalsMulticall.Call(
-            ETH, 0, address(user), "", type(uint256).max
+            ETH, address(user), "", type(uint256).max
         );
 
         // Test
@@ -252,7 +247,6 @@ contract PortalsRouterTest is Test {
 
         calls[0] = IPortalsMulticall.Call(
             sellToken,
-            0,
             sellToken,
             abi.encodeWithSignature(
                 "approve(address,uint256)", target, 0
@@ -260,11 +254,10 @@ contract PortalsRouterTest is Test {
             1
         );
         calls[1] = IPortalsMulticall.Call(
-            sellToken, sellAmount, target, data, type(uint256).max
+            sellToken, target, data, type(uint256).max
         );
         calls[2] = IPortalsMulticall.Call(
             intermediateToken,
-            0,
             intermediateToken,
             abi.encodeWithSignature(
                 "approve(address,uint256)", StargateRouter, 0
@@ -273,7 +266,6 @@ contract PortalsRouterTest is Test {
         );
         calls[3] = IPortalsMulticall.Call(
             intermediateToken,
-            0,
             StargateRouter,
             abi.encodeWithSignature(
                 "addLiquidity(uint256,uint256,address)",
