@@ -97,10 +97,14 @@ abstract contract RouterBase is IRouterBase, Owned {
     );
 
     //EIP712 Domain Separator
-    bytes32 immutable DOMAIN_SEPARATOR;
+    bytes32 public immutable DOMAIN_SEPARATOR;
 
-    //EIP712 Permit Typehash
+    //Order nonces
     mapping(address => uint256) public nonces;
+
+    //Permit Typehash
+    bytes32 internal constant PERMIT_TYPEHASH =
+        0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
 
     constructor(
         address _admin,
@@ -138,7 +142,9 @@ abstract contract RouterBase is IRouterBase, Owned {
         uint256 quantity,
         uint256 fee
     ) internal returns (uint256) {
-        require(fee >= baseFee && fee <= 100, "Invalid fee");
+        require(
+            fee >= baseFee && fee <= 100, "PortalsRouter: Invalid fee"
+        );
         if (token == address(0)) {
             require(
                 quantity == msg.value && msg.value > 0,
@@ -152,7 +158,7 @@ abstract contract RouterBase is IRouterBase, Owned {
 
         require(
             quantity > 0 && msg.value == 0,
-            "Invalid quantity or msg.value"
+            "PortalsRouter: Invalid quantity or msg.value"
         );
         if (fee == 0) {
             ERC20(token).safeTransferFrom(
@@ -242,7 +248,7 @@ abstract contract RouterBase is IRouterBase, Owned {
         address token,
         IPortalsRouter.PermitPayload calldata permitPayload
     ) internal {
-        if (permitPayload.split) {
+        if (permitPayload.splitSignature) {
             bytes memory signature = permitPayload.signature;
             bytes32 r;
             bytes32 s;
