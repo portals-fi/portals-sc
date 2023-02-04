@@ -24,6 +24,6 @@ interface IPortalsRouter {
         uint256 amount;
         uint256 deadline;
         bytes signature;
-        bool split;
+        bool splitSignature;
     }
 }
