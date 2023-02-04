@@ -19,6 +19,7 @@ import { IPortalsMulticall } from
 
 import { Quote } from "../../utils/Quote/Quote.sol";
 import { IQuote } from "../../utils/Quote/interface/IQuote.sol";
+import { SigUtils } from "../../utils/SigUtils.sol";
 
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 
@@ -29,6 +30,7 @@ contract PortalsRouterTest is Test {
     PortalsRouter public router =
         new PortalsRouter(owner, 0, collector, address(multicall));
     Quote public quote = new Quote();
+    SigUtils internal sigUtils;
 
     uint256 internal ownerPrivateKey = 0xDAD;
     uint256 internal userPrivateKey = 0xB0B;
@@ -42,14 +44,18 @@ contract PortalsRouterTest is Test {
     address internal adversary = vm.addr(adversaryPivateKey);
     address internal partner = vm.addr(partnerPivateKey);
 
-    address USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
-    address DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
-    address ETH = address(0);
-    address StargateUSDC = 0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56;
-    address StargateRouter =
+    address internal USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    address internal DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address internal ETH = address(0);
+    address internal StargateUSDC =
+        0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56;
+    address internal StargateRouter =
         0x8731d54E9D02c286767d56ac03e8037C07e01e98;
+    bytes32 internal USDC_DOMAIN_SEPARATOR =
+        0x06c37168a7db5138defc7866392bb87a741f9b3d104deb5094588ce041cae335;
 
     function setUp() public {
+        sigUtils = new SigUtils(USDC_DOMAIN_SEPARATOR);
         startHoax(user);
     }
 
@@ -285,5 +291,108 @@ contract PortalsRouterTest is Test {
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
+    }
+
+    function test_PortalInWithPermit_Stargate_SUSDC_From_USDC_With_USDC_Intermediate(
+    ) public {
+        address sellToken = USDC;
+        uint256 sellAmount = 5000 ether;
+        uint256 value = 0;
+
+        deal(address(sellToken), user, sellAmount);
+        assertEq(ERC20(sellToken).balanceOf(user), sellAmount);
+
+        address intermediateToken = USDC;
+
+        address buyToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 2;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            sellToken: sellToken,
+            sellAmount: sellAmount,
+            buyToken: buyToken,
+            minBuyAmount: 1,
+            fee: 0,
+            recipient: user,
+            partner: partner
+        });
+
+        address target;
+        bytes memory data;
+        if (sellToken != intermediateToken) {
+            IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+                sellToken, sellAmount, intermediateToken, "0.03"
+            );
+
+            (target, data) = quote.quote(quoteParams);
+        }
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(
+            intermediateToken,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        IPortalsRouter.PermitPayload memory permitPayload =
+            createPermitPayload(sellToken, true);
+
+        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+
+        router.portalWithPermit{value: value}(
+            order, calls, permitPayload
+        );
+
+        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
+
+        assertTrue(finalBalance > initialBalance);
+    }
+
+    function createPermitPayload(
+        address sellToken,
+        bool splitSignature
+    )
+        public
+        view
+        returns (IPortalsRouter.PermitPayload memory permitPayload)
+    {
+        SigUtils.Permit memory permit = SigUtils.Permit({
+            owner: user,
+            spender: address(router),
+            value: type(uint256).max,
+            nonce: ERC20(sellToken).nonces(user),
+            deadline: type(uint256).max
+        });
+
+        bytes32 digest = sigUtils.getTypedDataHash(permit);
+        (uint8 v, bytes32 r, bytes32 s) =
+            vm.sign(userPrivateKey, digest);
+
+        permitPayload = IPortalsRouter.PermitPayload({
+            owner: user,
+            amount: type(uint256).max,
+            deadline: type(uint256).max,
+            signature: abi.encodePacked(r, s, v),
+            splitSignature: splitSignature
+        });
     }
 }
