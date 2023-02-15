@@ -10,6 +10,16 @@ bracket_spacing = true
 line_length = 70
 number_underscore = "thousands"
 wrap_comments = false
+[rpc_endpoints]
+mainnet = "${MAINNET_RPC_URL}"
+polygon = "${POLYGON_RPC_URL}"
+fantom = "${FANTOM_RPC_URL}"
+[etherscan]
+mainnet = { key = "${MAINNET_ETHERSCAN_API_KEY}" }
+fantom = { key = "${FANTOM_ETHERSCAN_API_KEY}" }
+polygon = { key = "${POLYGON_ETHERSCAN_API_KEY}" }
+
+
 
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
