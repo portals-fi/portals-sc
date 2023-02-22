@@ -10,7 +10,6 @@ pragma solidity 0.8.17;
 import { IPortalsRouter } from "./interface/IPortalsRouter.sol";
 import { IPortalsMulticall } from "./interface/IPortalsMulticall.sol";
 import { RouterBase } from "./RouterBase.sol";
-import { ERC1155 } from "solmate/tokens/ERC1155.sol";
 
 contract PortalsRouter is RouterBase {
     constructor(
