@@ -16,6 +16,9 @@ contract Addresses {
             0xFBD4C3D8bE6B15b7cf428Db2838bb44C0054fCd2;
         Fantom["collector"] =
             0x9144439a1d4d5Fb371C491101045815F32150444;
+        Ethereum["zeroEx"] =
+            0xDef1C0ded9bec7F1a1670819833240f027b25EfF;
+        Ethereum["WETH"] = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     }
 
     function get(string memory network, string memory name)

@@ -30,7 +30,6 @@ contract PortalsRouterTest is Test {
     PortalsRouter public router =
         new PortalsRouter(owner, 0, collector, address(multicall));
     Quote public quote = new Quote();
-    SigUtils internal sigUtils;
 
     uint256 internal ownerPrivateKey = 0xDAD;
     uint256 internal userPrivateKey = 0xB0B;
@@ -55,7 +54,6 @@ contract PortalsRouterTest is Test {
         0x06c37168a7db5138defc7866392bb87a741f9b3d104deb5094588ce041cae335;
 
     function setUp() public {
-        sigUtils = new SigUtils(USDC_DOMAIN_SEPARATOR);
         startHoax(user);
     }
 
@@ -354,7 +352,7 @@ contract PortalsRouterTest is Test {
         );
 
         IPortalsRouter.PermitPayload memory permitPayload =
-            createPermitPayload(sellToken, true);
+        createPermitPayload(sellToken, true, USDC_DOMAIN_SEPARATOR);
 
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
@@ -367,14 +365,98 @@ contract PortalsRouterTest is Test {
         assertTrue(finalBalance > initialBalance);
     }
 
+    // function test_PortalInWithSignature_Stargate_SUSDC_From_USDC_With_USDC_Intermediate(
+    // ) public {
+    //     address sellToken = USDC;
+    //     uint256 sellAmount = 5000 ether;
+    //     uint256 value = 0;
+
+    //     deal(address(sellToken), user, sellAmount);
+    //     assertEq(ERC20(sellToken).balanceOf(user), sellAmount);
+
+    //     address intermediateToken = USDC;
+
+    //     address buyToken = StargateUSDC;
+
+    //     uint16 poolId = 1;
+
+    //     uint256 numCalls = 2;
+
+    //     IPortalsRouter.Order memory order = IPortalsRouter.Order({
+    //         sellToken: sellToken,
+    //         sellAmount: sellAmount,
+    //         buyToken: buyToken,
+    //         minBuyAmount: 1,
+    //         fee: 0,
+    //         recipient: user,
+    //         partner: partner
+    //     });
+
+    //     // IPortalsRouter.SignedOrder memory signedOrder = IPortalsRouter
+    //     //     .SignedOrder({
+    //     //  order: order,
+    //     //  sender: user,
+    //     //  deadline: 0,
+    //     // uint32 nonce,
+    //     // });
+
+    //     address target;
+    //     bytes memory data;
+    //     if (sellToken != intermediateToken) {
+    //         IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+    //             sellToken, sellAmount, intermediateToken, "0.03"
+    //         );
+
+    //         (target, data) = quote.quote(quoteParams);
+    //     }
+
+    //     IPortalsMulticall.Call[] memory calls =
+    //         new IPortalsMulticall.Call[](numCalls);
+
+    //     calls[0] = IPortalsMulticall.Call(
+    //         intermediateToken,
+    //         intermediateToken,
+    //         abi.encodeWithSignature(
+    //             "approve(address,uint256)", StargateRouter, 0
+    //         ),
+    //         1
+    //     );
+    //     calls[1] = IPortalsMulticall.Call(
+    //         intermediateToken,
+    //         StargateRouter,
+    //         abi.encodeWithSignature(
+    //             "addLiquidity(uint256,uint256,address)",
+    //             poolId,
+    //             0,
+    //             user
+    //         ),
+    //         1
+    //     );
+
+    //     IPortalsRouter.PermitPayload memory permitPayload =
+    //         createPermitPayload(sellToken, true);
+
+    //     uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+
+    //     router.portalWithPermit{value: value}(
+    //         order, calls, permitPayload
+    //     );
+
+    //     uint256 finalBalance = ERC20(buyToken).balanceOf(user);
+
+    //     assertTrue(finalBalance > initialBalance);
+    // }
+
     function createPermitPayload(
         address sellToken,
-        bool splitSignature
+        bool splitSignature,
+        bytes32 domainSeparator
     )
         public
-        view
         returns (IPortalsRouter.PermitPayload memory permitPayload)
     {
+        SigUtils sigUtils = new SigUtils(domainSeparator);
+
         SigUtils.Permit memory permit = SigUtils.Permit({
             owner: user,
             spender: address(router),

@@ -1,4 +1,5 @@
-/// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: UNLICENSED
+
 pragma solidity ^0.8.0;
 
 interface IUniswapV2Router02 {
@@ -13,11 +14,7 @@ interface IUniswapV2Router02 {
         uint256 deadline
     )
         external
-        returns (
-            uint256 amountA,
-            uint256 amountB,
-            uint256 liquidity
-        );
+        returns (uint256 amountA, uint256 amountB, uint256 liquidity);
 
     function removeLiquidity(
         address tokenA,
