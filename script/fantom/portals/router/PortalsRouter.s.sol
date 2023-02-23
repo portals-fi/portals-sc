@@ -3,11 +3,11 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import { PortalsMulticall } from
-    "../src/portals/multicall/PortalsMulticall.sol";
+    "../../../../src/portals/multicall/PortalsMulticall.sol";
 import { PortalsRouter } from
-    "../src/portals/router/PortalsRouter.sol";
+    "../../../../src/portals/router/PortalsRouter.sol";
 
-import { Addresses } from "./constants/Addresses.sol";
+import { Addresses } from "../../../constants/Addresses.sol";
 
 contract PortalsRouterDeployer is Script {
     Addresses addresses = new Addresses();
