@@ -50,6 +50,7 @@ contract Quote is IQuote, Script {
         }
         string memory json = string(data);
 
-        return (json.readAddress("tx.to"), json.readBytes("tx.data"));
+        return
+            (json.readAddress(".tx.to"), json.readBytes(".tx.data"));
     }
 }
