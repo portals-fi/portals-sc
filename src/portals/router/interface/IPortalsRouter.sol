@@ -17,6 +17,8 @@ interface IPortalsRouter {
         address sender;
         uint32 deadline;
         uint32 nonce;
+        address broadcaster;
+        uint256 gasFee;
     }
 
     struct PermitPayload {

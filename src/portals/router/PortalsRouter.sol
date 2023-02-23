@@ -62,6 +62,13 @@ contract PortalsRouter is RouterBase {
         IPortalsMulticall.Call[] calldata calls
     ) external payable pausable returns (uint256 buyAmount) {
         _verify(signedOrder, signature);
+        buyAmount = _transferGasFee( //Use buyAmount as temp variable to prevent stack too deep error
+            signedOrder.sender,
+            signedOrder.order.sellToken,
+            signedOrder.order.sellAmount,
+            signedOrder.broadcaster,
+            signedOrder.gasFee
+        );
         return _execute(
             signedOrder.sender,
             signedOrder.order,
@@ -69,7 +76,7 @@ contract PortalsRouter is RouterBase {
             _transferFromSender(
                 signedOrder.sender,
                 signedOrder.order.sellToken,
-                signedOrder.order.sellAmount,
+                buyAmount,
                 signedOrder.order.fee
             )
         );
@@ -83,14 +90,21 @@ contract PortalsRouter is RouterBase {
     ) external payable pausable returns (uint256 buyAmount) {
         _verify(signedOrder, signature);
         _permit(signedOrder.order.sellToken, permitPayload);
-        return _execute(
+        buyAmount = _transferGasFee( //Use buyAmount as temp variable to prevent stack too deep error
+            signedOrder.sender,
+            signedOrder.order.sellToken,
+            signedOrder.order.sellAmount,
+            signedOrder.broadcaster,
+            signedOrder.gasFee
+        );
+        buyAmount = _execute(
             signedOrder.sender,
             signedOrder.order,
             calls,
             _transferFromSender(
                 signedOrder.sender,
                 signedOrder.order.sellToken,
-                signedOrder.order.sellAmount,
+                buyAmount,
                 signedOrder.order.fee
             )
         );
@@ -118,6 +132,7 @@ contract PortalsRouter is RouterBase {
             order.sellAmount,
             order.buyToken,
             buyAmount,
+            baseFee,
             order.fee,
             sender,
             order.recipient,

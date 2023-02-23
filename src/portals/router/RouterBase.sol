@@ -44,6 +44,7 @@ abstract contract RouterBase is IRouterBase, Owned {
         uint256 sellAmount,
         address buyToken,
         uint256 buyAmount,
+        uint256 baseFee,
         uint256 fee,
         address indexed sender,
         address indexed recipient,
@@ -93,7 +94,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     //EIP712 Signed Order Typehash
     bytes32 internal constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "SignedOrder(Order order,address sender,uint256 deadline,uint32 nonce)Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,uint256 fee,adress recipient,address partner)"
+            "SignedOrder(Order order,address sender,uint256 deadline,uint32 nonce,address broadcaster,uint256 gasFee)Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,uint256 fee,adress recipient,address partner)"
         )
     );
 
@@ -128,13 +129,14 @@ abstract contract RouterBase is IRouterBase, Owned {
     }
 
     /// @notice Transfers tokens or the network token from the caller to the
-    /// Portals multicall contract
-    /// after accounting for the fee
+    /// Portals multicall contract after accounting for the fee
+    /// @param sender The address of the owner of the tokens
     /// @param token The address of the token to transfer (address(0) if network
     /// token)
     /// @param quantity The quantity of tokens to transfer from the caller
     /// @dev quantity must == 0 when token == address(0)
     /// @dev msg.value must == 0 when token != address(0)
+    /// @param fee The fee in BPS
     /// @return value The quantity of network tokens to be transferred to the Portals
     /// multicall contract
     function _transferFromSender(
@@ -175,6 +177,28 @@ abstract contract RouterBase is IRouterBase, Owned {
         );
 
         return 0;
+    }
+
+    /// @notice Transfers the gasFee from the caller to the broadcaster in the `token` currency
+    /// @param sender is the address of the owner of the tokens
+    /// @param token The address of the token to transfer
+    /// @param quantity The quantity of tokens to transfer from the sender for gas
+    /// @param broadcaster The address of the broadcaster
+    /// @param gasFee The quantity of tokens to transfer to the broadcaster
+    /// @return quantity The quantity of tokens remaining after the transfer
+    function _transferGasFee(
+        address sender,
+        address token,
+        uint256 quantity,
+        address broadcaster,
+        uint256 gasFee
+    ) internal returns (uint256) {
+        if (gasFee == 0) return quantity;
+        uint256 gasFeeTransfer = quantity - gasFee;
+        ERC20(token).safeTransferFrom(
+            sender, broadcaster, gasFeeTransfer
+        );
+        return quantity - gasFeeTransfer;
     }
 
     /// @notice Calculates the fee amount
