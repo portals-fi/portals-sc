@@ -9,7 +9,8 @@ pragma solidity 0.8.17;
 
 import { IRouterBase } from "./interface/IRouterBase.sol";
 import { IPortalsRouter } from "./interface/IPortalsRouter.sol";
-import { IPortalsMulticall } from "./interface/IPortalsMulticall.sol";
+import { IPortalsMulticall } from
+    "../multicall/interface/IPortalsMulticall.sol";
 import { IPermit } from "./interface/IPermit.sol";
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";

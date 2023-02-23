@@ -10,12 +10,12 @@ import "forge-std/Test.sol";
 import { PortalsRouter } from
     "../../../src/portals/router/PortalsRouter.sol";
 import { PortalsMulticall } from
-    "../../../src/portals/router/PortalsMulticall.sol";
+    "../../../src/portals/multicall/PortalsMulticall.sol";
 import { IPortalsRouter } from
     "../../../src/portals/router/interface/IPortalsRouter.sol";
 
 import { IPortalsMulticall } from
-    "../../../src/portals/router/interface/IPortalsMulticall.sol";
+    "../../../src/portals/multicall/interface/IPortalsMulticall.sol";
 
 import { Quote } from "../../utils/Quote/Quote.sol";
 import { IQuote } from "../../utils/Quote/interface/IQuote.sol";
@@ -115,7 +115,7 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portal{value: value}(order, calls);
+        router.portal{ value: value }(order, calls);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -132,7 +132,7 @@ contract PortalsRouterTest is Test {
 
         address intermediateToken = USDC;
 
-        (, bytes memory returnData) = StargateUSDC.call{value: 0}(
+        (, bytes memory returnData) = StargateUSDC.call{ value: 0 }(
             abi.encodeWithSignature(
                 "amountLPtoLD(uint256)", sellAmount
             )
@@ -206,7 +206,7 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = user.balance;
 
-        router.portal{value: value}(order, calls);
+        router.portal{ value: value }(order, calls);
 
         uint256 finalBalance = user.balance;
 
@@ -284,7 +284,7 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portal{value: value}(order, calls);
+        router.portal{ value: value }(order, calls);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -356,7 +356,7 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portalWithPermit{value: value}(
+        router.portalWithPermit{ value: value }(
             order, calls, permitPayload
         );
 

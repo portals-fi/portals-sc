@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import { PortalsMulticall } from
-    "../src/portals/router/PortalsMulticall.sol";
+    "../src/portals/multicall/PortalsMulticall.sol";
 import { PortalsRouter } from
     "../src/portals/router/PortalsRouter.sol";
 

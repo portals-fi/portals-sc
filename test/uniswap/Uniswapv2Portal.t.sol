@@ -11,13 +11,13 @@ import "forge-std/Test.sol";
 import { PortalsRouter } from
     "../../src/portals/router/PortalsRouter.sol";
 import { PortalsMulticall } from
-    "../../src/portals/router/PortalsMulticall.sol";
+    "../../src/portals/multicall/PortalsMulticall.sol";
 import { UniswapV2Portal } from
     "../../src/uniswap/UniswapV2Portal.sol";
 import { IPortalsRouter } from
     "../../src/portals/router/interface/IPortalsRouter.sol";
 import { IPortalsMulticall } from
-    "../../src/portals/router/interface/IPortalsMulticall.sol";
+    "../../src/portals/multicall/interface/IPortalsMulticall.sol";
 
 import { Quote } from "../utils/Quote/Quote.sol";
 import { IQuote } from "../utils/Quote/interface/IQuote.sol";

@@ -8,7 +8,8 @@
 pragma solidity 0.8.17;
 
 import { IPortalsRouter } from "./interface/IPortalsRouter.sol";
-import { IPortalsMulticall } from "./interface/IPortalsMulticall.sol";
+import { IPortalsMulticall } from
+    "../multicall/interface/IPortalsMulticall.sol";
 import { RouterBase } from "./RouterBase.sol";
 
 contract PortalsRouter is RouterBase {
@@ -103,7 +104,7 @@ contract PortalsRouter is RouterBase {
     ) private returns (uint256 buyAmount) {
         buyAmount = _getBalance(order.recipient, order.buyToken);
 
-        PORTALS_MULTICALL.aggregate{value: value}(calls);
+        PORTALS_MULTICALL.aggregate{ value: value }(calls);
 
         buyAmount =
             _getBalance(order.recipient, order.buyToken) - buyAmount;
