@@ -14,10 +14,8 @@ import { ERC20 } from "solmate/tokens/ERC20.sol";
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 import { Owned } from "solmate/auth/Owned.sol";
 import { Babylonian } from "./interface/Babylonian.sol";
-import { IUniswapV2Factory } from "./interface/IUniswapV2Factory.sol";
 import { IUniswapV2Router02 } from "./interface/IUniswapV2Router.sol";
 import { IUniswapV2Pair } from "./interface/IUniswapV2Pair.sol";
-import { IWETH } from "./interface/IWETH.sol";
 
 contract UniswapV2Portal is Owned {
     using SafeTransferLib for address;
@@ -43,6 +41,7 @@ contract UniswapV2Portal is Owned {
     /// @param sellAmount The quantity of sellToken to Portal in
     /// @param buyToken The pool (i.e. pair) address
     /// @param router The Uniswap V2-like router to be used for adding liquidity
+    /// @param recipient The recipient of the liquidity tokens
     function portalIn(
         address sellToken,
         uint256 sellAmount,
@@ -79,7 +78,7 @@ contract UniswapV2Portal is Owned {
 
         if (sellToken == token0) {
             uint256 swapAmount = _getSwapAmount(res0, sellAmount);
-            if (swapAmount <= 0) swapAmount = sellAmount / 2;
+            if (swapAmount == 0) swapAmount = sellAmount / 2;
 
             token1Amount =
                 _intraSwap(sellToken, swapAmount, token1, router);
@@ -87,7 +86,7 @@ contract UniswapV2Portal is Owned {
             token0Amount = sellAmount - swapAmount;
         } else {
             uint256 swapAmount = _getSwapAmount(res1, sellAmount);
-            if (swapAmount <= 0) swapAmount = sellAmount / 2;
+            if (swapAmount == 0) swapAmount = sellAmount / 2;
 
             token0Amount =
                 _intraSwap(sellToken, swapAmount, token0, router);
@@ -106,7 +105,7 @@ contract UniswapV2Portal is Owned {
             0,
             0,
             recipient,
-            block.timestamp
+            0xf000000000000000000000000000000000000000000000000000000000000000
         );
     }
 
@@ -152,13 +151,19 @@ contract UniswapV2Portal is Owned {
         path[0] = sellToken;
         path[1] = buyToken;
 
-        uint256 beforeSwap = _getBalance(address(this), buyToken);
+        ERC20 _buyToken = ERC20(buyToken);
+
+        uint256 beforeSwap = _buyToken.balanceOf(address(this));
 
         router.swapExactTokensForTokens(
-            sellAmount, 1, path, address(this), block.timestamp
+            sellAmount,
+            0,
+            path,
+            address(this),
+            0xf000000000000000000000000000000000000000000000000000000000000000
         );
 
-        return _getBalance(address(this), buyToken) - beforeSwap;
+        return _buyToken.balanceOf(address(this)) - beforeSwap;
     }
 
     /// @notice Transfers tokens or the network token from the caller to this contract
@@ -191,22 +196,6 @@ contract UniswapV2Portal is Owned {
         );
 
         return quantity;
-    }
-
-    /// @notice Get the token or network token balance of an account
-    /// @param account The owner of the tokens or network tokens whose balance is being queried
-    /// @param token The address of the token (address(0) if network token)
-    /// @return The owner's token or network token balance
-    function _getBalance(address account, address token)
-        internal
-        view
-        returns (uint256)
-    {
-        if (token == address(0)) {
-            return account.balance;
-        } else {
-            return ERC20(token).balanceOf(account);
-        }
     }
 
     /// @notice Approve a token for spending with infinite allowance
