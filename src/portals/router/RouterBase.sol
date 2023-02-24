@@ -102,7 +102,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     bytes32 public immutable DOMAIN_SEPARATOR;
 
     //Order nonces
-    mapping(address => uint256) public nonces;
+    mapping(address => uint32) public nonces;
 
     //Permit Typehash
     bytes32 internal constant PERMIT_TYPEHASH =
@@ -253,7 +253,9 @@ abstract contract RouterBase is IRouterBase, Owned {
                 orderHash,
                 signedOrder.sender,
                 signedOrder.deadline,
-                nonces[signedOrder.sender]++
+                nonces[signedOrder.sender]++,
+                signedOrder.broadcaster,
+                signedOrder.gasFee
             )
         );
 
