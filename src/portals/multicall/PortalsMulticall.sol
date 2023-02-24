@@ -3,8 +3,7 @@
 /// @author Portals.fi
 /// @notice This contract bundles multiple methods into a single transaction.
 /// @notice Do not grant approvals to this contract unless they are completely
-/// consumed or are revoked at the end of the
-/// transaction.
+/// consumed or are revoked at the end of the transaction.
 
 /// SPDX-License-Identifier: GPL-3.0
 
