@@ -21,6 +21,11 @@ interface IPortalsRouter {
         uint256 gasFee;
     }
 
+    struct SignedOrderPayload {
+        SignedOrder signedOrder;
+        bytes signature;
+    }
+
     struct PermitPayload {
         address owner;
         uint256 amount;

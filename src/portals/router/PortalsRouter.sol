@@ -2,7 +2,7 @@
 
 /// @author Portals.fi
 /// @notice This contract routes ERC20 and native tokens to the Portals Multicall contract to
-/// transform a sell token into a  minimum quantity of a buy token.
+/// transform a sell token into a minimum quantity of a buy token.
 
 /// SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.17;
@@ -57,12 +57,13 @@ contract PortalsRouter is RouterBase {
     }
 
     function portalWithSignature(
-        IPortalsRouter.SignedOrder calldata signedOrder,
-        bytes calldata signature,
+        IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         IPortalsMulticall.Call[] calldata calls
     ) external payable pausable returns (uint256 buyAmount) {
-        _verify(signedOrder, signature);
-        buyAmount = _transferGasFee( //Use buyAmount as temp variable to prevent stack too deep error
+        _verify(signedOrderPayload);
+        IPortalsRouter.SignedOrder calldata signedOrder =
+            signedOrderPayload.signedOrder;
+        uint256 quantity = _transferGasFee(
             signedOrder.sender,
             signedOrder.order.sellToken,
             signedOrder.order.sellAmount,
@@ -76,21 +77,22 @@ contract PortalsRouter is RouterBase {
             _transferFromSender(
                 signedOrder.sender,
                 signedOrder.order.sellToken,
-                buyAmount,
+                quantity,
                 signedOrder.order.fee
             )
         );
     }
 
     function portalWithSignatureAndPermit(
-        IPortalsRouter.SignedOrder calldata signedOrder,
-        bytes calldata signature,
+        IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         IPortalsMulticall.Call[] calldata calls,
         IPortalsRouter.PermitPayload calldata permitPayload
     ) external payable pausable returns (uint256 buyAmount) {
-        _verify(signedOrder, signature);
+        _verify(signedOrderPayload);
+        IPortalsRouter.SignedOrder calldata signedOrder =
+            signedOrderPayload.signedOrder;
         _permit(signedOrder.order.sellToken, permitPayload);
-        buyAmount = _transferGasFee( //Use buyAmount as temp variable to prevent stack too deep error
+        uint256 quantity = _transferGasFee(
             signedOrder.sender,
             signedOrder.order.sellToken,
             signedOrder.order.sellAmount,
@@ -104,7 +106,7 @@ contract PortalsRouter is RouterBase {
             _transferFromSender(
                 signedOrder.sender,
                 signedOrder.order.sellToken,
-                buyAmount,
+                quantity,
                 signedOrder.order.fee
             )
         );

@@ -128,13 +128,13 @@ abstract contract RouterBase is IRouterBase, Owned {
         );
     }
 
-    /// @notice Transfers tokens or the network token from the caller to the
+    /// @notice Transfers tokens or the network token from the sender to the
     /// Portals multicall contract after accounting for the fee
     /// @param sender The address of the owner of the tokens
     /// @param token The address of the token to transfer (address(0) if network
     /// token)
     /// @param quantity The quantity of tokens to transfer from the caller
-    /// @dev quantity must == 0 when token == address(0)
+    /// @dev quantity must == msg.value when token == address(0)
     /// @dev msg.value must == 0 when token != address(0)
     /// @param fee The fee in BPS
     /// @return value The quantity of network tokens to be transferred to the Portals
@@ -179,26 +179,23 @@ abstract contract RouterBase is IRouterBase, Owned {
         return 0;
     }
 
-    /// @notice Transfers the gasFee from the caller to the broadcaster in the `token` currency
+    /// @notice Transfers the gasFee from the sender to the broadcaster in the `token` currency
     /// @param sender is the address of the owner of the tokens
     /// @param token The address of the token to transfer
     /// @param quantity The quantity of tokens to transfer from the sender for gas
     /// @param broadcaster The address of the broadcaster
     /// @param gasFee The quantity of tokens to transfer to the broadcaster
-    /// @return quantity The quantity of tokens remaining after the transfer
+    /// @return remainder The quantity of tokens remaining after the transfer
     function _transferGasFee(
         address sender,
         address token,
         uint256 quantity,
         address broadcaster,
         uint256 gasFee
-    ) internal returns (uint256) {
+    ) internal returns (uint256 remainder) {
         if (gasFee == 0) return quantity;
-        uint256 gasFeeTransfer = quantity - gasFee;
-        ERC20(token).safeTransferFrom(
-            sender, broadcaster, gasFeeTransfer
-        );
-        return quantity - gasFeeTransfer;
+        ERC20(token).safeTransferFrom(sender, broadcaster, gasFee);
+        remainder = quantity - gasFee;
     }
 
     /// @notice Calculates the fee amount
@@ -230,9 +227,14 @@ abstract contract RouterBase is IRouterBase, Owned {
     }
 
     function _verify(
-        IPortalsRouter.SignedOrder memory signedOrder,
-        bytes memory signature
+        IPortalsRouter.SignedOrderPayload calldata signedOrderPayload
     ) internal {
+        IPortalsRouter.SignedOrder calldata signedOrder =
+            signedOrderPayload.signedOrder;
+        require(
+            signedOrderPayload.signedOrder.deadline >= block.timestamp,
+            "PortalsRouter: Order expired"
+        );
         bytes32 orderHash = keccak256(
             abi.encode(
                 ORDER_TYPEHASH,
@@ -263,7 +265,9 @@ abstract contract RouterBase is IRouterBase, Owned {
 
         require(
             SignatureChecker.isValidSignatureNow(
-                signedOrder.sender, digest, signature
+                signedOrder.sender,
+                digest,
+                signedOrderPayload.signature
             ),
             "PortalsRouter: Invalid signature"
         );
