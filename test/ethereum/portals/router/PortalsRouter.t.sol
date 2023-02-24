@@ -296,7 +296,7 @@ contract PortalsRouterTest is Test {
     function test_PortalInWithPermit_Stargate_SUSDC_From_USDC_With_USDC_Intermediate(
     ) public {
         address sellToken = USDC;
-        uint256 sellAmount = 5000 ether;
+        uint256 sellAmount = 5_000_000_000; // 5000 USDC
         uint256 value = 0;
 
         deal(address(sellToken), user, sellAmount);
@@ -370,7 +370,7 @@ contract PortalsRouterTest is Test {
     function test_PortalInWithSignature_Stargate_SUSDC_From_USDC_With_USDC_Intermediate(
     ) public {
         address sellToken = USDC;
-        uint256 sellAmount = 5000 ether;
+        uint256 sellAmount = 5_000_000_000; // 5000 USDC
         uint256 value = 0;
 
         deal(address(sellToken), user, sellAmount);
