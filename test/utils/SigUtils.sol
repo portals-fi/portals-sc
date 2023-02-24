@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
+import { IPortalsRouter } from
+    "../../src/portals/router/interface/IPortalsRouter.sol";
+
 contract SigUtils {
     bytes32 internal DOMAIN_SEPARATOR;
 
@@ -12,6 +15,20 @@ contract SigUtils {
     bytes32 public constant PERMIT_TYPEHASH =
         0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
 
+    //EIP712 Order Typehash
+    bytes32 public constant ORDER_TYPEHASH = keccak256(
+        abi.encodePacked(
+            "Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,uint256 fee,adress recipient,address partner)"
+        )
+    );
+
+    //EIP712 Signed Order Typehash
+    bytes32 public constant SIGNED_ORDER_TYPEHASH = keccak256(
+        abi.encodePacked(
+            "SignedOrder(Order order,address sender,uint256 deadline,uint32 nonce,address broadcaster,uint256 gasFee)Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,uint256 fee,adress recipient,address partner)"
+        )
+    );
+
     struct Permit {
         address owner;
         address spender;
@@ -21,7 +38,7 @@ contract SigUtils {
     }
 
     // computes the hash of a permit
-    function getStructHash(Permit memory _permit)
+    function getPermitStructHash(Permit memory _permit)
         internal
         pure
         returns (bytes32)
@@ -38,15 +55,57 @@ contract SigUtils {
         );
     }
 
+    function getSignedOrderStructHash(
+        IPortalsRouter.SignedOrder memory _signedOrder
+    ) internal pure returns (bytes32) {
+        bytes32 orderHash = keccak256(
+            abi.encode(
+                ORDER_TYPEHASH,
+                _signedOrder.order.sellToken,
+                _signedOrder.order.sellAmount,
+                _signedOrder.order.buyToken,
+                _signedOrder.order.minBuyAmount,
+                _signedOrder.order.fee,
+                _signedOrder.order.recipient,
+                _signedOrder.order.partner
+            )
+        );
+        return keccak256(
+            abi.encode(
+                SIGNED_ORDER_TYPEHASH,
+                orderHash,
+                _signedOrder.sender,
+                _signedOrder.deadline,
+                _signedOrder.nonce,
+                _signedOrder.broadcaster,
+                _signedOrder.gasFee
+            )
+        );
+    }
+
     // computes the hash of the fully encoded EIP-712 message for the domain, which can be used to recover the signer
-    function getTypedDataHash(Permit memory _permit)
+    function getPermitTypedDataHash(Permit memory _permit)
         public
         view
         returns (bytes32)
     {
         return keccak256(
             abi.encodePacked(
-                "\x19\x01", DOMAIN_SEPARATOR, getStructHash(_permit)
+                "\x19\x01",
+                DOMAIN_SEPARATOR,
+                getPermitStructHash(_permit)
+            )
+        );
+    }
+
+    function getSignedOrderTypedDataHash(
+        IPortalsRouter.SignedOrder memory _signedOrder
+    ) public view returns (bytes32) {
+        return keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                DOMAIN_SEPARATOR,
+                getSignedOrderStructHash(_signedOrder)
             )
         );
     }
