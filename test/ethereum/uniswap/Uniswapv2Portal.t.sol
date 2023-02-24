@@ -200,6 +200,7 @@ contract UniswapV2PortalTest is Test {
         changePrank(owner);
         assertTrue(!router.paused());
         router.pause();
+        assertTrue(router.paused());
     }
 
     function testFail_Portal_Reverts_When_Paused() public {

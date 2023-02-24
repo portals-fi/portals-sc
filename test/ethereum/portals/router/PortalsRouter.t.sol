@@ -26,10 +26,6 @@ import { ERC20 } from "solmate/tokens/ERC20.sol";
 contract PortalsRouterTest is Test {
     uint256 mainnetFork =
         vm.createSelectFork(vm.envString("MAINNET_RPC_URL"));
-    PortalsMulticall public multicall = new PortalsMulticall();
-    PortalsRouter public router =
-        new PortalsRouter(owner, 0, collector, address(multicall));
-    Quote public quote = new Quote();
 
     uint256 internal ownerPrivateKey = 0xDAD;
     uint256 internal userPrivateKey = 0xB0B;
@@ -54,6 +50,13 @@ contract PortalsRouterTest is Test {
         0x8731d54E9D02c286767d56ac03e8037C07e01e98;
     bytes32 internal USDC_DOMAIN_SEPARATOR =
         0x06c37168a7db5138defc7866392bb87a741f9b3d104deb5094588ce041cae335;
+
+    PortalsMulticall public multicall = new PortalsMulticall();
+
+    PortalsRouter public router =
+        new PortalsRouter(owner, 0, collector, address(multicall));
+
+    Quote public quote = new Quote();
 
     function setUp() public {
         startHoax(user);
@@ -443,6 +446,31 @@ contract PortalsRouterTest is Test {
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
+    }
+
+    function test_Pausable() public {
+        changePrank(owner);
+        assertTrue(!router.paused());
+        router.pause();
+        assertTrue(router.paused());
+    }
+
+    function testFail_Portal_Reverts_When_Paused() public {
+        changePrank(owner);
+        assertTrue(!router.paused());
+        router.pause();
+        assertTrue(router.paused());
+        test_PortalIn_Stargate_SUSDC_From_ETH_With_USDC_Intermediate();
+        test_PortalInWithPermit_Stargate_SUSDC_From_USDC_With_USDC_Intermediate(
+        );
+        test_PortalInWithSignature_Stargate_SUSDC_From_USDC_With_USDC_Intermediate(
+        );
+    }
+
+    function testFail_Pausable_by_Admin_Only() public {
+        changePrank(adversary);
+        assertTrue(!router.paused());
+        router.pause();
     }
 
     function createPermitPayload(
