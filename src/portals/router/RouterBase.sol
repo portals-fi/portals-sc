@@ -134,7 +134,6 @@ abstract contract RouterBase is IRouterBase, Owned {
     /// @param token The address of the token to transfer (address(0) if network
     /// token)
     /// @param quantity The quantity of tokens to transfer from the caller
-    /// @dev quantity must == msg.value when token == address(0)
     /// @dev msg.value must == 0 when token != address(0)
     /// @param fee The fee in BPS
     /// @return value The quantity of network tokens to be transferred to the Portals
@@ -146,13 +145,10 @@ abstract contract RouterBase is IRouterBase, Owned {
         uint256 fee
     ) internal returns (uint256) {
         require(
-            fee >= baseFee && fee <= 100, "PortalsRouter: Invalid fee"
+            fee >= baseFee && fee < 101, "PortalsRouter: Invalid fee"
         );
         if (token == address(0)) {
-            require(
-                quantity == msg.value && msg.value > 0,
-                "Invalid quantity or msg.value"
-            );
+            require(msg.value > 0, "PortalsRouter: Invalid msg.value");
             if (fee == 0) return msg.value;
             uint256 ethAmount = _getFeeAmount(msg.value, fee);
             collector.safeTransferETH(ethAmount);
@@ -160,7 +156,7 @@ abstract contract RouterBase is IRouterBase, Owned {
         }
 
         require(
-            quantity > 0 && msg.value == 0,
+            msg.value == 0 && quantity > 0,
             "PortalsRouter: Invalid quantity or msg.value"
         );
         if (fee == 0) {
@@ -170,9 +166,10 @@ abstract contract RouterBase is IRouterBase, Owned {
             return 0;
         }
 
+        ERC20 _token = ERC20(token);
         uint256 tokenAmount = _getFeeAmount(quantity, fee);
-        ERC20(token).safeTransferFrom(sender, collector, tokenAmount);
-        ERC20(token).safeTransferFrom(
+        _token.safeTransferFrom(sender, collector, tokenAmount);
+        _token.safeTransferFrom(
             sender, address(PORTALS_MULTICALL), quantity - tokenAmount
         );
 
