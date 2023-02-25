@@ -43,6 +43,7 @@ contract PortalsRouterTest is Test {
 
     address internal USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address internal DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address internal WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address internal ETH = address(0);
     address internal StargateUSDC =
         0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56;
@@ -419,6 +420,93 @@ contract PortalsRouterTest is Test {
             1
         );
         calls[1] = IPortalsMulticall.Call(
+            intermediateToken,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
+            createSignedOrderPayload(order, router.DOMAIN_SEPARATOR());
+
+        ERC20(sellToken).approve(address(router), sellAmount);
+
+        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+
+        changePrank(broadcaster);
+
+        router.portalWithSignature{ value: value }(
+            signedOrderPayload, calls
+        );
+
+        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
+
+        assertTrue(finalBalance > initialBalance);
+    }
+
+    function test_PortalInWithSignature_Stargate_SUSDC_From_WETH_With_USDC_Intermediate(
+    ) public {
+        address sellToken = WETH;
+        uint256 sellAmount = 5 ether;
+        uint256 value = 0;
+
+        deal(address(sellToken), user, sellAmount);
+        assertEq(ERC20(sellToken).balanceOf(user), sellAmount);
+
+        address intermediateToken = USDC;
+
+        address buyToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 4;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            sellToken: sellToken,
+            sellAmount: sellAmount,
+            buyToken: buyToken,
+            minBuyAmount: 1,
+            fee: 0,
+            recipient: user,
+            partner: partner
+        });
+
+        address target;
+        bytes memory data;
+        if (sellToken != intermediateToken) {
+            IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+                sellToken, sellAmount, intermediateToken, "0.03"
+            );
+
+            (target, data) = quote.quote(quoteParams);
+        }
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            sellToken,
+            sellToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", target, 0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(sellToken, target, data, 1);
+        calls[2] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[3] = IPortalsMulticall.Call(
             intermediateToken,
             StargateRouter,
             abi.encodeWithSignature(
