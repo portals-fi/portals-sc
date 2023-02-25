@@ -23,7 +23,7 @@ contract PortalsRouter is RouterBase {
     function portal(
         IPortalsRouter.Order calldata order,
         IPortalsMulticall.Call[] calldata calls
-    ) external payable pausable returns (uint256 buyAmount) {
+    ) public payable pausable returns (uint256 buyAmount) {
         return _execute(
             msg.sender,
             order,
@@ -43,23 +43,13 @@ contract PortalsRouter is RouterBase {
         IPortalsRouter.PermitPayload calldata permitPayload
     ) external payable pausable returns (uint256 buyAmount) {
         _permit(order.sellToken, permitPayload);
-        return _execute(
-            msg.sender,
-            order,
-            calls,
-            _transferFromSender(
-                msg.sender,
-                order.sellToken,
-                order.sellAmount,
-                order.fee
-            )
-        );
+        return portal(order, calls);
     }
 
     function portalWithSignature(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         IPortalsMulticall.Call[] calldata calls
-    ) external payable pausable returns (uint256 buyAmount) {
+    ) public payable pausable returns (uint256 buyAmount) {
         _verify(signedOrderPayload);
         IPortalsRouter.SignedOrder calldata signedOrder =
             signedOrderPayload.signedOrder;
@@ -88,28 +78,12 @@ contract PortalsRouter is RouterBase {
         IPortalsMulticall.Call[] calldata calls,
         IPortalsRouter.PermitPayload calldata permitPayload
     ) external payable pausable returns (uint256 buyAmount) {
-        _verify(signedOrderPayload);
-        IPortalsRouter.SignedOrder calldata signedOrder =
-            signedOrderPayload.signedOrder;
-        _permit(signedOrder.order.sellToken, permitPayload);
-        uint256 quantity = _transferGasFee(
-            signedOrder.sender,
-            signedOrder.order.sellToken,
-            signedOrder.order.sellAmount,
-            signedOrder.broadcaster,
-            signedOrder.gasFee
+        _permit(
+            signedOrderPayload.signedOrder.order.sellToken,
+            permitPayload
         );
-        buyAmount = _execute(
-            signedOrder.sender,
-            signedOrder.order,
-            calls,
-            _transferFromSender(
-                signedOrder.sender,
-                signedOrder.order.sellToken,
-                quantity,
-                signedOrder.order.fee
-            )
-        );
+
+        return portalWithSignature(signedOrderPayload, calls);
     }
 
     function _execute(
