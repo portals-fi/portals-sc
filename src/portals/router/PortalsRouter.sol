@@ -41,7 +41,7 @@ contract PortalsRouter is RouterBase {
         IPortalsRouter.Order calldata order,
         IPortalsMulticall.Call[] calldata calls,
         IPortalsRouter.PermitPayload calldata permitPayload
-    ) external payable pausable returns (uint256 buyAmount) {
+    ) external pausable returns (uint256 buyAmount) {
         _permit(order.sellToken, permitPayload);
         return portal(order, calls);
     }
@@ -49,7 +49,7 @@ contract PortalsRouter is RouterBase {
     function portalWithSignature(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         IPortalsMulticall.Call[] calldata calls
-    ) public payable pausable returns (uint256 buyAmount) {
+    ) public pausable returns (uint256 buyAmount) {
         _verify(signedOrderPayload);
         IPortalsRouter.SignedOrder calldata signedOrder =
             signedOrderPayload.signedOrder;
@@ -77,7 +77,7 @@ contract PortalsRouter is RouterBase {
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         IPortalsMulticall.Call[] calldata calls,
         IPortalsRouter.PermitPayload calldata permitPayload
-    ) external payable pausable returns (uint256 buyAmount) {
+    ) external pausable returns (uint256 buyAmount) {
         _permit(
             signedOrderPayload.signedOrder.order.sellToken,
             permitPayload
