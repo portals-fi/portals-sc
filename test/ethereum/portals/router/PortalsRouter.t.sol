@@ -51,6 +51,8 @@ contract PortalsRouterTest is Test {
         0x8731d54E9D02c286767d56ac03e8037C07e01e98;
     bytes32 internal USDC_DOMAIN_SEPARATOR =
         0x06c37168a7db5138defc7866392bb87a741f9b3d104deb5094588ce041cae335;
+    bytes32 internal DAI_DOMAIN_SEPARATOR =
+        0xdbb8cf42e1ecb028be3f3dbc922e1d878b963f411dc388ced501601c60f7c6f7;
 
     PortalsMulticall public multicall = new PortalsMulticall();
 
@@ -298,10 +300,10 @@ contract PortalsRouterTest is Test {
     }
 
     function test_PortalInWithPermit_Stargate_SUSDC_From_USDC_With_USDC_Intermediate(
+        uint32 sellAmount
     ) public {
         address sellToken = USDC;
-        uint256 sellAmount = 5_000_000_000; // 5000 USDC
-        uint256 value = 0;
+        vm.assume(sellAmount > 1); //uint32 limits USDC to 4.29K
 
         deal(address(sellToken), user, sellAmount);
         assertEq(ERC20(sellToken).balanceOf(user), sellAmount);
@@ -323,16 +325,6 @@ contract PortalsRouterTest is Test {
             recipient: user,
             partner: partner
         });
-
-        address target;
-        bytes memory data;
-        if (sellToken != intermediateToken) {
-            IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
-                sellToken, sellAmount, intermediateToken, "0.03"
-            );
-
-            (target, data) = quote.quote(quoteParams);
-        }
 
         IPortalsMulticall.Call[] memory calls =
             new IPortalsMulticall.Call[](numCalls);
@@ -358,13 +350,95 @@ contract PortalsRouterTest is Test {
         );
 
         IPortalsRouter.PermitPayload memory permitPayload =
-        createPermitPayload(sellToken, true, USDC_DOMAIN_SEPARATOR);
+        createPermitPayload(
+            sellToken, true, false, USDC_DOMAIN_SEPARATOR
+        );
 
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portalWithPermit{ value: value }(
-            order, calls, permitPayload
+        router.portalWithPermit(order, calls, permitPayload);
+
+        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
+
+        assertTrue(finalBalance > initialBalance);
+    }
+
+    function test_PortalInWithPermit_Stargate_SUSDC_From_DAI_With_USDC_Intermediate(
+    ) public {
+        address sellToken = DAI;
+        uint256 sellAmount = 5000 ether;
+
+        deal(address(sellToken), user, sellAmount);
+        assertEq(ERC20(sellToken).balanceOf(user), sellAmount);
+
+        address intermediateToken = USDC;
+
+        address buyToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 4;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            sellToken: sellToken,
+            sellAmount: sellAmount,
+            buyToken: buyToken,
+            minBuyAmount: 1,
+            fee: 0,
+            recipient: user,
+            partner: partner
+        });
+
+        address target;
+        bytes memory data;
+        if (sellToken != intermediateToken) {
+            IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+                sellToken, sellAmount, intermediateToken, "0.03"
+            );
+
+            (target, data) = quote.quote(quoteParams);
+        }
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            sellToken,
+            sellToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", target, 0
+            ),
+            1
         );
+        calls[1] = IPortalsMulticall.Call(sellToken, target, data, 1);
+        calls[2] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[3] = IPortalsMulticall.Call(
+            intermediateToken,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        IPortalsRouter.PermitPayload memory permitPayload =
+        createPermitPayload(
+            sellToken, true, true, DAI_DOMAIN_SEPARATOR
+        );
+
+        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+
+        router.portalWithPermit(order, calls, permitPayload);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -375,7 +449,6 @@ contract PortalsRouterTest is Test {
     ) public {
         address sellToken = USDC;
         uint256 sellAmount = 5_000_000_000; // 5000 USDC
-        uint256 value = 0;
 
         deal(address(sellToken), user, sellAmount);
         assertEq(ERC20(sellToken).balanceOf(user), sellAmount);
@@ -440,9 +513,7 @@ contract PortalsRouterTest is Test {
 
         changePrank(broadcaster);
 
-        router.portalWithSignature{ value: value }(
-            signedOrderPayload, calls
-        );
+        router.portalWithSignature(signedOrderPayload, calls);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -453,7 +524,6 @@ contract PortalsRouterTest is Test {
     ) public {
         address sellToken = WETH;
         uint256 sellAmount = 5 ether;
-        uint256 value = 0;
 
         deal(address(sellToken), user, sellAmount);
         assertEq(ERC20(sellToken).balanceOf(user), sellAmount);
@@ -527,9 +597,7 @@ contract PortalsRouterTest is Test {
 
         changePrank(broadcaster);
 
-        router.portalWithSignature{ value: value }(
-            signedOrderPayload, calls
-        );
+        router.portalWithSignature(signedOrderPayload, calls);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -550,6 +618,7 @@ contract PortalsRouterTest is Test {
         assertTrue(router.paused());
         test_PortalIn_Stargate_SUSDC_From_ETH_With_USDC_Intermediate();
         test_PortalInWithPermit_Stargate_SUSDC_From_USDC_With_USDC_Intermediate(
+            4_000_000_000
         );
         test_PortalInWithSignature_Stargate_SUSDC_From_USDC_With_USDC_Intermediate(
         );
@@ -564,6 +633,7 @@ contract PortalsRouterTest is Test {
     function createPermitPayload(
         address sellToken,
         bool splitSignature,
+        bool daiPermit,
         bytes32 domainSeparator
     )
         public
@@ -571,16 +641,27 @@ contract PortalsRouterTest is Test {
     {
         SigUtils sigUtils = new SigUtils(domainSeparator);
 
-        SigUtils.Permit memory permit = SigUtils.Permit({
-            owner: user,
-            spender: address(router),
-            value: type(uint256).max,
-            nonce: ERC20(sellToken).nonces(user),
-            deadline: type(uint256).max
-        });
+        bytes32 digest;
+        if (daiPermit) {
+            SigUtils.DaiPermit memory _daiPermit = SigUtils.DaiPermit({
+                holder: user,
+                spender: address(router),
+                nonce: ERC20(sellToken).nonces(user),
+                expiry: type(uint256).max,
+                allowed: true
+            });
+            digest = sigUtils.getDaiPermitTypedDataHash(_daiPermit);
+        } else {
+            SigUtils.Permit memory permit = SigUtils.Permit({
+                owner: user,
+                spender: address(router),
+                value: type(uint256).max,
+                nonce: ERC20(sellToken).nonces(user),
+                deadline: type(uint256).max
+            });
 
-        bytes32 digest = sigUtils.getPermitTypedDataHash(permit);
-
+            digest = sigUtils.getPermitTypedDataHash(permit);
+        }
         (uint8 v, bytes32 r, bytes32 s) =
             vm.sign(userPrivateKey, digest);
 
@@ -589,7 +670,8 @@ contract PortalsRouterTest is Test {
             amount: type(uint256).max,
             deadline: type(uint256).max,
             signature: abi.encodePacked(r, s, v),
-            splitSignature: splitSignature
+            splitSignature: splitSignature,
+            daiPermit: daiPermit
         });
     }
 
@@ -611,7 +693,7 @@ contract PortalsRouterTest is Test {
             deadline: type(uint32).max,
             nonce: router.nonces(user),
             broadcaster: broadcaster,
-            gasFee: 100
+            gasFee: 0
         });
 
         bytes32 digest =
