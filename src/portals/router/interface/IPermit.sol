@@ -5,8 +5,7 @@ pragma solidity ^0.8.17;
 //@param spender The address which is allowed to spend the funds.
 //@param value The quantity of tokens to be spent.
 //@param deadline The timestamp after which the Permit is no longer valid.
-//@param signature A valid secp256k1 signature of Permit by owner encoded as r,
-// s, v.
+//@param signature A valid secp256k1 signature of Permit by owner
 interface IPermit {
     function permit(
         address owner,
@@ -33,4 +32,22 @@ interface IPermit {
         uint256 expiry,
         bytes calldata signature
     ) external returns (bool);
+
+    //@param holder The address which is a source of funds and has signed the
+    // Permit.
+    //@param spender The address which is allowed to spend the funds.
+    //@param nonce The nonce of the spender
+    //@param expiry The timestamp after which the Permit is no longer valid.
+    //@param allowed Determines if the spender is allowed to spend the funds.
+    //@param signature A valid secp256k1 signature of Permit by owner
+    function permit(
+        address holder,
+        address spender,
+        uint256 nonce,
+        uint256 expiry,
+        bool allowed,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external;
 }

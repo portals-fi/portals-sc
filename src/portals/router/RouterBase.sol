@@ -22,35 +22,6 @@ abstract contract RouterBase is IRouterBase, Owned {
     using SafeTransferLib for address;
     using SafeTransferLib for ERC20;
 
-    /// Thrown when insufficient liquidity is received after deposit or
-    /// withdrawal
-    /// @param buyAmount The amount of liquidity received
-    /// @param minBuyAmount The minimum acceptable quantity of liquidity
-    /// received
-    error InsufficientBuy(uint256 buyAmount, uint256 minBuyAmount);
-
-    /// @notice Emitted when portalling
-    /// @param sellToken The ERC20 token address to spend (address(0) if network
-    /// token)
-    /// @param sellAmount The quantity of sellToken to Portal out
-    /// @param buyToken The ERC20 token address to buy (address(0) if network
-    /// token)
-    /// @param buyAmount The quantity of buyToken received
-    /// @param fee The fee in BPS
-    /// @param sender The  msg.sender
-    /// @param partner The front end operator address
-    event Portal(
-        address sellToken,
-        uint256 sellAmount,
-        address buyToken,
-        uint256 buyAmount,
-        uint256 baseFee,
-        uint256 fee,
-        address indexed sender,
-        address indexed recipient,
-        address indexed partner
-    );
-
     // The Portals Multicall contract
     IPortalsMulticall public immutable PORTALS_MULTICALL;
 
@@ -102,11 +73,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     bytes32 public immutable DOMAIN_SEPARATOR;
 
     //Order nonces
-    mapping(address => uint32) public nonces;
-
-    //Permit Typehash
-    bytes32 internal constant PERMIT_TYPEHASH =
-        0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+    mapping(address => uint64) public nonces;
 
     constructor(
         address _admin,
@@ -229,7 +196,7 @@ abstract contract RouterBase is IRouterBase, Owned {
         IPortalsRouter.SignedOrder calldata signedOrder =
             signedOrderPayload.signedOrder;
         require(
-            signedOrderPayload.signedOrder.deadline >= block.timestamp,
+            signedOrder.deadline >= block.timestamp,
             "PortalsRouter: Order expired"
         );
         bytes32 orderHash = keccak256(
@@ -286,15 +253,28 @@ abstract contract RouterBase is IRouterBase, Owned {
                 s := mload(add(signature, 0x40))
                 v := byte(0, mload(add(signature, 0x60)))
             }
-            IPermit(token).permit(
-                permitPayload.owner,
-                address(this),
-                permitPayload.amount,
-                permitPayload.deadline,
-                v,
-                r,
-                s
-            );
+            if (permitPayload.daiPermit) {
+                IPermit(token).permit(
+                    permitPayload.owner,
+                    address(this),
+                    ERC20(token).nonces(permitPayload.owner),
+                    permitPayload.deadline,
+                    true,
+                    v,
+                    r,
+                    s
+                );
+            } else {
+                IPermit(token).permit(
+                    permitPayload.owner,
+                    address(this),
+                    permitPayload.amount,
+                    permitPayload.deadline,
+                    v,
+                    r,
+                    s
+                );
+            }
         } else {
             IPermit(token).permit(
                 permitPayload.owner,
@@ -318,5 +298,25 @@ abstract contract RouterBase is IRouterBase, Owned {
         require(_fee <= 100, "Invalid Fee");
         baseFee = _fee;
         emit Fee(_fee);
+    }
+
+    /// @notice Invalidates the next order of msg.sender
+    /// @notice Orders that have already been confirmed are not invalidated
+
+    function invalidateNextOrder() external {
+        nonces[msg.sender] = nonces[msg.sender] + 1;
+    }
+
+    /// @notice Recovers stuck tokens
+    /// @param tokenAddress The address of the token to recover (address(0) if ETH)
+    /// @param tokenAmount The quantity of tokens to recover
+    function recoverToken(address tokenAddress, uint256 tokenAmount)
+        external
+    {
+        if (tokenAddress == address(0)) {
+            collector.safeTransferETH(tokenAmount);
+        } else {
+            ERC20(tokenAddress).safeTransfer(collector, tokenAmount);
+        }
     }
 }

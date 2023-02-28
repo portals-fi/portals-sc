@@ -15,8 +15,8 @@ interface IPortalsRouter {
     struct SignedOrder {
         Order order;
         address sender;
-        uint32 deadline;
-        uint32 nonce;
+        uint64 deadline;
+        uint64 nonce;
         address broadcaster;
         uint256 gasFee;
     }
@@ -32,5 +32,6 @@ interface IPortalsRouter {
         uint256 deadline;
         bytes signature;
         bool splitSignature;
+        bool daiPermit;
     }
 }
