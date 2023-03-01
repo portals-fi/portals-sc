@@ -520,6 +520,86 @@ contract PortalsRouterTest is Test {
         assertTrue(finalBalance > initialBalance);
     }
 
+    function test_PortalInWithSignatureAndPermit_Stargate_SUSDC_From_USDC_With_USDC_Intermediate(
+    ) public {
+        address sellToken = USDC;
+        uint256 sellAmount = 5_000_000_000; // 5000 USDC
+
+        deal(address(sellToken), user, sellAmount);
+        assertEq(ERC20(sellToken).balanceOf(user), sellAmount);
+
+        address intermediateToken = USDC;
+
+        address buyToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 2;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            sellToken: sellToken,
+            sellAmount: sellAmount,
+            buyToken: buyToken,
+            minBuyAmount: 1,
+            fee: 0,
+            recipient: user,
+            partner: partner
+        });
+
+        address target;
+        bytes memory data;
+        if (sellToken != intermediateToken) {
+            IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+                sellToken, sellAmount, intermediateToken, "0.03"
+            );
+
+            (target, data) = quote.quote(quoteParams);
+        }
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(
+            intermediateToken,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
+            createSignedOrderPayload(order, router.DOMAIN_SEPARATOR());
+
+        IPortalsRouter.PermitPayload memory permitPayload =
+        createPermitPayload(
+            sellToken, true, false, USDC_DOMAIN_SEPARATOR
+        );
+
+        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+
+        changePrank(broadcaster);
+
+        router.portalWithSignatureAndPermit(
+            signedOrderPayload, calls, permitPayload
+        );
+
+        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
+
+        assertTrue(finalBalance > initialBalance);
+    }
+
     function test_PortalInWithSignature_Stargate_SUSDC_From_WETH_With_USDC_Intermediate(
     ) public {
         address sellToken = WETH;
@@ -693,7 +773,7 @@ contract PortalsRouterTest is Test {
             deadline: type(uint32).max,
             nonce: router.nonces(user),
             broadcaster: broadcaster,
-            gasFee: 0
+            gasFee: 100
         });
 
         bytes32 digest =
