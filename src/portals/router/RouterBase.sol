@@ -300,6 +300,17 @@ abstract contract RouterBase is IRouterBase, Owned {
         emit Fee(_fee);
     }
 
+    /// @notice Updates the collector
+    /// @param _collector The new collector
+    function setCollector(address _collector) external onlyOwner {
+        require(
+            _collector != address(0),
+            "PortalsRouter: Invalid collector"
+        );
+        collector = _collector;
+        emit Collector(_collector);
+    }
+
     /// @notice Invalidates the next order of msg.sender
     /// @notice Orders that have already been confirmed are not invalidated
 

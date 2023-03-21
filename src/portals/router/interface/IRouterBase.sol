@@ -30,8 +30,12 @@ interface IRouterBase {
     );
 
     /// @notice Emitted when the fee is changed
-    /// @param fee The old new in BPS
+    /// @param fee The new fee in BPS
     event Fee(uint256 fee);
+
+    /// @notice Emitted when the collector is changed
+    /// @param collector The new collector
+    event Collector(address collector);
 
     /// @notice Emitted when/if the router is paused
     /// @param paused The active status of this contract. If false, contract is
