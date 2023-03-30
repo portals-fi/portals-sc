@@ -14,7 +14,8 @@ interface IRouterBase {
     /// @param buyToken The ERC20 token address to buy (address(0) if network
     /// token)
     /// @param buyAmount The quantity of buyToken received
-    /// @param fee The fee in BPS
+    /// @param baseFee The base fee of a portal in BPS
+    /// @param fee The total fee in BPS
     /// @param sender The  msg.sender
     /// @param partner The front end operator address
     event Portal(
@@ -36,6 +37,10 @@ interface IRouterBase {
     /// @notice Emitted when the collector is changed
     /// @param collector The new collector
     event Collector(address collector);
+
+    /// @notice Emitted when the Portals multicall is changed
+    /// @param multicall The new multicall contract
+    event Multicall(address multicall);
 
     /// @notice Emitted when/if the router is paused
     /// @param paused The active status of this contract. If false, contract is

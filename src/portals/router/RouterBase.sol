@@ -23,7 +23,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     using SafeTransferLib for ERC20;
 
     // The Portals Multicall contract
-    IPortalsMulticall public immutable PORTALS_MULTICALL;
+    IPortalsMulticall public Portals_Multicall;
 
     // Active status of this contract. If false, contract is active (i.e
     // un-paused)
@@ -83,7 +83,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     ) Owned(_admin) {
         collector = _collector;
         baseFee = _baseFee;
-        PORTALS_MULTICALL = IPortalsMulticall(_multicall);
+        Portals_Multicall = IPortalsMulticall(_multicall);
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 EIP712_DOMAIN_TYPEHASH,
@@ -128,7 +128,7 @@ abstract contract RouterBase is IRouterBase, Owned {
         );
         if (fee == 0) {
             ERC20(token).safeTransferFrom(
-                sender, address(PORTALS_MULTICALL), quantity
+                sender, address(Portals_Multicall), quantity
             );
             return 0;
         }
@@ -137,7 +137,7 @@ abstract contract RouterBase is IRouterBase, Owned {
         uint256 tokenAmount = _getFeeAmount(quantity, fee);
         _token.safeTransferFrom(sender, collector, tokenAmount);
         _token.safeTransferFrom(
-            sender, address(PORTALS_MULTICALL), quantity - tokenAmount
+            sender, address(Portals_Multicall), quantity - tokenAmount
         );
 
         return 0;
@@ -309,6 +309,15 @@ abstract contract RouterBase is IRouterBase, Owned {
         );
         collector = _collector;
         emit Collector(_collector);
+    }
+
+    function setMulticall(address multicall) external onlyOwner {
+        require(
+            multicall != address(0),
+            "PortalsRouter: Invalid multicall"
+        );
+        Portals_Multicall = IPortalsMulticall(multicall);
+        emit Multicall(multicall);
     }
 
     /// @notice Invalidates the next order of msg.sender

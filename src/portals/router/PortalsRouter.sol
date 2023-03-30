@@ -94,7 +94,7 @@ contract PortalsRouter is RouterBase {
     ) private returns (uint256 buyAmount) {
         buyAmount = _getBalance(order.recipient, order.buyToken);
 
-        PORTALS_MULTICALL.aggregate{ value: value }(calls);
+        Portals_Multicall.aggregate{ value: value }(calls);
 
         buyAmount =
             _getBalance(order.recipient, order.buyToken) - buyAmount;
