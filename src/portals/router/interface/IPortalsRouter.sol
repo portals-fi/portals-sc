@@ -7,6 +7,7 @@ interface IPortalsRouter {
         uint256 sellAmount;
         address buyToken;
         uint256 minBuyAmount;
+        address feeToken;
         uint256 fee;
         address recipient;
         address partner;
@@ -17,8 +18,6 @@ interface IPortalsRouter {
         address sender;
         uint64 deadline;
         uint64 nonce;
-        address broadcaster;
-        uint256 gasFee;
     }
 
     struct SignedOrderPayload {

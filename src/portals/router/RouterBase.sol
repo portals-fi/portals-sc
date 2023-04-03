@@ -29,9 +29,6 @@ abstract contract RouterBase is IRouterBase, Owned {
     // un-paused)
     bool public paused;
 
-    // The minimum fee in basis points (bps)
-    uint256 public baseFee;
-
     // The address of the fee collector
     address public collector;
 
@@ -58,14 +55,14 @@ abstract contract RouterBase is IRouterBase, Owned {
     //EIP712 Order Typehash
     bytes32 internal constant ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,uint256 fee,adress recipient,address partner)"
+            "Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,address feeToken,uint256 fee,adress recipient,address partner)"
         )
     );
 
     //EIP712 Signed Order Typehash
     bytes32 internal constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "SignedOrder(Order order,address sender,uint256 deadline,uint32 nonce,address broadcaster,uint256 gasFee)Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,uint256 fee,adress recipient,address partner)"
+            "SignedOrder(Order order,address sender,uint256 deadline,uint32 nonce)Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,address feeToken,uint256 fee,adress recipient,address partner)"
         )
     );
 
@@ -77,12 +74,10 @@ abstract contract RouterBase is IRouterBase, Owned {
 
     constructor(
         address _admin,
-        uint256 _baseFee,
         address _collector,
         address _multicall
     ) Owned(_admin) {
         collector = _collector;
-        baseFee = _baseFee;
         Portals_Multicall = IPortalsMulticall(_multicall);
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
@@ -96,81 +91,32 @@ abstract contract RouterBase is IRouterBase, Owned {
     }
 
     /// @notice Transfers tokens or the network token from the sender to the
-    /// Portals multicall contract after accounting for the fee
+    /// Portals multicall contract
     /// @param sender The address of the owner of the tokens
     /// @param token The address of the token to transfer (address(0) if network
     /// token)
     /// @param quantity The quantity of tokens to transfer from the caller
     /// @dev msg.value must == 0 when token != address(0)
-    /// @param fee The fee in BPS
     /// @return value The quantity of network tokens to be transferred to the Portals
     /// multicall contract
     function _transferFromSender(
         address sender,
         address token,
-        uint256 quantity,
-        uint256 fee
+        uint256 quantity
     ) internal returns (uint256) {
-        require(
-            fee >= baseFee && fee < 101, "PortalsRouter: Invalid fee"
-        );
         if (token == address(0)) {
             require(msg.value > 0, "PortalsRouter: Invalid msg.value");
-            if (fee == 0) return msg.value;
-            uint256 ethAmount = _getFeeAmount(msg.value, fee);
-            collector.safeTransferETH(ethAmount);
-            return msg.value - ethAmount;
+            return msg.value;
         }
 
         require(
             msg.value == 0 && quantity > 0,
             "PortalsRouter: Invalid quantity or msg.value"
         );
-        if (fee == 0) {
-            ERC20(token).safeTransferFrom(
-                sender, address(Portals_Multicall), quantity
-            );
-            return 0;
-        }
-
-        ERC20 _token = ERC20(token);
-        uint256 tokenAmount = _getFeeAmount(quantity, fee);
-        _token.safeTransferFrom(sender, collector, tokenAmount);
-        _token.safeTransferFrom(
-            sender, address(Portals_Multicall), quantity - tokenAmount
+        ERC20(token).safeTransferFrom(
+            sender, address(Portals_Multicall), quantity
         );
-
         return 0;
-    }
-
-    /// @notice Transfers the gasFee from the sender to the broadcaster in the `token` currency
-    /// @param sender is the address of the owner of the tokens
-    /// @param token The address of the token to transfer
-    /// @param quantity The quantity of tokens to transfer from the sender for gas
-    /// @param broadcaster The address of the broadcaster
-    /// @param gasFee The quantity of tokens to transfer to the broadcaster
-    /// @return remainder The quantity of tokens remaining after the transfer
-    function _transferGasFee(
-        address sender,
-        address token,
-        uint256 quantity,
-        address broadcaster,
-        uint256 gasFee
-    ) internal returns (uint256 remainder) {
-        if (gasFee == 0) return quantity;
-        ERC20(token).safeTransferFrom(sender, broadcaster, gasFee);
-        remainder = quantity - gasFee;
-    }
-
-    /// @notice Calculates the fee amount
-    /// @param quantity The quantity of tokens to subtract the fee from
-    /// @return The fee amount
-    function _getFeeAmount(uint256 quantity, uint256 fee)
-        private
-        pure
-        returns (uint256)
-    {
-        return (quantity * fee) / 10_000;
     }
 
     /// @notice Get the token or network token balance of an account
@@ -206,6 +152,7 @@ abstract contract RouterBase is IRouterBase, Owned {
                 signedOrder.order.sellAmount,
                 signedOrder.order.buyToken,
                 signedOrder.order.minBuyAmount,
+                signedOrder.order.feeToken,
                 signedOrder.order.fee,
                 signedOrder.order.recipient,
                 signedOrder.order.partner
@@ -217,9 +164,7 @@ abstract contract RouterBase is IRouterBase, Owned {
                 orderHash,
                 signedOrder.sender,
                 signedOrder.deadline,
-                nonces[signedOrder.sender]++,
-                signedOrder.broadcaster,
-                signedOrder.gasFee
+                nonces[signedOrder.sender]++
             )
         );
 
@@ -292,14 +237,6 @@ abstract contract RouterBase is IRouterBase, Owned {
         emit Pause(paused);
     }
 
-    /// @notice Sets the minimum fee
-    /// @param _fee The new fee amount (less than 100 or 1%)
-    function setFee(uint256 _fee) external onlyOwner {
-        require(_fee <= 100, "Invalid Fee");
-        baseFee = _fee;
-        emit Fee(_fee);
-    }
-
     /// @notice Updates the collector
     /// @param _collector The new collector
     function setCollector(address _collector) external onlyOwner {
@@ -322,7 +259,6 @@ abstract contract RouterBase is IRouterBase, Owned {
 
     /// @notice Invalidates the next order of msg.sender
     /// @notice Orders that have already been confirmed are not invalidated
-
     function invalidateNextOrder() external {
         nonces[msg.sender] = nonces[msg.sender] + 1;
     }

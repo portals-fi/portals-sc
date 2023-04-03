@@ -14,25 +14,22 @@ interface IRouterBase {
     /// @param buyToken The ERC20 token address to buy (address(0) if network
     /// token)
     /// @param buyAmount The quantity of buyToken received
-    /// @param baseFee The base fee of a portal in BPS
-    /// @param fee The total fee in BPS
-    /// @param sender The  msg.sender
+    /// @param feeToken The ERC20 token address to pay fees in (address(0) if network
+    /// token)
+    /// @param fee The total fee in base units of feeToken (including gas fee if applicable)
+    /// @param sender The msg.sender
     /// @param partner The front end operator address
     event Portal(
         address sellToken,
         uint256 sellAmount,
         address buyToken,
         uint256 buyAmount,
-        uint256 baseFee,
+        address feeToken,
         uint256 fee,
         address indexed sender,
         address indexed recipient,
         address indexed partner
     );
-
-    /// @notice Emitted when the fee is changed
-    /// @param fee The new fee in BPS
-    event Fee(uint256 fee);
 
     /// @notice Emitted when the collector is changed
     /// @param collector The new collector

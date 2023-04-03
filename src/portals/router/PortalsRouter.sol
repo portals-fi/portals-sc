@@ -15,10 +15,9 @@ import { RouterBase } from "./RouterBase.sol";
 contract PortalsRouter is RouterBase {
     constructor(
         address _admin,
-        uint256 _baseFee,
         address _collector,
         address _multicall
-    ) RouterBase(_admin, _baseFee, _collector, _multicall) { }
+    ) RouterBase(_admin, _collector, _multicall) { }
 
     function portal(
         IPortalsRouter.Order calldata order,
@@ -29,10 +28,7 @@ contract PortalsRouter is RouterBase {
             order,
             calls,
             _transferFromSender(
-                msg.sender,
-                order.sellToken,
-                order.sellAmount,
-                order.fee
+                msg.sender, order.sellToken, order.sellAmount
             )
         );
     }
@@ -53,13 +49,6 @@ contract PortalsRouter is RouterBase {
         _verify(signedOrderPayload);
         IPortalsRouter.SignedOrder calldata signedOrder =
             signedOrderPayload.signedOrder;
-        uint256 quantity = _transferGasFee(
-            signedOrder.sender,
-            signedOrder.order.sellToken,
-            signedOrder.order.sellAmount,
-            signedOrder.broadcaster,
-            signedOrder.gasFee
-        );
         return _execute(
             signedOrder.sender,
             signedOrder.order,
@@ -67,8 +56,7 @@ contract PortalsRouter is RouterBase {
             _transferFromSender(
                 signedOrder.sender,
                 signedOrder.order.sellToken,
-                quantity,
-                signedOrder.order.fee
+                signedOrder.order.sellAmount
             )
         );
     }
@@ -92,6 +80,8 @@ contract PortalsRouter is RouterBase {
         IPortalsMulticall.Call[] calldata calls,
         uint256 value
     ) private returns (uint256 buyAmount) {
+        uint256 collected;
+        collected = _getBalance(collector, order.feeToken);
         buyAmount = _getBalance(order.recipient, order.buyToken);
 
         Portals_Multicall.aggregate{ value: value }(calls);
@@ -103,12 +93,18 @@ contract PortalsRouter is RouterBase {
             revert InsufficientBuy(buyAmount, order.minBuyAmount);
         }
 
+        require(
+            _getBalance(collector, order.feeToken) - collected
+                == order.fee,
+            "PortalsRouter: Invalid fee"
+        );
+
         emit Portal(
             order.sellToken,
             order.sellAmount,
             order.buyToken,
             buyAmount,
-            baseFee,
+            order.feeToken,
             order.fee,
             sender,
             order.recipient,
