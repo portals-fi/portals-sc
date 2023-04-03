@@ -27,7 +27,7 @@ contract PortalsRouterDeployer is Script {
         );
 
         PortalsRouter router =
-        new PortalsRouter(addresses.get(network, "admin"), 15, addresses.get(network, "collector"), address(multicall));
+        new PortalsRouter(addresses.get(network, "admin"), addresses.get(network, "collector"), address(multicall));
 
         console2.log("Deployed PortalsRouter at", address(router));
 

@@ -21,14 +21,14 @@ contract SigUtils {
     //EIP712 Order Typehash
     bytes32 public constant ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,uint256 fee,adress recipient,address partner)"
+            "Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,address feeToken,uint256 fee,adress recipient,address partner)"
         )
     );
 
     //EIP712 Signed Order Typehash
     bytes32 public constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "SignedOrder(Order order,address sender,uint256 deadline,uint32 nonce,address broadcaster,uint256 gasFee)Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,uint256 fee,adress recipient,address partner)"
+            "SignedOrder(Order order,address sender,uint256 deadline,uint32 nonce)Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,address feeToken,uint256 fee,adress recipient,address partner)"
         )
     );
 
@@ -94,6 +94,7 @@ contract SigUtils {
                 _signedOrder.order.sellAmount,
                 _signedOrder.order.buyToken,
                 _signedOrder.order.minBuyAmount,
+                _signedOrder.order.feeToken,
                 _signedOrder.order.fee,
                 _signedOrder.order.recipient,
                 _signedOrder.order.partner
@@ -105,9 +106,7 @@ contract SigUtils {
                 orderHash,
                 _signedOrder.sender,
                 _signedOrder.deadline,
-                _signedOrder.nonce,
-                _signedOrder.broadcaster,
-                _signedOrder.gasFee
+                _signedOrder.nonce
             )
         );
     }
