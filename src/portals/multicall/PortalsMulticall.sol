@@ -38,7 +38,7 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
             if (!success) {
                 // Next 5 lines from https://ethereum.stackexchange.com/a/83577
                 if (returnData.length < 68) {
-                    revert("Portals Multicall: failed");
+                    revert("PortalsMulticall: failed");
                 }
                 assembly {
                     returnData := add(returnData, 0x04)
@@ -60,6 +60,14 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
         assembly {
             mstore(add(data, add(36, mul(amountIndex, 32))), amount)
         }
+    }
+
+    function _transferEth(address to, uint256 amount)
+        public
+        payable
+    {
+        (bool success,) = to.call{ value: amount }("");
+        require(success, "PortalsMulticall: failed to transfer ETH");
     }
 
     /// @notice Reverts if network tokens are sent directly to this contract
