@@ -53,7 +53,7 @@ contract UniswapV2PortalTest is Test {
     PortalsMulticall public multicall = new PortalsMulticall();
 
     PortalsRouter public router =
-        new PortalsRouter(owner, 0, collector, address(multicall));
+        new PortalsRouter(owner, collector, address(multicall));
 
     Addresses public addresses = new Addresses();
 
@@ -83,7 +83,8 @@ contract UniswapV2PortalTest is Test {
             sellAmount: sellAmount,
             buyToken: buyToken,
             minBuyAmount: 1,
-            fee: 15,
+            feeToken: sellToken,
+            fee: 0,
             recipient: user,
             partner: partner
         });
@@ -153,7 +154,8 @@ contract UniswapV2PortalTest is Test {
             sellAmount: sellAmount,
             buyToken: buyToken,
             minBuyAmount: 1,
-            fee: 15,
+            feeToken: sellToken,
+            fee: 0,
             recipient: user,
             partner: partner
         });
