@@ -25,7 +25,8 @@ interface IRouterBase {
         address feeToken,
         uint256 fee,
         address indexed sender,
-        address indexed recipient,
+        address indexed broadcaster,
+        address recipient,
         address indexed partner
     );
 
