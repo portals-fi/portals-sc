@@ -1,8 +1,8 @@
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
-/// @notice This contract adds or removes liquidity to/from Uniswap V2-like pools using/receiving
-/// any ERC20 token or the network token.
+/// @notice This contract adds or removes liquidity to/from Uniswap V2-like pools using any ERC20 token,
+/// or the network token.
 /// @note This contract is intended to be consumed via a multicall contract and as such omits various checks
 /// including slippage and does not return the quantity of tokens acquired. These checks should be handled
 /// by the caller

@@ -2,7 +2,7 @@
 
 /// @author Portals.fi
 /// @notice This contract bundles multiple methods into a single transaction.
-/// @notice Do not grant approvals to this contract unless they are completely
+/// @dev Do not grant approvals to this contract unless they are completely
 /// consumed or are revoked at the end of the transaction.
 
 /// SPDX-License-Identifier: GPL-3.0
@@ -15,6 +15,8 @@ import { ReentrancyGuard } from "solmate/utils/ReentrancyGuard.sol";
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 
 contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
+    /// @dev Executes a series of calls in a single transaction
+    /// @param calls The calls to execute
     function aggregate(Call[] calldata calls)
         external
         payable
@@ -51,6 +53,9 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
         }
     }
 
+    /// @dev Sets the quantity of a token a specified index in the data
+    /// @param data The data to set the quantity in
+    /// @param amountIndex The index of the quantity of sellToken in the data
     function _setAmount(
         bytes memory data,
         uint256 amountIndex,
@@ -62,6 +67,9 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
         }
     }
 
+    /// @notice Transfers ETH from this contract to the specified address
+    /// @param to The address to transfer ETH to
+    /// @param amount The quantity of ETH to transfer
     function _transferEth(address to, uint256 amount)
         public
         payable

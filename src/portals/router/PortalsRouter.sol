@@ -19,6 +19,11 @@ contract PortalsRouter is RouterBase {
         address _multicall
     ) RouterBase(_admin, _collector, _multicall) { }
 
+    /// @notice This function is the simplest entry point for the Portals Router. It is intended
+    /// to be called by the sender of the order (i.e. msg.sender).
+    /// @param order The order struct containing the details of the trade
+    /// @param calls The array of calls to be executed by the Portals Multicall
+    /// @param buyAmount The quantity of buyToken received after validation of the order
     function portal(
         IPortalsRouter.Order calldata order,
         IPortalsMulticall.Call[] calldata calls
@@ -33,6 +38,12 @@ contract PortalsRouter is RouterBase {
         );
     }
 
+    /// @notice This function calls permit prior to the portal function for gasless approvals. It is intended
+    /// to be called by the sender of the order (i.e. msg.sender).
+    /// @param order The order struct containing the details of the trade
+    /// @param calls The array of calls to be executed by the Portals Multicall
+    /// @param permitPayload The permit payload struct containing the details of the permit
+    /// @param buyAmount The quantity of buyToken received after validation of the order
     function portalWithPermit(
         IPortalsRouter.Order calldata order,
         IPortalsMulticall.Call[] calldata calls,
@@ -42,6 +53,11 @@ contract PortalsRouter is RouterBase {
         return portal(order, calls);
     }
 
+    /// This function uses Portals signed orders to facilitate gasless portals. It is intended
+    /// to be called by a broadcaster (i.e. msg.sender != order.sender).
+    /// @param signedOrderPayload The signed order payload struct containing the details of the signed order
+    /// @param calls The array of calls to be executed by the Portals Multicall
+    /// @param buyAmount The quantity of buyToken received after validation of the order
     function portalWithSignature(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         IPortalsMulticall.Call[] calldata calls
@@ -61,6 +77,12 @@ contract PortalsRouter is RouterBase {
         );
     }
 
+    /// @notice This function calls permit prior to the portalWithSignature function for gasless approvals,
+    /// in addition to gassless Portals. It is intended to be called by a broadcaster (i.e. msg.sender != order.sender).
+    /// @param signedOrderPayload The signed order payload struct containing the details of the signed order
+    /// @param calls The array of calls to be executed by the Portals Multicall
+    /// @param permitPayload The permit payload struct containing the details of the permit
+    /// @param buyAmount The quantity of buyToken received after validation of the order
     function portalWithSignatureAndPermit(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         IPortalsMulticall.Call[] calldata calls,
@@ -74,6 +96,14 @@ contract PortalsRouter is RouterBase {
         return portalWithSignature(signedOrderPayload, calls);
     }
 
+    /// @notice This function executes calls to transform a sell token into a buy token.
+    /// The buyAmount of the buyToken specified in the order is validated against the minBuyAmount following the
+    /// aggregate call of Portals Multicall.
+    /// @param sender The sender(signer) of the order
+    /// @param order The order struct containing the details of the trade
+    /// @param calls The array of calls to be executed by the Portals Multicall
+    /// @param value The value of native tokens to be sent to the Portals Multicall
+    /// @param buyAmount The quantity of buyToken received after validation of the order
     function _execute(
         address sender,
         IPortalsRouter.Order calldata order,
