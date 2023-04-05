@@ -90,15 +90,11 @@ abstract contract RouterBase is IRouterBase, Owned {
         );
     }
 
-    /// @notice Transfers tokens or the network token from the sender to the
-    /// Portals multicall contract
+    /// @notice Transfers tokens or the network token from the sender to the Portals multicall contract
     /// @param sender The address of the owner of the tokens
-    /// @param token The address of the token to transfer (address(0) if network
-    /// token)
+    /// @param token The address of the token to transfer (address(0) if network token)
     /// @param quantity The quantity of tokens to transfer from the caller
-    /// @dev msg.value must == 0 when token != address(0)
-    /// @return value The quantity of network tokens to be transferred to the Portals
-    /// multicall contract
+    /// @return value The quantity of network tokens to be transferred to the Portals Multicall contract
     function _transferFromSender(
         address sender,
         address token,
@@ -119,11 +115,10 @@ abstract contract RouterBase is IRouterBase, Owned {
         return 0;
     }
 
-    /// @notice Get the token or network token balance of an account
-    /// @param account The owner of the tokens or network tokens whose balance
-    /// is being queried
+    /// @notice Get the ERC20 or network token balance of an account
+    /// @param account The owner of the tokens or network tokens whose balance is being queried
     /// @param token The address of the token (address(0) if network token)
-    /// @return The owner's token or network token balance
+    /// @return The accounts's token or network token balance
     function _getBalance(address account, address token)
         internal
         view
@@ -136,6 +131,10 @@ abstract contract RouterBase is IRouterBase, Owned {
         }
     }
 
+    /// @notice Signature verification function to verify Portals signed orders. Supports both ECDSA
+    /// signatures from externally owned accounts (EOAs) as well as ERC1271 signatures from smart contract wallets
+    /// @dev Returns nothing if the order is valid but reverts if the signature is invalid
+    /// @param signedOrderPayload The signed order payload containing the order and the signature
     function _verify(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload
     ) internal {
@@ -184,6 +183,11 @@ abstract contract RouterBase is IRouterBase, Owned {
         );
     }
 
+    /// @notice Permit function for gasless approvals. Supports both EIP-2612 and DAI style permits with
+    /// split signatures, as well as Yearn like permits with combined signatures
+    /// @param token The address of the token to permit
+    /// @param permitPayload The permit payload containing the permit parameters
+    /// @dev See IPermit.sol for more details
     function _permit(
         address token,
         IPortalsRouter.PermitPayload calldata permitPayload
@@ -237,7 +241,7 @@ abstract contract RouterBase is IRouterBase, Owned {
         emit Pause(paused);
     }
 
-    /// @notice Updates the collector
+    /// @dev Updates the collector
     /// @param _collector The new collector
     function setCollector(address _collector) external onlyOwner {
         require(
@@ -248,6 +252,8 @@ abstract contract RouterBase is IRouterBase, Owned {
         emit Collector(_collector);
     }
 
+    /// @dev Updates the multicall
+    /// @param multicall The new collector
     function setMulticall(address multicall) external onlyOwner {
         require(
             multicall != address(0),
@@ -263,7 +269,7 @@ abstract contract RouterBase is IRouterBase, Owned {
         nonces[msg.sender] = nonces[msg.sender] + 1;
     }
 
-    /// @notice Recovers stuck tokens
+    /// @notice Recovers stuck tokens and sends them to the collector
     /// @param tokenAddress The address of the token to recover (address(0) if ETH)
     /// @param tokenAmount The quantity of tokens to recover
     function recoverToken(address tokenAddress, uint256 tokenAmount)
