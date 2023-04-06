@@ -14,7 +14,8 @@ interface IRouterBase {
     /// @param buyAmount The quantity of buyToken received
     /// @param feeToken The ERC20 token address to pay fees in (address(0) if network token)
     /// @param fee The total fee in base units of feeToken (including gas fee if applicable)
-    /// @param sender The msg.sender
+    /// @param sender The sender(signer) of the order
+    /// @param broadcaster The msg.sender of the broadcasted transaction
     /// @param recipient The recipient of the buyToken
     /// @param partner The front end operator address
     event Portal(

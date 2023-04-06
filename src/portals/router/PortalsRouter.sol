@@ -23,7 +23,7 @@ contract PortalsRouter is RouterBase {
     /// to be called by the sender of the order (i.e. msg.sender).
     /// @param order The order struct containing the details of the trade
     /// @param calls The array of calls to be executed by the Portals Multicall
-    /// @param buyAmount The quantity of buyToken received after validation of the order
+    /// @return buyAmount The quantity of buyToken received after validation of the order
     function portal(
         IPortalsRouter.Order calldata order,
         IPortalsMulticall.Call[] calldata calls
@@ -43,7 +43,7 @@ contract PortalsRouter is RouterBase {
     /// @param order The order struct containing the details of the trade
     /// @param calls The array of calls to be executed by the Portals Multicall
     /// @param permitPayload The permit payload struct containing the details of the permit
-    /// @param buyAmount The quantity of buyToken received after validation of the order
+    /// @return buyAmount The quantity of buyToken received after validation of the order
     function portalWithPermit(
         IPortalsRouter.Order calldata order,
         IPortalsMulticall.Call[] calldata calls,
@@ -57,7 +57,7 @@ contract PortalsRouter is RouterBase {
     /// to be called by a broadcaster (i.e. msg.sender != order.sender).
     /// @param signedOrderPayload The signed order payload struct containing the details of the signed order
     /// @param calls The array of calls to be executed by the Portals Multicall
-    /// @param buyAmount The quantity of buyToken received after validation of the order
+    /// @return buyAmount The quantity of buyToken received after validation of the order
     function portalWithSignature(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         IPortalsMulticall.Call[] calldata calls
@@ -82,7 +82,7 @@ contract PortalsRouter is RouterBase {
     /// @param signedOrderPayload The signed order payload struct containing the details of the signed order
     /// @param calls The array of calls to be executed by the Portals Multicall
     /// @param permitPayload The permit payload struct containing the details of the permit
-    /// @param buyAmount The quantity of buyToken received after validation of the order
+    /// @return buyAmount The quantity of buyToken received after validation of the order
     function portalWithSignatureAndPermit(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         IPortalsMulticall.Call[] calldata calls,
@@ -103,7 +103,7 @@ contract PortalsRouter is RouterBase {
     /// @param order The order struct containing the details of the trade
     /// @param calls The array of calls to be executed by the Portals Multicall
     /// @param value The value of native tokens to be sent to the Portals Multicall
-    /// @param buyAmount The quantity of buyToken received after validation of the order
+    /// @return buyAmount The quantity of buyToken received after validation of the order
     function _execute(
         address sender,
         IPortalsRouter.Order calldata order,
