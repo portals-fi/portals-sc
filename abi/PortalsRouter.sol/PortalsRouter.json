@@ -7,11 +7,6 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "_baseFee",
-        "type": "uint256"
-      },
-      {
         "internalType": "address",
         "name": "_collector",
         "type": "address"
@@ -46,12 +41,25 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "collector",
+        "type": "address"
       }
     ],
-    "name": "Fee",
+    "name": "Collector",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "multicall",
+        "type": "address"
+      }
+    ],
+    "name": "Multicall",
     "type": "event"
   },
   {
@@ -115,6 +123,12 @@
       },
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "feeToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "fee",
         "type": "uint256"
@@ -127,6 +141,12 @@
       },
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "broadcaster",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "recipient",
         "type": "address"
@@ -156,25 +176,12 @@
   },
   {
     "inputs": [],
-    "name": "PORTALS_MULTICALL",
+    "name": "Portals_Multicall",
     "outputs": [
       {
         "internalType": "contract IPortalsMulticall",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "baseFee",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -194,6 +201,13 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "invalidateNextOrder",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -204,9 +218,9 @@
     "name": "nonces",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint64",
         "name": "",
-        "type": "uint256"
+        "type": "uint64"
       }
     ],
     "stateMutability": "view",
@@ -250,71 +264,83 @@
       {
         "components": [
           {
-            "internalType": "address",
-            "name": "sellToken",
-            "type": "address"
+            "components": [
+              {
+                "internalType": "address",
+                "name": "sellToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "sellAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "buyToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "minBuyAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feeToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "fee",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "recipient",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "partner",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct IPortalsRouter.Order",
+            "name": "order",
+            "type": "tuple"
           },
           {
-            "internalType": "uint256",
-            "name": "sellAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "buyToken",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "minBuyAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "partner",
-            "type": "address"
+            "components": [
+              {
+                "internalType": "address",
+                "name": "sellToken",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountIndex",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct IPortalsMulticall.Call[]",
+            "name": "calls",
+            "type": "tuple[]"
           }
         ],
-        "internalType": "struct IPortalsRouter.Order",
-        "name": "order",
+        "internalType": "struct IPortalsRouter.OrderPayload",
+        "name": "orderPayload",
         "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "sellToken",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "target",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amountIndex",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IPortalsMulticall.Call[]",
-        "name": "calls",
-        "type": "tuple[]"
       }
     ],
     "name": "portal",
@@ -333,71 +359,83 @@
       {
         "components": [
           {
-            "internalType": "address",
-            "name": "sellToken",
-            "type": "address"
+            "components": [
+              {
+                "internalType": "address",
+                "name": "sellToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "sellAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "buyToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "minBuyAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feeToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "fee",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "recipient",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "partner",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct IPortalsRouter.Order",
+            "name": "order",
+            "type": "tuple"
           },
           {
-            "internalType": "uint256",
-            "name": "sellAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "buyToken",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "minBuyAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "partner",
-            "type": "address"
+            "components": [
+              {
+                "internalType": "address",
+                "name": "sellToken",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountIndex",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct IPortalsMulticall.Call[]",
+            "name": "calls",
+            "type": "tuple[]"
           }
         ],
-        "internalType": "struct IPortalsRouter.Order",
-        "name": "order",
+        "internalType": "struct IPortalsRouter.OrderPayload",
+        "name": "orderPayload",
         "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "sellToken",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "target",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amountIndex",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IPortalsMulticall.Call[]",
-        "name": "calls",
-        "type": "tuple[]"
       },
       {
         "components": [
@@ -424,6 +462,11 @@
           {
             "internalType": "bool",
             "name": "splitSignature",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "daiPermit",
             "type": "bool"
           }
         ],
@@ -440,7 +483,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -450,96 +493,108 @@
           {
             "components": [
               {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "sellToken",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "sellAmount",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "buyToken",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "minBuyAmount",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "feeToken",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "fee",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "recipient",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "partner",
+                    "type": "address"
+                  }
+                ],
+                "internalType": "struct IPortalsRouter.Order",
+                "name": "order",
+                "type": "tuple"
+              },
+              {
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+              },
+              {
+                "internalType": "uint64",
+                "name": "deadline",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint64",
+                "name": "nonce",
+                "type": "uint64"
+              }
+            ],
+            "internalType": "struct IPortalsRouter.SignedOrder",
+            "name": "signedOrder",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "signature",
+            "type": "bytes"
+          },
+          {
+            "components": [
+              {
                 "internalType": "address",
                 "name": "sellToken",
                 "type": "address"
               },
               {
-                "internalType": "uint256",
-                "name": "sellAmount",
-                "type": "uint256"
-              },
-              {
                 "internalType": "address",
-                "name": "buyToken",
+                "name": "target",
                 "type": "address"
               },
               {
-                "internalType": "uint256",
-                "name": "minBuyAmount",
-                "type": "uint256"
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
               },
               {
                 "internalType": "uint256",
-                "name": "fee",
+                "name": "amountIndex",
                 "type": "uint256"
-              },
-              {
-                "internalType": "address",
-                "name": "recipient",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "partner",
-                "type": "address"
               }
             ],
-            "internalType": "struct IPortalsRouter.Order",
-            "name": "order",
-            "type": "tuple"
-          },
-          {
-            "internalType": "address",
-            "name": "sender",
-            "type": "address"
-          },
-          {
-            "internalType": "uint32",
-            "name": "deadline",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "nonce",
-            "type": "uint32"
+            "internalType": "struct IPortalsMulticall.Call[]",
+            "name": "calls",
+            "type": "tuple[]"
           }
         ],
-        "internalType": "struct IPortalsRouter.SignedOrder",
-        "name": "signedOrder",
+        "internalType": "struct IPortalsRouter.SignedOrderPayload",
+        "name": "signedOrderPayload",
         "type": "tuple"
-      },
-      {
-        "internalType": "bytes",
-        "name": "signature",
-        "type": "bytes"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "sellToken",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "target",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amountIndex",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IPortalsMulticall.Call[]",
-        "name": "calls",
-        "type": "tuple[]"
       }
     ],
     "name": "portalWithSignature",
@@ -550,7 +605,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -560,96 +615,108 @@
           {
             "components": [
               {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "sellToken",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "sellAmount",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "buyToken",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "minBuyAmount",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "feeToken",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "fee",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "recipient",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "partner",
+                    "type": "address"
+                  }
+                ],
+                "internalType": "struct IPortalsRouter.Order",
+                "name": "order",
+                "type": "tuple"
+              },
+              {
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+              },
+              {
+                "internalType": "uint64",
+                "name": "deadline",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint64",
+                "name": "nonce",
+                "type": "uint64"
+              }
+            ],
+            "internalType": "struct IPortalsRouter.SignedOrder",
+            "name": "signedOrder",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "signature",
+            "type": "bytes"
+          },
+          {
+            "components": [
+              {
                 "internalType": "address",
                 "name": "sellToken",
                 "type": "address"
               },
               {
-                "internalType": "uint256",
-                "name": "sellAmount",
-                "type": "uint256"
-              },
-              {
                 "internalType": "address",
-                "name": "buyToken",
+                "name": "target",
                 "type": "address"
               },
               {
-                "internalType": "uint256",
-                "name": "minBuyAmount",
-                "type": "uint256"
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
               },
               {
                 "internalType": "uint256",
-                "name": "fee",
+                "name": "amountIndex",
                 "type": "uint256"
-              },
-              {
-                "internalType": "address",
-                "name": "recipient",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "partner",
-                "type": "address"
               }
             ],
-            "internalType": "struct IPortalsRouter.Order",
-            "name": "order",
-            "type": "tuple"
-          },
-          {
-            "internalType": "address",
-            "name": "sender",
-            "type": "address"
-          },
-          {
-            "internalType": "uint32",
-            "name": "deadline",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "nonce",
-            "type": "uint32"
+            "internalType": "struct IPortalsMulticall.Call[]",
+            "name": "calls",
+            "type": "tuple[]"
           }
         ],
-        "internalType": "struct IPortalsRouter.SignedOrder",
-        "name": "signedOrder",
+        "internalType": "struct IPortalsRouter.SignedOrderPayload",
+        "name": "signedOrderPayload",
         "type": "tuple"
-      },
-      {
-        "internalType": "bytes",
-        "name": "signature",
-        "type": "bytes"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "sellToken",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "target",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amountIndex",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IPortalsMulticall.Call[]",
-        "name": "calls",
-        "type": "tuple[]"
       },
       {
         "components": [
@@ -677,6 +744,11 @@
             "internalType": "bool",
             "name": "splitSignature",
             "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "daiPermit",
+            "type": "bool"
           }
         ],
         "internalType": "struct IPortalsRouter.PermitPayload",
@@ -692,18 +764,49 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "tokenAddress",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
-        "name": "_fee",
+        "name": "tokenAmount",
         "type": "uint256"
       }
     ],
-    "name": "setFee",
+    "name": "recoverToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_collector",
+        "type": "address"
+      }
+    ],
+    "name": "setCollector",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "multicall",
+        "type": "address"
+      }
+    ],
+    "name": "setMulticall",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
