@@ -10,3 +10,8 @@ Portals Foundry Smart Contract Repo
 `source .env`
 #### Run a specific test
 `forge test --match-contract PortalsRouterTest --ffi -vvv --etherscan-api-key 9UD3... --gas-report`
+#### Deploy a contract
+##### Simulate Deployment:
+`forge forge script script/polygon/portals/router/PortalsRouter.s.sol:PortalsRouterDeployer -vvvv --rpc-url $POLYGON_RPC_URL`
+##### Broadcast Deployment:
+`forge script script/polygon/portals/router/PortalsRouter.s.sol:PortalsRouterDeployer -vvvv --rpc-url $POLYGON_RPC_URL --broadcast`
