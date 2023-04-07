@@ -6,6 +6,9 @@
 /// SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.17;
 
+import { IPortalsMulticall } from
+    "../..//multicall/interface/IPortalsMulticall.sol";
+
 interface IPortalsRouter {
     /// @param sellToken The ERC20 token address to spend (address(0) if network token)
     /// @param sellAmount The quantity of sellToken to Portal
@@ -26,7 +29,15 @@ interface IPortalsRouter {
         address partner;
     }
 
-    /// @param order The order that is being signed
+    /// @param order The order containing the details of the trade
+    /// @param calls The calls to be executed in the aggregate function of PortalsMulticall.sol to transform
+    /// sellToken to buyToken
+    struct OrderPayload {
+        Order order;
+        IPortalsMulticall.Call[] calls;
+    }
+
+    /// @param order The order containing the details of the trade
     /// @param sender The signer of the order and the sender of the sellToken
     /// @param deadline The deadline after which the order is no longer valid
     /// @param nonce The nonce of the sender(signer)
@@ -37,11 +48,14 @@ interface IPortalsRouter {
         uint64 nonce;
     }
 
-    /// @param signedOrder The signed order
+    /// @param signedOrder The signed order containing the details of the trade
     /// @param signature The signature of the signed order
+    /// @param calls The calls to be executed in the aggregate function of PortalsMulticall.sol to transform
+    /// sellToken to buyToken
     struct SignedOrderPayload {
         SignedOrder signedOrder;
         bytes signature;
+        IPortalsMulticall.Call[] calls;
     }
 
     /// @param owner The address which is a source of funds and has signed the Permit
