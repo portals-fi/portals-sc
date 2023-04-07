@@ -25,8 +25,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     // The Portals Multicall contract
     IPortalsMulticall public Portals_Multicall;
 
-    // Active status of this contract. If false, contract is active (i.e
-    // un-paused)
+    // Active status of this contract. If false, contract is active (i.e un-paused)
     bool public paused;
 
     // The address of the fee collector
