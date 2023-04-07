@@ -125,9 +125,12 @@ contract UniswapV2PortalTest is Test {
             1
         );
 
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portal{ value: value }(order, calls);
+        router.portal{ value: value }(orderPayload);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -187,11 +190,14 @@ contract UniswapV2PortalTest is Test {
             1
         );
 
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
         ERC20(sellToken).approve(address(router), sellAmount);
 
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portal{ value: value }(order, calls);
+        router.portal{ value: value }(orderPayload);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
