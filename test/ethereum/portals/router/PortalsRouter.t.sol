@@ -124,9 +124,12 @@ contract PortalsRouterTest is Test {
             1
         );
 
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portal{ value: value }(order, calls);
+        router.portal{ value: value }(orderPayload);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -213,14 +216,82 @@ contract PortalsRouterTest is Test {
             ETH, address(user), "", type(uint256).max
         );
 
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
         // Test
-        ERC20(sellToken).approve(address(router), sellAmount);
+        ERC20(sellToken).approve(address(router), type(uint256).max);
 
         uint256 initialBalance = user.balance;
 
-        router.portal{ value: value }(order, calls);
+        router.portal{ value: value }(orderPayload);
 
         uint256 finalBalance = user.balance;
+
+        assertTrue(finalBalance > initialBalance);
+    }
+
+    function test_PortalIn_Stargate_SUSDC_From_USDC_With_USDC_Intermediate(
+    ) public {
+        address sellToken = USDC;
+        uint256 sellAmount = 5_000_000_000; // 5000 USDC
+        uint256 value = 0;
+
+        deal(address(sellToken), user, sellAmount);
+        assertEq(ERC20(sellToken).balanceOf(user), sellAmount);
+
+        address intermediateToken = USDC;
+
+        address buyToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 2;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            sellToken: sellToken,
+            sellAmount: sellAmount,
+            buyToken: buyToken,
+            minBuyAmount: 1,
+            feeToken: sellToken,
+            fee: 0,
+            recipient: user,
+            partner: partner
+        });
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(
+            intermediateToken,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
+        ERC20(sellToken).approve(address(router), sellAmount);
+
+        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+
+        router.portal{ value: value }(orderPayload);
+
+        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
     }
@@ -293,11 +364,14 @@ contract PortalsRouterTest is Test {
             1
         );
 
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
         ERC20(sellToken).approve(address(router), sellAmount);
 
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portal{ value: value }(order, calls);
+        router.portal{ value: value }(orderPayload);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -360,9 +434,12 @@ contract PortalsRouterTest is Test {
             sellToken, true, false, USDC_DOMAIN_SEPARATOR
         );
 
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portalWithPermit(order, calls, permitPayload);
+        router.portalWithPermit(orderPayload, permitPayload);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -443,9 +520,12 @@ contract PortalsRouterTest is Test {
             sellToken, true, true, DAI_DOMAIN_SEPARATOR
         );
 
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portalWithPermit(order, calls, permitPayload);
+        router.portalWithPermit(orderPayload, permitPayload);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -515,6 +595,7 @@ contract PortalsRouterTest is Test {
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
             createSignedOrderPayload(order, router.DOMAIN_SEPARATOR());
+        signedOrderPayload.calls = calls;
 
         ERC20(sellToken).approve(address(router), sellAmount);
 
@@ -522,7 +603,7 @@ contract PortalsRouterTest is Test {
 
         changePrank(broadcaster);
 
-        router.portalWithSignature(signedOrderPayload, calls);
+        router.portalWithSignature(signedOrderPayload);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -600,6 +681,7 @@ contract PortalsRouterTest is Test {
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
             createSignedOrderPayload(order, router.DOMAIN_SEPARATOR());
+        signedOrderPayload.calls = calls;
 
         ERC20(sellToken).approve(address(router), sellAmount);
 
@@ -607,7 +689,7 @@ contract PortalsRouterTest is Test {
 
         changePrank(broadcaster);
 
-        router.portalWithSignature(signedOrderPayload, calls);
+        router.portalWithSignature(signedOrderPayload);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -676,6 +758,7 @@ contract PortalsRouterTest is Test {
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
             createSignedOrderPayload(order, router.DOMAIN_SEPARATOR());
+        signedOrderPayload.calls = calls;
 
         IPortalsRouter.PermitPayload memory permitPayload =
         createPermitPayload(
@@ -687,7 +770,7 @@ contract PortalsRouterTest is Test {
         changePrank(broadcaster);
 
         router.portalWithSignatureAndPermit(
-            signedOrderPayload, calls, permitPayload
+            signedOrderPayload, permitPayload
         );
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
@@ -773,6 +856,7 @@ contract PortalsRouterTest is Test {
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
             createSignedOrderPayload(order, router.DOMAIN_SEPARATOR());
+        signedOrderPayload.calls = calls;
 
         ERC20(sellToken).approve(address(router), sellAmount);
 
@@ -780,7 +864,7 @@ contract PortalsRouterTest is Test {
 
         changePrank(broadcaster);
 
-        router.portalWithSignature(signedOrderPayload, calls);
+        router.portalWithSignature(signedOrderPayload);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -857,9 +941,12 @@ contract PortalsRouterTest is Test {
             1
         );
 
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
         uint256 initialBalance = ERC20(buyToken).balanceOf(user);
 
-        router.portal{ value: value }(order, calls);
+        router.portal{ value: value }(orderPayload);
 
         uint256 finalBalance = ERC20(buyToken).balanceOf(user);
 
@@ -963,9 +1050,13 @@ contract PortalsRouterTest is Test {
         (uint8 v, bytes32 r, bytes32 s) =
             vm.sign(userPrivateKey, digest);
 
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](0);
+
         signedOrderPayload = IPortalsRouter.SignedOrderPayload({
             signedOrder: signedOrder,
-            signature: abi.encodePacked(r, s, v)
+            signature: abi.encodePacked(r, s, v),
+            calls: calls
         });
     }
 }
