@@ -134,12 +134,12 @@ abstract contract RouterBase is IRouterBase, Owned {
     /// @notice Signature verification function to verify Portals signed orders. Supports both ECDSA
     /// signatures from externally owned accounts (EOAs) as well as ERC1271 signatures from smart contract wallets
     /// @dev Returns nothing if the order is valid but reverts if the signature is invalid
-    /// @param signedOrderPayload The signed order payload containing the order and the signature
+    /// @param signedOrder The signed order to verify
+    /// @param signature The signature of the signed order
     function _verify(
-        IPortalsRouter.SignedOrderPayload calldata signedOrderPayload
+        IPortalsRouter.SignedOrder calldata signedOrder,
+        bytes calldata signature
     ) internal {
-        IPortalsRouter.SignedOrder calldata signedOrder =
-            signedOrderPayload.signedOrder;
         require(
             signedOrder.deadline >= block.timestamp,
             "PortalsRouter: Order expired"
@@ -175,9 +175,7 @@ abstract contract RouterBase is IRouterBase, Owned {
 
         require(
             SignatureChecker.isValidSignatureNow(
-                signedOrder.sender,
-                digest,
-                signedOrderPayload.signature
+                signedOrder.sender, digest, signature
             ),
             "PortalsRouter: Invalid signature"
         );
