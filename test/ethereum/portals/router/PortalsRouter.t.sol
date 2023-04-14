@@ -912,7 +912,7 @@ contract PortalsRouterTest is Test {
             feeToken,
             address(multicall),
             abi.encodeWithSignature(
-                "_transferEth(address,uint256)",
+                "transferEth(address,uint256)",
                 router.collector(),
                 feeAmount
             ),
