@@ -54,14 +54,14 @@ abstract contract RouterBase is IRouterBase, Owned {
     //EIP712 Order Typehash
     bytes32 internal constant ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,address feeToken,uint256 fee,adress recipient,address partner)"
+            "Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,address feeToken,uint256 fee,address recipient,address partner)"
         )
     );
 
     //EIP712 Signed Order Typehash
     bytes32 internal constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "SignedOrder(Order order,address sender,uint256 deadline,uint32 nonce)Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,address feeToken,uint256 fee,adress recipient,address partner)"
+            "SignedOrder(Order order,address sender,uint256 deadline,uint32 nonce)Order(address sellToken,uint256 sellAmount,address buyToken,uint256 minBuyAmount,address feeToken,uint256 fee,address recipient,address partner)"
         )
     );
 
@@ -263,7 +263,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     /// @notice Invalidates the next order of msg.sender
     /// @notice Orders that have already been confirmed are not invalidated
     function invalidateNextOrder() external {
-        nonces[msg.sender] = nonces[msg.sender] + 1;
+        nonces[msg.sender]++;
     }
 
     /// @notice Recovers stuck tokens and sends them to the collector
