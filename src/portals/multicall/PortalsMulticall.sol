@@ -53,6 +53,14 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
         }
     }
 
+    /// @notice Transfers ETH from this contract to the specified address
+    /// @param to The address to transfer ETH to
+    /// @param amount The quantity of ETH to transfer
+    function transferEth(address to, uint256 amount) public payable {
+        (bool success,) = to.call{ value: amount }("");
+        require(success, "PortalsMulticall: failed to transfer ETH");
+    }
+
     /// @dev Sets the quantity of a token a specified index in the data
     /// @param data The data to set the quantity in
     /// @param amountIndex The index of the quantity of sellToken in the data
@@ -65,17 +73,6 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
         assembly {
             mstore(add(data, add(36, mul(amountIndex, 32))), amount)
         }
-    }
-
-    /// @notice Transfers ETH from this contract to the specified address
-    /// @param to The address to transfer ETH to
-    /// @param amount The quantity of ETH to transfer
-    function _transferEth(address to, uint256 amount)
-        public
-        payable
-    {
-        (bool success,) = to.call{ value: amount }("");
-        require(success, "PortalsMulticall: failed to transfer ETH");
     }
 
     /// @notice Reverts if network tokens are sent directly to this contract
