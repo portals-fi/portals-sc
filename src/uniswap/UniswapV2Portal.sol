@@ -169,8 +169,6 @@ contract UniswapV2Portal is Owned {
     /// @notice Transfers tokens or the network token from the caller to this contract
     /// @param token The address of the token to transfer (address(0) if network token)
     /// @param quantity The quantity of tokens to transfer from the caller
-    /// @dev quantity must == msg.value when token == address(0)
-    /// @dev msg.value must == 0 when token != address(0)
     /// @return The quantity of tokens or network tokens transferred from the caller to this contract
     function _transferFromCaller(address token, uint256 quantity)
         internal
@@ -178,11 +176,7 @@ contract UniswapV2Portal is Owned {
         returns (uint256)
     {
         if (token == address(0)) {
-            require(
-                msg.value > 0 && msg.value == quantity,
-                "Invalid quantity or msg.value"
-            );
-
+            require(msg.value > 0, "Invalid msg.value");
             return msg.value;
         }
 
@@ -190,7 +184,6 @@ contract UniswapV2Portal is Owned {
             quantity > 0 && msg.value == 0,
             "Invalid quantity or msg.value"
         );
-
         ERC20(token).safeTransferFrom(
             msg.sender, address(this), quantity
         );
@@ -212,6 +205,22 @@ contract UniswapV2Portal is Owned {
     function pause() external onlyOwner {
         paused = !paused;
         emit Pause(paused);
+    }
+
+    /// @notice Recovers stuck tokens
+    /// @param tokenAddress The address of the token to recover (address(0) if ETH)
+    /// @param tokenAmount The quantity of tokens to recover
+    /// @param to The address to send the recovered tokens to
+    function recoverToken(
+        address tokenAddress,
+        uint256 tokenAmount,
+        address to
+    ) external onlyOwner {
+        if (tokenAddress == address(0)) {
+            to.safeTransferETH(tokenAmount);
+        } else {
+            ERC20(tokenAddress).safeTransfer(to, tokenAmount);
+        }
     }
 
     /// @notice Reverts if networks tokens are sent directly to this contract
