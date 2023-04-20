@@ -57,14 +57,9 @@ contract BalancerV2Portal is Owned {
 
         bytes memory userData = abi.encode(1, maxAmountsIn, 0);
 
-        uint256 valueToSend;
-        if (sellToken == address(0)) {
-            valueToSend = amount;
-        } else {
-            _approve(sellToken, vault);
-        }
+        _approve(sellToken, vault);
 
-        IBalancerVault(vault).joinPool{ value: valueToSend }(
+        IBalancerVault(vault).joinPool(
             poolId,
             address(this),
             recipient,
