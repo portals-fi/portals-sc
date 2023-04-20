@@ -1,7 +1,7 @@
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
-/// @notice This contract adds liquidity to Balancer V2 like pools using any ERC20 token or the network token.
+/// @notice This contract adds or removes liquidity to or from Balancer V2 like pools using any ERC20 token or the network token.
 /// @note This contract is intended to be consumed via a multicall contract and as such omits various checks
 /// including slippage and does not return the quantity of tokens acquired. These checks should be handled
 /// by the caller
@@ -59,7 +59,7 @@ contract BalancerV2Portal is Owned {
 
         uint256 valueToSend;
         if (sellToken == address(0)) {
-            valueToSend = sellAmount;
+            valueToSend = amount;
         } else {
             _approve(sellToken, vault);
         }
@@ -73,6 +73,44 @@ contract BalancerV2Portal is Owned {
                 maxAmountsIn: maxAmountsIn,
                 userData: userData,
                 fromInternalBalance: false
+            })
+        );
+    }
+
+    /// @notice Remove liquidity from Balancer V2 like pools into network tokens/ERC20 tokens
+    /// @param sellToken The Balancer V2 like pool address (i.e. the LP token address)
+    /// @param sellAmount The quantity of sellToken to Portal out
+    /// @param vault The Balancer V2 like vault to be used for removing liquidity
+    /// @param poolId The ID of the pool to remove liquidity from
+    /// @param assets The assets in the pool
+    /// @param index The index of the asset to remove
+    /// @param recipient The recipient of the withdrawn tokens
+    function portalOut(
+        address sellToken,
+        uint256 sellAmount,
+        address vault,
+        bytes32 poolId,
+        address[] memory assets,
+        uint256 index,
+        address payable recipient
+    ) external payable pausable {
+        uint256 amount = _transferFromCaller(sellToken, sellAmount);
+
+        uint256[] memory minAmountsOut = new uint256[](assets.length);
+
+        bytes memory userData = abi.encode(0, amount, index);
+
+        _approve(sellToken, address(vault));
+
+        IBalancerVault(vault).exitPool(
+            poolId,
+            address(this),
+            recipient,
+            IBalancerVault.ExitPoolRequest({
+                assets: assets,
+                minAmountsOut: minAmountsOut,
+                userData: userData,
+                toInternalBalance: false
             })
         );
     }
