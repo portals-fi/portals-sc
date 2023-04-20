@@ -145,6 +145,77 @@ contract BalancerV2PortalTest is Test {
         assertTrue(finalBalance > initialBalance);
     }
 
+    function test_PortalOut_BalancerV2_wstETH_WETH_to_WETH() public {
+        test_PortalIn_BalancerV2_wstETH_WETH_With_ETH_Using_WETH_Intermediate(
+        );
+        address sellToken = wstETH_WETH;
+        uint256 sellAmount = ERC20(sellToken).balanceOf(user);
+        uint256 value = 0;
+
+        address buyToken = WETH;
+        bytes32 poolId =
+            0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080;
+
+        uint256 numCalls = 2;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            sellToken: sellToken,
+            sellAmount: sellAmount,
+            buyToken: buyToken,
+            minBuyAmount: 1,
+            feeToken: sellToken,
+            fee: 0,
+            recipient: user,
+            partner: partner
+        });
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        address[] memory assets = new address[](2);
+        assets[0] = wstETH;
+        assets[1] = WETH;
+
+        calls[0] = IPortalsMulticall.Call(
+            sellToken,
+            sellToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)",
+                address(balancerV2Portal),
+                0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(
+            sellToken,
+            address(balancerV2Portal),
+            abi.encodeWithSignature(
+                "portalOut(address,uint256,address,bytes32,address[],uint256,address)",
+                sellToken,
+                0,
+                BalancerV2Vault,
+                poolId,
+                assets,
+                1,
+                user
+            ),
+            1
+        );
+
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
+        ERC20(sellToken).approve(address(router), type(uint256).max);
+
+        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+
+        router.portal{ value: value }(orderPayload);
+
+        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
+
+        assertTrue(finalBalance > initialBalance);
+    }
+
     function test_Pausable() public {
         changePrank(owner);
         assertTrue(!router.paused());
