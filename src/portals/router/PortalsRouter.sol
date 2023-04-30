@@ -22,12 +22,12 @@ contract PortalsRouter is RouterBase {
     /// @notice This function is the simplest entry point for the Portals Router. It is intended
     /// to be called by the sender of the order (i.e. msg.sender).
     /// @param orderPayload The order payload containing the details of the trade
-    /// @return buyAmount The quantity of buyToken received after validation of the order
+    /// @return outputAmount The quantity of outputToken received after validation of the order
     function portal(IPortalsRouter.OrderPayload calldata orderPayload)
         public
         payable
         pausable
-        returns (uint256 buyAmount)
+        returns (uint256 outputAmount)
     {
         return _execute(
             msg.sender,
@@ -35,8 +35,8 @@ contract PortalsRouter is RouterBase {
             orderPayload.calls,
             _transferFromSender(
                 msg.sender,
-                orderPayload.order.sellToken,
-                orderPayload.order.sellAmount
+                orderPayload.order.inputToken,
+                orderPayload.order.inputAmount
             )
         );
     }
@@ -45,22 +45,22 @@ contract PortalsRouter is RouterBase {
     /// to be called by the sender of the order (i.e. msg.sender).
     /// @param orderPayload The order payload containing the details of the trade
     /// @param permitPayload The permit payload struct containing the details of the permit
-    /// @return buyAmount The quantity of buyToken received after validation of the order
+    /// @return outputAmount The quantity of outputToken received after validation of the order
     function portalWithPermit(
         IPortalsRouter.OrderPayload calldata orderPayload,
         IPortalsRouter.PermitPayload calldata permitPayload
-    ) external pausable returns (uint256 buyAmount) {
-        _permit(orderPayload.order.sellToken, permitPayload);
+    ) external pausable returns (uint256 outputAmount) {
+        _permit(orderPayload.order.inputToken, permitPayload);
         return portal(orderPayload);
     }
 
     /// This function uses Portals signed orders to facilitate gasless portals. It is intended
     /// to be called by a broadcaster (i.e. msg.sender != order.sender).
     /// @param signedOrderPayload The signed order payload containing the details of the signed order
-    /// @return buyAmount The quantity of buyToken received after validation of the order
+    /// @return outputAmount The quantity of outputToken received after validation of the order
     function portalWithSignature(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload
-    ) public pausable returns (uint256 buyAmount) {
+    ) public pausable returns (uint256 outputAmount) {
         _verify(
             signedOrderPayload.signedOrder,
             signedOrderPayload.signature
@@ -71,8 +71,8 @@ contract PortalsRouter is RouterBase {
             signedOrderPayload.calls,
             _transferFromSender(
                 signedOrderPayload.signedOrder.sender,
-                signedOrderPayload.signedOrder.order.sellToken,
-                signedOrderPayload.signedOrder.order.sellAmount
+                signedOrderPayload.signedOrder.order.inputToken,
+                signedOrderPayload.signedOrder.order.inputAmount
             )
         );
     }
@@ -81,13 +81,13 @@ contract PortalsRouter is RouterBase {
     /// in addition to gassless Portals. It is intended to be called by a broadcaster (i.e. msg.sender != order.sender).
     /// @param signedOrderPayload The signed order payload containing the details of the signed order
     /// @param permitPayload The permit payload struct containing the details of the permit
-    /// @return buyAmount The quantity of buyToken received after validation of the order
+    /// @return outputAmount The quantity of outputToken received after validation of the order
     function portalWithSignatureAndPermit(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         IPortalsRouter.PermitPayload calldata permitPayload
-    ) external pausable returns (uint256 buyAmount) {
+    ) external pausable returns (uint256 outputAmount) {
         _permit(
-            signedOrderPayload.signedOrder.order.sellToken,
+            signedOrderPayload.signedOrder.order.inputToken,
             permitPayload
         );
 
@@ -95,30 +95,32 @@ contract PortalsRouter is RouterBase {
     }
 
     /// @notice This function executes calls to transform a sell token into a buy token.
-    /// The buyAmount of the buyToken specified in the order is validated against the minBuyAmount following the
+    /// The outputAmount of the outputToken specified in the order is validated against the minOutputAmount following the
     /// aggregate call of Portals Multicall.
     /// @param sender The sender(signer) of the order
     /// @param order The order struct containing the details of the trade
     /// @param calls The array of calls to be executed by the Portals Multicall
     /// @param value The value of native tokens to be sent to the Portals Multicall
-    /// @return buyAmount The quantity of buyToken received after validation of the order
+    /// @return outputAmount The quantity of outputToken received after validation of the order
     function _execute(
         address sender,
         IPortalsRouter.Order calldata order,
         IPortalsMulticall.Call[] calldata calls,
         uint256 value
-    ) private returns (uint256 buyAmount) {
+    ) private returns (uint256 outputAmount) {
         uint256 collected;
         collected = _getBalance(collector, order.feeToken);
-        buyAmount = _getBalance(order.recipient, order.buyToken);
+        outputAmount = _getBalance(order.recipient, order.outputToken);
 
         Portals_Multicall.aggregate{ value: value }(calls);
 
-        buyAmount =
-            _getBalance(order.recipient, order.buyToken) - buyAmount;
+        outputAmount = _getBalance(order.recipient, order.outputToken)
+            - outputAmount;
 
-        if (buyAmount < order.minBuyAmount) {
-            revert InsufficientBuy(buyAmount, order.minBuyAmount);
+        if (outputAmount < order.minOutputAmount) {
+            revert InsufficientBuy(
+                outputAmount, order.minOutputAmount
+            );
         }
 
         require(
@@ -128,10 +130,10 @@ contract PortalsRouter is RouterBase {
         );
 
         emit Portal(
-            order.sellToken,
-            order.sellAmount,
-            order.buyToken,
-            buyAmount,
+            order.inputToken,
+            order.inputAmount,
+            order.outputToken,
+            outputAmount,
             order.feeToken,
             order.fee,
             sender,

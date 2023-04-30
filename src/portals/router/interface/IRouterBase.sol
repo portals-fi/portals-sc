@@ -8,21 +8,21 @@ pragma solidity 0.8.17;
 
 interface IRouterBase {
     /// @notice Emitted when Portalling
-    /// @param sellToken The ERC20 token address to spend (address(0) if network token)
-    /// @param sellAmount The quantity of sellToken to send
-    /// @param buyToken The ERC20 token address to buy (address(0) if network token)
-    /// @param buyAmount The quantity of buyToken received
+    /// @param inputToken The ERC20 token address to spend (address(0) if network token)
+    /// @param inputAmount The quantity of inputToken to send
+    /// @param outputToken The ERC20 token address to buy (address(0) if network token)
+    /// @param outputAmount The quantity of outputToken received
     /// @param feeToken The ERC20 token address to pay fees in (address(0) if network token)
     /// @param fee The total fee in base units of feeToken (including gas fee if applicable)
     /// @param sender The sender(signer) of the order
     /// @param broadcaster The msg.sender of the broadcasted transaction
-    /// @param recipient The recipient of the buyToken
+    /// @param recipient The recipient of the outputToken
     /// @param partner The front end operator address
     event Portal(
-        address sellToken,
-        uint256 sellAmount,
-        address buyToken,
-        uint256 buyAmount,
+        address inputToken,
+        uint256 inputAmount,
+        address outputToken,
+        uint256 outputAmount,
         address feeToken,
         uint256 fee,
         address indexed sender,
@@ -44,7 +44,9 @@ interface IRouterBase {
     event Pause(bool paused);
 
     /// Thrown when insufficient liquidity is received after deposit or withdrawal
-    /// @param buyAmount The amount of liquidity received
-    /// @param minBuyAmount The minimum acceptable quantity of liquidity received
-    error InsufficientBuy(uint256 buyAmount, uint256 minBuyAmount);
+    /// @param outputAmount The amount of liquidity received
+    /// @param minOutputAmount The minimum acceptable quantity of liquidity received
+    error InsufficientBuy(
+        uint256 outputAmount, uint256 minOutputAmount
+    );
 }

@@ -8,12 +8,12 @@ pragma solidity 0.8.17;
 
 interface IPortalsMulticall {
     /// @dev Describes a call to be executed in the aggregate function of PortalsMulticall.sol
-    /// @param sellToken The token to sell
+    /// @param inputToken The token to sell
     /// @param target The target contract to call
     /// @param data The data to call the target contract with
-    /// @param amountIndex The index of the quantity of sellToken in the data
+    /// @param amountIndex The index of the quantity of inputToken in the data
     struct Call {
-        address sellToken;
+        address inputToken;
         address target;
         bytes data;
         uint256 amountIndex;

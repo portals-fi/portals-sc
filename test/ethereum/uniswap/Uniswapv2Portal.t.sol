@@ -68,29 +68,29 @@ contract UniswapV2PortalTest is Test {
 
     function test_PortalIn_UniswapV2_USDC_WETH_With_ETH_Using_USDC_Intermediate(
     ) public {
-        address sellToken = address(0);
-        uint256 sellAmount = 5 ether;
-        uint256 value = sellAmount;
+        address inputToken = address(0);
+        uint256 inputAmount = 5 ether;
+        uint256 value = inputAmount;
 
         address intermediateToken = USDC;
 
-        address buyToken = USDC_WETH;
+        address outputToken = USDC_WETH;
 
         uint256 numCalls = 3;
 
         IPortalsRouter.Order memory order = IPortalsRouter.Order({
-            sellToken: sellToken,
-            sellAmount: sellAmount,
-            buyToken: buyToken,
-            minBuyAmount: 1,
-            feeToken: sellToken,
+            inputToken: inputToken,
+            inputAmount: inputAmount,
+            outputToken: outputToken,
+            minOutputAmount: 1,
+            feeToken: inputToken,
             fee: 0,
             recipient: user,
             partner: partner
         });
 
         IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
-            sellToken, sellAmount, intermediateToken, "0.03"
+            inputToken, inputAmount, intermediateToken, "0.03"
         );
 
         (address target, bytes memory data) = quote.quote(quoteParams);
@@ -99,7 +99,7 @@ contract UniswapV2PortalTest is Test {
             new IPortalsMulticall.Call[](numCalls);
 
         calls[0] = IPortalsMulticall.Call(
-            sellToken, target, data, type(uint256).max
+            inputToken, target, data, type(uint256).max
         );
         calls[1] = IPortalsMulticall.Call(
             intermediateToken,
@@ -118,7 +118,7 @@ contract UniswapV2PortalTest is Test {
                 "portalIn(address,uint256,address,address,address)",
                 intermediateToken,
                 0,
-                buyToken,
+                outputToken,
                 UniswapV2router,
                 user
             ),
@@ -128,36 +128,36 @@ contract UniswapV2PortalTest is Test {
         IPortalsRouter.OrderPayload memory orderPayload =
         IPortalsRouter.OrderPayload({ order: order, calls: calls });
 
-        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+        uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
         router.portal{ value: value }(orderPayload);
 
-        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
+        uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
     }
 
     function test_PortalIn_UniswapV2_USDC_WETH_With_USDC_Using_USDC_Intermediate(
     ) public {
-        address sellToken = USDC;
-        uint256 sellAmount = 5_000_000_000; // 5000 USDC
+        address inputToken = USDC;
+        uint256 inputAmount = 5_000_000_000; // 5000 USDC
         uint256 value = 0;
 
-        deal(address(sellToken), user, sellAmount);
-        assertEq(ERC20(sellToken).balanceOf(user), sellAmount);
+        deal(address(inputToken), user, inputAmount);
+        assertEq(ERC20(inputToken).balanceOf(user), inputAmount);
 
         address intermediateToken = USDC;
 
-        address buyToken = USDC_WETH;
+        address outputToken = USDC_WETH;
 
         uint256 numCalls = 2;
 
         IPortalsRouter.Order memory order = IPortalsRouter.Order({
-            sellToken: sellToken,
-            sellAmount: sellAmount,
-            buyToken: buyToken,
-            minBuyAmount: 1,
-            feeToken: sellToken,
+            inputToken: inputToken,
+            inputAmount: inputAmount,
+            outputToken: outputToken,
+            minOutputAmount: 1,
+            feeToken: inputToken,
             fee: 0,
             recipient: user,
             partner: partner
@@ -182,8 +182,8 @@ contract UniswapV2PortalTest is Test {
             abi.encodeWithSignature(
                 "portalIn(address,uint256,address,address,address)",
                 intermediateToken,
-                sellAmount,
-                buyToken,
+                inputAmount,
+                outputToken,
                 UniswapV2router,
                 user
             ),
@@ -193,13 +193,13 @@ contract UniswapV2PortalTest is Test {
         IPortalsRouter.OrderPayload memory orderPayload =
         IPortalsRouter.OrderPayload({ order: order, calls: calls });
 
-        ERC20(sellToken).approve(address(router), sellAmount);
+        ERC20(inputToken).approve(address(router), inputAmount);
 
-        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+        uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
         router.portal{ value: value }(orderPayload);
 
-        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
+        uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
     }
