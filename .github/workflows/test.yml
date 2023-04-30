@@ -1,6 +1,11 @@
 name: test
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
 
 env:
   FOUNDRY_PROFILE: ci
@@ -10,8 +15,10 @@ jobs:
     strategy:
       fail-fast: true
 
-    name: Foundry project
+    name: Portals SC
     runs-on: ubuntu-latest
+    env:
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -32,3 +39,6 @@ jobs:
         run: |
           forge test -vvv
         id: test
+
+      - name: Run snapshot
+        run: forge snapshot
