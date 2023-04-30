@@ -1,37 +1,36 @@
 name: test
-
-on: [push]
-
+"on":
+  workflow_dispatch: null
+  pull_request: null
+  push:
+    branches:
+      - main
 env:
   FOUNDRY_PROFILE: ci
-
 jobs:
   check:
     strategy:
       fail-fast: true
-
-    name: Portals SC
+    name: Build and test Portals contracts
     runs-on: ubuntu-latest
+    env: null
+    MAINNET_RPC_URL: "${{ secrets.MAINNET_RPC_URL }}"
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
-
       - name: Run Forge build
         run: |
           forge --version
           forge build --sizes
         id: build
-
       - name: Run Forge tests
         run: |
           forge test -vvv
         id: test
-
       - name: Run snapshot
         run: forge snapshot
