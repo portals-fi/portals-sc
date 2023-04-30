@@ -494,7 +494,9 @@ contract PortalsRouterTest is Test {
             ),
             1
         );
-        calls[1] = IPortalsMulticall.Call(sellToken, target, data, 1);
+        calls[1] = IPortalsMulticall.Call(
+            sellToken, target, data, type(uint256).max
+        );
         calls[2] = IPortalsMulticall.Call(
             intermediateToken,
             intermediateToken,
@@ -658,7 +660,9 @@ contract PortalsRouterTest is Test {
             ),
             1
         );
-        calls[1] = IPortalsMulticall.Call(sellToken, target, data, 1);
+        calls[1] = IPortalsMulticall.Call(
+            sellToken, target, data, type(uint256).max
+        );
         calls[2] = IPortalsMulticall.Call(
             intermediateToken,
             intermediateToken,
@@ -900,7 +904,10 @@ contract PortalsRouterTest is Test {
         });
 
         IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
-            sellToken, sellAmount, intermediateToken, "0.03"
+            sellToken,
+            sellAmount - feeAmount,
+            intermediateToken,
+            "0.03"
         );
 
         (address target, bytes memory data) = quote.quote(quoteParams);
