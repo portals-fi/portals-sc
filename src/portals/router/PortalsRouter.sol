@@ -61,10 +61,7 @@ contract PortalsRouter is RouterBase {
     function portalWithSignature(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload
     ) public pausable returns (uint256 outputAmount) {
-        _verify(
-            signedOrderPayload.signedOrder,
-            signedOrderPayload.signature
-        );
+        _verify(signedOrderPayload);
         return _execute(
             signedOrderPayload.signedOrder.sender,
             signedOrderPayload.signedOrder.order,

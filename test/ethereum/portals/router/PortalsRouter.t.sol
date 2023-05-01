@@ -596,7 +596,9 @@ contract PortalsRouterTest is Test {
         );
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
-            createSignedOrderPayload(order, router.DOMAIN_SEPARATOR());
+        createSignedOrderPayload(
+            order, calls, router.DOMAIN_SEPARATOR()
+        );
         signedOrderPayload.calls = calls;
 
         ERC20(inputToken).approve(address(router), inputAmount);
@@ -684,7 +686,9 @@ contract PortalsRouterTest is Test {
         );
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
-            createSignedOrderPayload(order, router.DOMAIN_SEPARATOR());
+        createSignedOrderPayload(
+            order, calls, router.DOMAIN_SEPARATOR()
+        );
         signedOrderPayload.calls = calls;
 
         ERC20(inputToken).approve(address(router), inputAmount);
@@ -761,7 +765,9 @@ contract PortalsRouterTest is Test {
         );
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
-            createSignedOrderPayload(order, router.DOMAIN_SEPARATOR());
+        createSignedOrderPayload(
+            order, calls, router.DOMAIN_SEPARATOR()
+        );
         signedOrderPayload.calls = calls;
 
         IPortalsRouter.PermitPayload memory permitPayload =
@@ -859,7 +865,9 @@ contract PortalsRouterTest is Test {
         );
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
-            createSignedOrderPayload(order, router.DOMAIN_SEPARATOR());
+        createSignedOrderPayload(
+            order, calls, router.DOMAIN_SEPARATOR()
+        );
         signedOrderPayload.calls = calls;
 
         ERC20(inputToken).approve(address(router), inputAmount);
@@ -1034,6 +1042,7 @@ contract PortalsRouterTest is Test {
 
     function createSignedOrderPayload(
         IPortalsRouter.Order memory order,
+        IPortalsMulticall.Call[] memory calls,
         bytes32 domainSeparator
     )
         public
@@ -1046,6 +1055,7 @@ contract PortalsRouterTest is Test {
         IPortalsRouter.SignedOrder memory signedOrder = IPortalsRouter
             .SignedOrder({
             order: order,
+            routeHash: keccak256(abi.encode(calls)),
             sender: user,
             deadline: type(uint32).max,
             nonce: router.nonces(user)
@@ -1056,9 +1066,6 @@ contract PortalsRouterTest is Test {
 
         (uint8 v, bytes32 r, bytes32 s) =
             vm.sign(userPrivateKey, digest);
-
-        IPortalsMulticall.Call[] memory calls =
-            new IPortalsMulticall.Call[](0);
 
         signedOrderPayload = IPortalsRouter.SignedOrderPayload({
             signedOrder: signedOrder,
