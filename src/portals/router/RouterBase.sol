@@ -61,7 +61,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     //EIP712 Signed Order Typehash
     bytes32 internal constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "SignedOrder(Order order,address sender,uint256 deadline,uint32 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address feeToken,uint256 fee,address recipient,address partner)"
+            "SignedOrder(Order order,bytes32 routeHash,address sender,uint256 deadline,uint32 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address feeToken,uint256 fee,address recipient,address partner)"
         )
     );
 
@@ -133,36 +133,36 @@ abstract contract RouterBase is IRouterBase, Owned {
     /// @notice Signature verification function to verify Portals signed orders. Supports both ECDSA
     /// signatures from externally owned accounts (EOAs) as well as ERC1271 signatures from smart contract wallets
     /// @dev Returns nothing if the order is valid but reverts if the signature is invalid
-    /// @param signedOrder The signed order to verify
-    /// @param signature The signature of the signed order
+    /// @param signedOrderPayload The signed order payload to verify
     function _verify(
-        IPortalsRouter.SignedOrder calldata signedOrder,
-        bytes calldata signature
+        IPortalsRouter.SignedOrderPayload calldata signedOrderPayload
     ) internal {
         require(
-            signedOrder.deadline >= block.timestamp,
+            signedOrderPayload.signedOrder.deadline >= block.timestamp,
             "PortalsRouter: Order expired"
         );
+
         bytes32 orderHash = keccak256(
             abi.encode(
                 ORDER_TYPEHASH,
-                signedOrder.order.inputToken,
-                signedOrder.order.inputAmount,
-                signedOrder.order.outputToken,
-                signedOrder.order.minOutputAmount,
-                signedOrder.order.feeToken,
-                signedOrder.order.fee,
-                signedOrder.order.recipient,
-                signedOrder.order.partner
+                signedOrderPayload.signedOrder.order.inputToken,
+                signedOrderPayload.signedOrder.order.inputAmount,
+                signedOrderPayload.signedOrder.order.outputToken,
+                signedOrderPayload.signedOrder.order.minOutputAmount,
+                signedOrderPayload.signedOrder.order.feeToken,
+                signedOrderPayload.signedOrder.order.fee,
+                signedOrderPayload.signedOrder.order.recipient,
+                signedOrderPayload.signedOrder.order.partner
             )
         );
         bytes32 signedOrderHash = keccak256(
             abi.encode(
                 SIGNED_ORDER_TYPEHASH,
                 orderHash,
-                signedOrder.sender,
-                signedOrder.deadline,
-                nonces[signedOrder.sender]++
+                keccak256(abi.encode(signedOrderPayload.calls)),
+                signedOrderPayload.signedOrder.sender,
+                signedOrderPayload.signedOrder.deadline,
+                nonces[signedOrderPayload.signedOrder.sender]++
             )
         );
 
@@ -174,7 +174,9 @@ abstract contract RouterBase is IRouterBase, Owned {
 
         require(
             SignatureChecker.isValidSignatureNow(
-                signedOrder.sender, digest, signature
+                signedOrderPayload.signedOrder.sender,
+                digest,
+                signedOrderPayload.signature
             ),
             "PortalsRouter: Invalid signature"
         );

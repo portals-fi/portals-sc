@@ -38,11 +38,13 @@ interface IPortalsRouter {
     }
 
     /// @param order The order containing the details of the trade
+    /// @param routeHash The hash of the abi encoded calls array
     /// @param sender The signer of the order and the sender of the inputToken
     /// @param deadline The deadline after which the order is no longer valid
     /// @param nonce The nonce of the sender(signer)
     struct SignedOrder {
         Order order;
+        bytes32 routeHash;
         address sender;
         uint64 deadline;
         uint64 nonce;

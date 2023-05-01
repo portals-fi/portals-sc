@@ -28,7 +28,7 @@ contract SigUtils {
     //EIP712 Signed Order Typehash
     bytes32 public constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "SignedOrder(Order order,address sender,uint256 deadline,uint32 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address feeToken,uint256 fee,address recipient,address partner)"
+            "SignedOrder(Order order,bytes32 routeHash,address sender,uint256 deadline,uint32 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address feeToken,uint256 fee,address recipient,address partner)"
         )
     );
 
@@ -104,6 +104,7 @@ contract SigUtils {
             abi.encode(
                 SIGNED_ORDER_TYPEHASH,
                 orderHash,
+                _signedOrder.routeHash,
                 _signedOrder.sender,
                 _signedOrder.deadline,
                 _signedOrder.nonce
