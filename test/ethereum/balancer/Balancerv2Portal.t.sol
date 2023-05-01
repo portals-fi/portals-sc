@@ -72,24 +72,24 @@ contract BalancerV2PortalTest is Test {
 
     function test_PortalIn_BalancerV2_wstETH_WETH_With_ETH_Using_WETH_Intermediate(
     ) public {
-        address sellToken = address(0);
-        uint256 sellAmount = 5 ether;
-        uint256 value = sellAmount;
+        address inputToken = address(0);
+        uint256 inputAmount = 5 ether;
+        uint256 value = inputAmount;
 
         address intermediateToken = WETH;
 
-        address buyToken = wstETH_WETH;
+        address outputToken = wstETH_WETH;
         bytes32 poolId =
             0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080;
 
         uint256 numCalls = 3;
 
         IPortalsRouter.Order memory order = IPortalsRouter.Order({
-            sellToken: sellToken,
-            sellAmount: sellAmount,
-            buyToken: buyToken,
-            minBuyAmount: 1,
-            feeToken: sellToken,
+            inputToken: inputToken,
+            inputAmount: inputAmount,
+            outputToken: outputToken,
+            minOutputAmount: 1,
+            feeToken: inputToken,
             fee: 0,
             recipient: user,
             partner: partner
@@ -102,7 +102,7 @@ contract BalancerV2PortalTest is Test {
         assets[1] = WETH;
 
         calls[0] = IPortalsMulticall.Call(
-            sellToken,
+            inputToken,
             intermediateToken,
             abi.encodeWithSignature("deposit()"),
             type(uint256).max
@@ -136,11 +136,11 @@ contract BalancerV2PortalTest is Test {
         IPortalsRouter.OrderPayload memory orderPayload =
         IPortalsRouter.OrderPayload({ order: order, calls: calls });
 
-        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+        uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
         router.portal{ value: value }(orderPayload);
 
-        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
+        uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
     }
@@ -148,22 +148,22 @@ contract BalancerV2PortalTest is Test {
     function test_PortalOut_BalancerV2_wstETH_WETH_to_WETH() public {
         test_PortalIn_BalancerV2_wstETH_WETH_With_ETH_Using_WETH_Intermediate(
         );
-        address sellToken = wstETH_WETH;
-        uint256 sellAmount = ERC20(sellToken).balanceOf(user);
+        address inputToken = wstETH_WETH;
+        uint256 inputAmount = ERC20(inputToken).balanceOf(user);
         uint256 value = 0;
 
-        address buyToken = WETH;
+        address outputToken = WETH;
         bytes32 poolId =
             0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080;
 
         uint256 numCalls = 2;
 
         IPortalsRouter.Order memory order = IPortalsRouter.Order({
-            sellToken: sellToken,
-            sellAmount: sellAmount,
-            buyToken: buyToken,
-            minBuyAmount: 1,
-            feeToken: sellToken,
+            inputToken: inputToken,
+            inputAmount: inputAmount,
+            outputToken: outputToken,
+            minOutputAmount: 1,
+            feeToken: inputToken,
             fee: 0,
             recipient: user,
             partner: partner
@@ -177,8 +177,8 @@ contract BalancerV2PortalTest is Test {
         assets[1] = WETH;
 
         calls[0] = IPortalsMulticall.Call(
-            sellToken,
-            sellToken,
+            inputToken,
+            inputToken,
             abi.encodeWithSignature(
                 "approve(address,uint256)",
                 address(balancerV2Portal),
@@ -187,11 +187,11 @@ contract BalancerV2PortalTest is Test {
             1
         );
         calls[1] = IPortalsMulticall.Call(
-            sellToken,
+            inputToken,
             address(balancerV2Portal),
             abi.encodeWithSignature(
                 "portalOut(address,uint256,address,bytes32,address[],uint256,address)",
-                sellToken,
+                inputToken,
                 0,
                 BalancerV2Vault,
                 poolId,
@@ -205,13 +205,13 @@ contract BalancerV2PortalTest is Test {
         IPortalsRouter.OrderPayload memory orderPayload =
         IPortalsRouter.OrderPayload({ order: order, calls: calls });
 
-        ERC20(sellToken).approve(address(router), type(uint256).max);
+        ERC20(inputToken).approve(address(router), type(uint256).max);
 
-        uint256 initialBalance = ERC20(buyToken).balanceOf(user);
+        uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
         router.portal{ value: value }(orderPayload);
 
-        uint256 finalBalance = ERC20(buyToken).balanceOf(user);
+        uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
     }

@@ -10,19 +10,19 @@ import { IPortalsMulticall } from
     "../..//multicall/interface/IPortalsMulticall.sol";
 
 interface IPortalsRouter {
-    /// @param sellToken The ERC20 token address to spend (address(0) if network token)
-    /// @param sellAmount The quantity of sellToken to Portal
-    /// @param buyToken The ERC20 token address to buy (address(0) if network token)
-    /// @param minBuyAmount The minimum acceptable quantity of buyToken to receive. Reverts otherwise.
+    /// @param inputToken The ERC20 token address to spend (address(0) if network token)
+    /// @param inputAmount The quantity of inputToken to Portal
+    /// @param outputToken The ERC20 token address to buy (address(0) if network token)
+    /// @param minOutputAmount The minimum acceptable quantity of outputToken to receive. Reverts otherwise.
     /// @param feeToken The ERC20 token address to pay fees in (address(0) if network token)
     /// @param fee The total fee in base units of feeToken (including gas fee if applicable)
-    /// @param recipient The recipient of the buyToken
+    /// @param recipient The recipient of the outputToken
     /// @param partner The front end operator address
     struct Order {
-        address sellToken;
-        uint256 sellAmount;
-        address buyToken;
-        uint256 minBuyAmount;
+        address inputToken;
+        uint256 inputAmount;
+        address outputToken;
+        uint256 minOutputAmount;
         address feeToken;
         uint256 fee;
         address recipient;
@@ -31,14 +31,14 @@ interface IPortalsRouter {
 
     /// @param order The order containing the details of the trade
     /// @param calls The calls to be executed in the aggregate function of PortalsMulticall.sol to transform
-    /// sellToken to buyToken
+    /// inputToken to outputToken
     struct OrderPayload {
         Order order;
         IPortalsMulticall.Call[] calls;
     }
 
     /// @param order The order containing the details of the trade
-    /// @param sender The signer of the order and the sender of the sellToken
+    /// @param sender The signer of the order and the sender of the inputToken
     /// @param deadline The deadline after which the order is no longer valid
     /// @param nonce The nonce of the sender(signer)
     struct SignedOrder {
@@ -51,7 +51,7 @@ interface IPortalsRouter {
     /// @param signedOrder The signed order containing the details of the trade
     /// @param signature The signature of the signed order
     /// @param calls The calls to be executed in the aggregate function of PortalsMulticall.sol to transform
-    /// sellToken to buyToken
+    /// inputToken to outputToken
     struct SignedOrderPayload {
         SignedOrder signedOrder;
         bytes signature;

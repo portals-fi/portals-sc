@@ -37,37 +37,37 @@ contract UniswapV2Portal is Owned {
     constructor(address admin) Owned(admin) { }
 
     /// @notice Add liquidity to Uniswap V2-like pools with network tokens/ERC20 tokens
-    /// @param sellToken The ERC20 token address to spend (address(0) if network token)
-    /// @param sellAmount The quantity of sellToken to Portal in
-    /// @param buyToken The pool (i.e. pair) address
+    /// @param inputToken The ERC20 token address to spend (address(0) if network token)
+    /// @param inputAmount The quantity of inputToken to Portal in
+    /// @param outputToken The pool (i.e. pair) address
     /// @param router The Uniswap V2-like router to be used for adding liquidity
     /// @param recipient The recipient of the liquidity tokens
     function portalIn(
-        address sellToken,
-        uint256 sellAmount,
-        address buyToken,
+        address inputToken,
+        uint256 inputAmount,
+        address outputToken,
         IUniswapV2Router02 router,
         address recipient
     ) external payable pausable {
-        uint256 amount = _transferFromCaller(sellToken, sellAmount);
+        uint256 amount = _transferFromCaller(inputToken, inputAmount);
 
-        _deposit(sellToken, amount, buyToken, router, recipient);
+        _deposit(inputToken, amount, outputToken, router, recipient);
     }
 
     /// @notice Sets up the correct token ratio and deposits into the pool
-    /// @param sellToken The token address to swap from
-    /// @param sellAmount The quantity of tokens to sell
-    /// @param buyToken The pool (i.e. pair) address
+    /// @param inputToken The token address to swap from
+    /// @param inputAmount The quantity of tokens to sell
+    /// @param outputToken The pool (i.e. pair) address
     /// @param router The Uniswap V2-like router to be used for adding liquidity
     /// @param recipient The recipient of the liquidity tokens
     function _deposit(
-        address sellToken,
-        uint256 sellAmount,
-        address buyToken,
+        address inputToken,
+        uint256 inputAmount,
+        address outputToken,
         IUniswapV2Router02 router,
         address recipient
     ) internal {
-        IUniswapV2Pair pair = IUniswapV2Pair(buyToken);
+        IUniswapV2Pair pair = IUniswapV2Pair(outputToken);
 
         (uint256 res0, uint256 res1,) = pair.getReserves();
 
@@ -76,22 +76,22 @@ contract UniswapV2Portal is Owned {
         uint256 token0Amount;
         uint256 token1Amount;
 
-        if (sellToken == token0) {
-            uint256 swapAmount = _getSwapAmount(res0, sellAmount);
-            if (swapAmount == 0) swapAmount = sellAmount / 2;
+        if (inputToken == token0) {
+            uint256 swapAmount = _getSwapAmount(res0, inputAmount);
+            if (swapAmount == 0) swapAmount = inputAmount / 2;
 
             token1Amount =
-                _intraSwap(sellToken, swapAmount, token1, router);
+                _intraSwap(inputToken, swapAmount, token1, router);
 
-            token0Amount = sellAmount - swapAmount;
+            token0Amount = inputAmount - swapAmount;
         } else {
-            uint256 swapAmount = _getSwapAmount(res1, sellAmount);
-            if (swapAmount == 0) swapAmount = sellAmount / 2;
+            uint256 swapAmount = _getSwapAmount(res1, inputAmount);
+            if (swapAmount == 0) swapAmount = inputAmount / 2;
 
             token0Amount =
-                _intraSwap(sellToken, swapAmount, token0, router);
+                _intraSwap(inputToken, swapAmount, token0, router);
 
-            token1Amount = sellAmount - swapAmount;
+            token1Amount = inputAmount - swapAmount;
         }
 
         _approve(token0, address(router));
@@ -113,7 +113,7 @@ contract UniswapV2Portal is Owned {
     /// that the proportion of both tokens held subsequent to the swap is
     /// equal to the proportion of the assets in the pool. Assumes typical
     /// Uniswap V2 fee.
-    /// @param reserves The reserves of the sellToken
+    /// @param reserves The reserves of the inputToken
     /// @param amount The total quantity of tokens held
     /// @return The quantity of the sell token to swap
     function _getSwapAmount(uint256 reserves, uint256 amount)
@@ -130,40 +130,40 @@ contract UniswapV2Portal is Owned {
     }
 
     /// @notice Used for intra-pool swaps of ERC20 assets
-    /// @param sellToken The token address to swap from
-    /// @param sellAmount The quantity of tokens to sell
-    /// @param buyToken The token address to swap to
+    /// @param inputToken The token address to swap from
+    /// @param inputAmount The quantity of tokens to sell
+    /// @param outputToken The token address to swap to
     /// @param router The Uniswap V2-like router to use for the swap
     /// @return tokenBought The quantity of tokens bought
     function _intraSwap(
-        address sellToken,
-        uint256 sellAmount,
-        address buyToken,
+        address inputToken,
+        uint256 inputAmount,
+        address outputToken,
         IUniswapV2Router02 router
     ) internal returns (uint256) {
-        if (sellToken == buyToken) {
-            return sellAmount;
+        if (inputToken == outputToken) {
+            return inputAmount;
         }
 
-        _approve(sellToken, address(router));
+        _approve(inputToken, address(router));
 
         address[] memory path = new address[](2);
-        path[0] = sellToken;
-        path[1] = buyToken;
+        path[0] = inputToken;
+        path[1] = outputToken;
 
-        ERC20 _buyToken = ERC20(buyToken);
+        ERC20 _outputToken = ERC20(outputToken);
 
-        uint256 beforeSwap = _buyToken.balanceOf(address(this));
+        uint256 beforeSwap = _outputToken.balanceOf(address(this));
 
         router.swapExactTokensForTokens(
-            sellAmount,
+            inputAmount,
             0,
             path,
             address(this),
             0xf000000000000000000000000000000000000000000000000000000000000000
         );
 
-        return _buyToken.balanceOf(address(this)) - beforeSwap;
+        return _outputToken.balanceOf(address(this)) - beforeSwap;
     }
 
     /// @notice Transfers tokens or the network token from the caller to this contract

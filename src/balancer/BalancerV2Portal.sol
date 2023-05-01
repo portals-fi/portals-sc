@@ -34,30 +34,30 @@ contract BalancerV2Portal is Owned {
     constructor(address admin) Owned(admin) { }
 
     /// @notice Add liquidity to Balancer V2 like pools with network tokens/ERC20 tokens
-    /// @param sellToken The ERC20 token address to spend (address(0) if network token)
-    /// @param sellAmount The quantity of sellToken to Portal in
+    /// @param inputToken The ERC20 token address to spend (address(0) if network token)
+    /// @param inputAmount The quantity of inputToken to Portal in
     /// @param vault The Balancer V2 like vault to be used for adding liquidity
     /// @param poolId The ID of the pool to add liquidity to
     /// @param assets The assets in the pool
     /// @param index The index of the asset to add
     /// @param recipient The recipient of the liquidity tokens
     function portalIn(
-        address sellToken,
-        uint256 sellAmount,
+        address inputToken,
+        uint256 inputAmount,
         address vault,
         bytes32 poolId,
         address[] memory assets,
         uint256 index,
         address recipient
     ) external payable pausable {
-        uint256 amount = _transferFromCaller(sellToken, sellAmount);
+        uint256 amount = _transferFromCaller(inputToken, inputAmount);
 
         uint256[] memory maxAmountsIn = new uint256[](assets.length);
         maxAmountsIn[index] = amount;
 
         bytes memory userData = abi.encode(1, maxAmountsIn, 0);
 
-        _approve(sellToken, vault);
+        _approve(inputToken, vault);
 
         IBalancerVault(vault).joinPool(
             poolId,
@@ -73,29 +73,29 @@ contract BalancerV2Portal is Owned {
     }
 
     /// @notice Remove liquidity from Balancer V2 like pools into network tokens/ERC20 tokens
-    /// @param sellToken The Balancer V2 like pool address (i.e. the LP token address)
-    /// @param sellAmount The quantity of sellToken to Portal out
+    /// @param inputToken The Balancer V2 like pool address (i.e. the LP token address)
+    /// @param inputAmount The quantity of inputToken to Portal out
     /// @param vault The Balancer V2 like vault to be used for removing liquidity
     /// @param poolId The ID of the pool to remove liquidity from
     /// @param assets The assets in the pool
     /// @param index The index of the asset to remove
     /// @param recipient The recipient of the withdrawn tokens
     function portalOut(
-        address sellToken,
-        uint256 sellAmount,
+        address inputToken,
+        uint256 inputAmount,
         address vault,
         bytes32 poolId,
         address[] memory assets,
         uint256 index,
         address payable recipient
     ) external payable pausable {
-        uint256 amount = _transferFromCaller(sellToken, sellAmount);
+        uint256 amount = _transferFromCaller(inputToken, inputAmount);
 
         uint256[] memory minAmountsOut = new uint256[](assets.length);
 
         bytes memory userData = abi.encode(0, amount, index);
 
-        _approve(sellToken, address(vault));
+        _approve(inputToken, address(vault));
 
         IBalancerVault(vault).exitPool(
             poolId,

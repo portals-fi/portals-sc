@@ -26,12 +26,12 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
             IPortalsMulticall.Call memory call = calls[i];
             uint256 balance;
             uint256 value;
-            if (call.sellToken == address(0)) {
+            if (call.inputToken == address(0)) {
                 value = address(this).balance;
                 _setAmount(call.data, call.amountIndex, value);
             } else {
                 balance =
-                    ERC20(call.sellToken).balanceOf(address(this));
+                    ERC20(call.inputToken).balanceOf(address(this));
                 _setAmount(call.data, call.amountIndex, balance);
             }
 
@@ -63,7 +63,7 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
 
     /// @dev Sets the quantity of a token a specified index in the data
     /// @param data The data to set the quantity in
-    /// @param amountIndex The index of the quantity of sellToken in the data
+    /// @param amountIndex The index of the quantity of inputToken in the data
     function _setAmount(
         bytes memory data,
         uint256 amountIndex,
