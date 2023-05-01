@@ -24,12 +24,12 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "buyAmount",
+        "name": "outputAmount",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "minBuyAmount",
+        "name": "minOutputAmount",
         "type": "uint256"
       }
     ],
@@ -100,25 +100,25 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "sellToken",
+        "name": "inputToken",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "sellAmount",
+        "name": "inputAmount",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "address",
-        "name": "buyToken",
+        "name": "outputToken",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "buyAmount",
+        "name": "outputAmount",
         "type": "uint256"
       },
       {
@@ -267,22 +267,22 @@
             "components": [
               {
                 "internalType": "address",
-                "name": "sellToken",
+                "name": "inputToken",
                 "type": "address"
               },
               {
                 "internalType": "uint256",
-                "name": "sellAmount",
+                "name": "inputAmount",
                 "type": "uint256"
               },
               {
                 "internalType": "address",
-                "name": "buyToken",
+                "name": "outputToken",
                 "type": "address"
               },
               {
                 "internalType": "uint256",
-                "name": "minBuyAmount",
+                "name": "minOutputAmount",
                 "type": "uint256"
               },
               {
@@ -314,7 +314,7 @@
             "components": [
               {
                 "internalType": "address",
-                "name": "sellToken",
+                "name": "inputToken",
                 "type": "address"
               },
               {
@@ -347,7 +347,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "buyAmount",
+        "name": "outputAmount",
         "type": "uint256"
       }
     ],
@@ -362,22 +362,22 @@
             "components": [
               {
                 "internalType": "address",
-                "name": "sellToken",
+                "name": "inputToken",
                 "type": "address"
               },
               {
                 "internalType": "uint256",
-                "name": "sellAmount",
+                "name": "inputAmount",
                 "type": "uint256"
               },
               {
                 "internalType": "address",
-                "name": "buyToken",
+                "name": "outputToken",
                 "type": "address"
               },
               {
                 "internalType": "uint256",
-                "name": "minBuyAmount",
+                "name": "minOutputAmount",
                 "type": "uint256"
               },
               {
@@ -409,7 +409,7 @@
             "components": [
               {
                 "internalType": "address",
-                "name": "sellToken",
+                "name": "inputToken",
                 "type": "address"
               },
               {
@@ -479,7 +479,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "buyAmount",
+        "name": "outputAmount",
         "type": "uint256"
       }
     ],
@@ -496,22 +496,22 @@
                 "components": [
                   {
                     "internalType": "address",
-                    "name": "sellToken",
+                    "name": "inputToken",
                     "type": "address"
                   },
                   {
                     "internalType": "uint256",
-                    "name": "sellAmount",
+                    "name": "inputAmount",
                     "type": "uint256"
                   },
                   {
                     "internalType": "address",
-                    "name": "buyToken",
+                    "name": "outputToken",
                     "type": "address"
                   },
                   {
                     "internalType": "uint256",
-                    "name": "minBuyAmount",
+                    "name": "minOutputAmount",
                     "type": "uint256"
                   },
                   {
@@ -538,6 +538,11 @@
                 "internalType": "struct IPortalsRouter.Order",
                 "name": "order",
                 "type": "tuple"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "routeHash",
+                "type": "bytes32"
               },
               {
                 "internalType": "address",
@@ -568,7 +573,7 @@
             "components": [
               {
                 "internalType": "address",
-                "name": "sellToken",
+                "name": "inputToken",
                 "type": "address"
               },
               {
@@ -601,7 +606,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "buyAmount",
+        "name": "outputAmount",
         "type": "uint256"
       }
     ],
@@ -618,22 +623,22 @@
                 "components": [
                   {
                     "internalType": "address",
-                    "name": "sellToken",
+                    "name": "inputToken",
                     "type": "address"
                   },
                   {
                     "internalType": "uint256",
-                    "name": "sellAmount",
+                    "name": "inputAmount",
                     "type": "uint256"
                   },
                   {
                     "internalType": "address",
-                    "name": "buyToken",
+                    "name": "outputToken",
                     "type": "address"
                   },
                   {
                     "internalType": "uint256",
-                    "name": "minBuyAmount",
+                    "name": "minOutputAmount",
                     "type": "uint256"
                   },
                   {
@@ -660,6 +665,11 @@
                 "internalType": "struct IPortalsRouter.Order",
                 "name": "order",
                 "type": "tuple"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "routeHash",
+                "type": "bytes32"
               },
               {
                 "internalType": "address",
@@ -690,7 +700,7 @@
             "components": [
               {
                 "internalType": "address",
-                "name": "sellToken",
+                "name": "inputToken",
                 "type": "address"
               },
               {
@@ -760,7 +770,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "buyAmount",
+        "name": "outputAmount",
         "type": "uint256"
       }
     ],
