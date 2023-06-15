@@ -13,11 +13,9 @@ import { IPortalsMulticall } from
 import { RouterBase } from "./RouterBase.sol";
 
 contract PortalsRouter is RouterBase {
-    constructor(
-        address _admin,
-        address _collector,
-        address _multicall
-    ) RouterBase(_admin, _collector, _multicall) { }
+    constructor(address _admin, address _multicall)
+        RouterBase(_admin, _multicall)
+    { }
 
     /// @notice This function is the simplest entry point for the Portals Router. It is intended
     /// to be called by the sender of the order (i.e. msg.sender).
@@ -105,8 +103,6 @@ contract PortalsRouter is RouterBase {
         IPortalsMulticall.Call[] calldata calls,
         uint256 value
     ) private returns (uint256 outputAmount) {
-        uint256 collected;
-        collected = _getBalance(collector, order.feeToken);
         outputAmount = _getBalance(order.recipient, order.outputToken);
 
         Portals_Multicall.aggregate{ value: value }(calls);
@@ -119,12 +115,6 @@ contract PortalsRouter is RouterBase {
                 outputAmount, order.minOutputAmount
             );
         }
-
-        require(
-            _getBalance(collector, order.feeToken) - collected
-                == order.fee,
-            "PortalsRouter: Invalid fee"
-        );
 
         emit Portal(
             order.inputToken,
