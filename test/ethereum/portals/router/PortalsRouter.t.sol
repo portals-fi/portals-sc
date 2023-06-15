@@ -59,7 +59,7 @@ contract PortalsRouterTest is Test {
     PortalsMulticall public multicall = new PortalsMulticall();
 
     PortalsRouter public router =
-        new PortalsRouter(owner, collector, address(multicall));
+        new PortalsRouter(owner, address(multicall));
 
     Quote public quote = new Quote();
 
@@ -597,7 +597,11 @@ contract PortalsRouterTest is Test {
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
         createSignedOrderPayload(
-            order, calls, router.DOMAIN_SEPARATOR()
+            order,
+            calls,
+            router.DOMAIN_SEPARATOR(),
+            user,
+            userPrivateKey
         );
         signedOrderPayload.calls = calls;
 
@@ -687,7 +691,11 @@ contract PortalsRouterTest is Test {
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
         createSignedOrderPayload(
-            order, calls, router.DOMAIN_SEPARATOR()
+            order,
+            calls,
+            router.DOMAIN_SEPARATOR(),
+            user,
+            userPrivateKey
         );
         signedOrderPayload.calls = calls;
 
@@ -766,7 +774,11 @@ contract PortalsRouterTest is Test {
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
         createSignedOrderPayload(
-            order, calls, router.DOMAIN_SEPARATOR()
+            order,
+            calls,
+            router.DOMAIN_SEPARATOR(),
+            user,
+            userPrivateKey
         );
         signedOrderPayload.calls = calls;
 
@@ -792,7 +804,7 @@ contract PortalsRouterTest is Test {
         public
     {
         address inputToken = USDC;
-        vm.assume(inputAmount > 1); //uint32 limits USDC to 4.29K
+        vm.assume(inputAmount > 1_000_000); //uint32 limits USDC to 4.29K
 
         deal(address(inputToken), user, inputAmount);
         assertEq(ERC20(inputToken).balanceOf(user), inputAmount);
@@ -837,9 +849,7 @@ contract PortalsRouterTest is Test {
             feeToken,
             feeToken,
             abi.encodeWithSignature(
-                "transfer(address,uint256)",
-                router.collector(),
-                feeAmount
+                "transfer(address,uint256)", collector, feeAmount
             ),
             type(uint256).max
         );
@@ -866,21 +876,35 @@ contract PortalsRouterTest is Test {
 
         IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
         createSignedOrderPayload(
-            order, calls, router.DOMAIN_SEPARATOR()
+            order,
+            calls,
+            router.DOMAIN_SEPARATOR(),
+            user,
+            userPrivateKey
         );
         signedOrderPayload.calls = calls;
 
         ERC20(inputToken).approve(address(router), inputAmount);
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
+        uint256 initialBalanceCollector =
+            ERC20(feeToken).balanceOf(collector);
+        console.log(initialBalanceCollector);
 
         changePrank(broadcaster);
 
         router.portalWithSignature(signedOrderPayload);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
+        uint256 finalBalanceCollector =
+            ERC20(feeToken).balanceOf(collector);
+        console.log(finalBalanceCollector);
 
         assertTrue(finalBalance > initialBalance);
+        assertTrue(
+            finalBalanceCollector - initialBalanceCollector
+                == feeAmount
+        );
     }
 
     function test_Ensure_Native_Fee_is_Collected() public {
@@ -895,8 +919,6 @@ contract PortalsRouterTest is Test {
         uint256 feeAmount = (inputAmount * fee) / 10_000;
 
         address outputToken = StargateUSDC;
-
-        uint16 poolId = 1;
 
         uint256 numCalls = 4;
 
@@ -927,9 +949,7 @@ contract PortalsRouterTest is Test {
             feeToken,
             address(multicall),
             abi.encodeWithSignature(
-                "transferEth(address,uint256)",
-                router.collector(),
-                feeAmount
+                "transferEth(address,uint256)", collector, feeAmount
             ),
             type(uint256).max
         );
@@ -948,10 +968,7 @@ contract PortalsRouterTest is Test {
             intermediateToken,
             StargateRouter,
             abi.encodeWithSignature(
-                "addLiquidity(uint256,uint256,address)",
-                poolId,
-                0,
-                user
+                "addLiquidity(uint256,uint256,address)", 1, 0, user
             ),
             1
         );
@@ -960,12 +977,18 @@ contract PortalsRouterTest is Test {
         IPortalsRouter.OrderPayload({ order: order, calls: calls });
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
+        uint256 initialBalanceCollector = collector.balance;
 
         router.portal{ value: value }(orderPayload);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
+        uint256 finalBalanceCollector = collector.balance;
 
         assertTrue(finalBalance > initialBalance);
+        assertTrue(
+            finalBalanceCollector - initialBalanceCollector
+                == feeAmount
+        );
     }
 
     function test_Pausable() public {
@@ -993,6 +1016,95 @@ contract PortalsRouterTest is Test {
         changePrank(adversary);
         assertTrue(!router.paused());
         router.pause();
+    }
+
+    function testFail_Portal_Only_Works_With_Valid_Signature()
+        public
+    {
+        address inputToken = WETH;
+        uint256 inputAmount = 5 ether;
+
+        deal(address(inputToken), user, inputAmount);
+        assertEq(ERC20(inputToken).balanceOf(user), inputAmount);
+
+        address intermediateToken = USDC;
+
+        address outputToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 4;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            inputToken: inputToken,
+            inputAmount: inputAmount,
+            outputToken: outputToken,
+            minOutputAmount: 1,
+            feeToken: inputToken,
+            fee: 0,
+            recipient: user,
+            partner: partner
+        });
+
+        address target;
+        bytes memory data;
+        if (inputToken != intermediateToken) {
+            IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+                inputToken, inputAmount, intermediateToken, "0.03"
+            );
+
+            (target, data) = quote.quote(quoteParams);
+        }
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            inputToken,
+            inputToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", target, 0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(
+            inputToken, target, data, type(uint256).max
+        );
+        calls[2] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[3] = IPortalsMulticall.Call(
+            intermediateToken,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
+        createSignedOrderPayload(
+            order,
+            calls,
+            router.DOMAIN_SEPARATOR(),
+            adversary,
+            adversaryPivateKey
+        );
+        signedOrderPayload.calls = calls;
+
+        ERC20(inputToken).approve(address(router), inputAmount);
+
+        changePrank(broadcaster);
+
+        router.portalWithSignature(signedOrderPayload);
     }
 
     function createPermitPayload(
@@ -1043,7 +1155,9 @@ contract PortalsRouterTest is Test {
     function createSignedOrderPayload(
         IPortalsRouter.Order memory order,
         IPortalsMulticall.Call[] memory calls,
-        bytes32 domainSeparator
+        bytes32 domainSeparator,
+        address sender,
+        uint256 senderPrivateKey
     )
         public
         returns (
@@ -1056,16 +1170,16 @@ contract PortalsRouterTest is Test {
             .SignedOrder({
             order: order,
             routeHash: keccak256(abi.encode(calls)),
-            sender: user,
+            sender: sender,
             deadline: type(uint32).max,
-            nonce: router.nonces(user)
+            nonce: router.nonces(sender)
         });
 
         bytes32 digest =
             sigUtils.getSignedOrderTypedDataHash(signedOrder);
 
         (uint8 v, bytes32 r, bytes32 s) =
-            vm.sign(userPrivateKey, digest);
+            vm.sign(senderPrivateKey, digest);
 
         signedOrderPayload = IPortalsRouter.SignedOrderPayload({
             signedOrder: signedOrder,

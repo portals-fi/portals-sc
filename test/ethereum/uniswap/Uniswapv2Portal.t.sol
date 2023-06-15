@@ -53,7 +53,7 @@ contract UniswapV2PortalTest is Test {
     PortalsMulticall public multicall = new PortalsMulticall();
 
     PortalsRouter public router =
-        new PortalsRouter(owner, collector, address(multicall));
+        new PortalsRouter(owner, address(multicall));
 
     Addresses public addresses = new Addresses();
 

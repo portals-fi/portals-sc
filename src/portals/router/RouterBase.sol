@@ -28,9 +28,6 @@ abstract contract RouterBase is IRouterBase, Owned {
     // Active status of this contract. If false, contract is active (i.e un-paused)
     bool public paused;
 
-    // The address of the fee collector
-    address public collector;
-
     // Circuit breaker
     modifier pausable() {
         require(!paused, "Paused");
@@ -71,12 +68,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     //Order nonces
     mapping(address => uint64) public nonces;
 
-    constructor(
-        address _admin,
-        address _collector,
-        address _multicall
-    ) Owned(_admin) {
-        collector = _collector;
+    constructor(address _admin, address _multicall) Owned(_admin) {
         Portals_Multicall = IPortalsMulticall(_multicall);
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
@@ -240,19 +232,8 @@ abstract contract RouterBase is IRouterBase, Owned {
         emit Pause(paused);
     }
 
-    /// @dev Updates the collector
-    /// @param _collector The new collector
-    function setCollector(address _collector) external onlyOwner {
-        require(
-            _collector != address(0),
-            "PortalsRouter: Invalid collector"
-        );
-        collector = _collector;
-        emit Collector(_collector);
-    }
-
     /// @dev Updates the multicall
-    /// @param multicall The new collector
+    /// @param multicall The new multicall address
     function setMulticall(address multicall) external onlyOwner {
         require(
             multicall != address(0),
@@ -268,16 +249,16 @@ abstract contract RouterBase is IRouterBase, Owned {
         nonces[msg.sender]++;
     }
 
-    /// @notice Recovers stuck tokens and sends them to the collector
+    /// @notice Recovers stuck tokens and sends them to the admin
     /// @param tokenAddress The address of the token to recover (address(0) if ETH)
     /// @param tokenAmount The quantity of tokens to recover
     function recoverToken(address tokenAddress, uint256 tokenAmount)
         external
     {
         if (tokenAddress == address(0)) {
-            collector.safeTransferETH(tokenAmount);
+            owner.safeTransferETH(tokenAmount);
         } else {
-            ERC20(tokenAddress).safeTransfer(collector, tokenAmount);
+            ERC20(tokenAddress).safeTransfer(owner, tokenAmount);
         }
     }
 }
