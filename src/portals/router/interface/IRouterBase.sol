@@ -12,8 +12,6 @@ interface IRouterBase {
     /// @param inputAmount The quantity of inputToken to send
     /// @param outputToken The ERC20 token address to buy (address(0) if network token)
     /// @param outputAmount The quantity of outputToken received
-    /// @param feeToken The ERC20 token address to pay fees in (address(0) if network token)
-    /// @param fee The total fee in base units of feeToken (including gas fee if applicable)
     /// @param sender The sender(signer) of the order
     /// @param broadcaster The msg.sender of the broadcasted transaction
     /// @param recipient The recipient of the outputToken
@@ -23,8 +21,6 @@ interface IRouterBase {
         uint256 inputAmount,
         address outputToken,
         uint256 outputAmount,
-        address feeToken,
-        uint256 fee,
         address indexed sender,
         address indexed broadcaster,
         address recipient,

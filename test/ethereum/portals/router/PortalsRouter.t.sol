@@ -86,8 +86,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
@@ -166,8 +164,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
@@ -253,8 +249,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
@@ -318,8 +312,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
@@ -400,8 +392,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
@@ -467,8 +457,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
@@ -556,8 +544,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
@@ -639,8 +625,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
@@ -733,8 +717,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
@@ -826,8 +808,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: feeAmount,
             recipient: user,
             partner: partner
         });
@@ -889,7 +869,6 @@ contract PortalsRouterTest is Test {
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
         uint256 initialBalanceCollector =
             ERC20(feeToken).balanceOf(collector);
-        console.log(initialBalanceCollector);
 
         changePrank(broadcaster);
 
@@ -898,7 +877,6 @@ contract PortalsRouterTest is Test {
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
         uint256 finalBalanceCollector =
             ERC20(feeToken).balanceOf(collector);
-        console.log(finalBalanceCollector);
 
         assertTrue(finalBalance > initialBalance);
         assertTrue(
@@ -927,8 +905,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: feeAmount,
             recipient: user,
             partner: partner
         });
@@ -1040,8 +1016,6 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
