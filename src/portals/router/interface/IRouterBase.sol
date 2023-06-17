@@ -27,10 +27,6 @@ interface IRouterBase {
         address indexed partner
     );
 
-    /// @notice Emitted when the collector is changed
-    /// @param collector The new collector
-    event Collector(address collector);
-
     /// @notice Emitted when the Portals multicall is changed
     /// @param multicall The new multicall contract
     event Multicall(address multicall);
