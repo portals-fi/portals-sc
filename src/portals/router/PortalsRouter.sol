@@ -121,8 +121,6 @@ contract PortalsRouter is RouterBase {
             order.inputAmount,
             order.outputToken,
             outputAmount,
-            order.feeToken,
-            order.fee,
             sender,
             msg.sender,
             order.recipient,

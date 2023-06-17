@@ -89,8 +89,6 @@ contract BalancerV2PortalTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
@@ -163,8 +161,6 @@ contract BalancerV2PortalTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            feeToken: inputToken,
-            fee: 0,
             recipient: user,
             partner: partner
         });
