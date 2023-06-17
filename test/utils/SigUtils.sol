@@ -21,14 +21,14 @@ contract SigUtils {
     //EIP712 Order Typehash
     bytes32 public constant ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient,address partner)"
+            "Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
     );
 
     //EIP712 Signed Order Typehash
     bytes32 public constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "SignedOrder(Order order,bytes32 routeHash,address sender,uint64 deadline,uint64 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient,address partner)"
+            "SignedOrder(Order order,bytes32 routeHash,address sender,uint64 deadline,uint64 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
     );
 
@@ -94,8 +94,7 @@ contract SigUtils {
                 _signedOrder.order.inputAmount,
                 _signedOrder.order.outputToken,
                 _signedOrder.order.minOutputAmount,
-                _signedOrder.order.recipient,
-                _signedOrder.order.partner
+                _signedOrder.order.recipient
             )
         );
         return keccak256(

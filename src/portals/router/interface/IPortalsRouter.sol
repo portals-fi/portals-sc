@@ -15,14 +15,12 @@ interface IPortalsRouter {
     /// @param outputToken The ERC20 token address to buy (address(0) if network token)
     /// @param minOutputAmount The minimum acceptable quantity of outputToken to receive. Reverts otherwise.
     /// @param recipient The recipient of the outputToken
-    /// @param partner The front end operator address
     struct Order {
         address inputToken;
         uint256 inputAmount;
         address outputToken;
         uint256 minOutputAmount;
         address recipient;
-        address partner;
     }
 
     /// @param order The order containing the details of the trade

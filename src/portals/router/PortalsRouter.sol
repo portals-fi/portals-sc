@@ -20,13 +20,12 @@ contract PortalsRouter is RouterBase {
     /// @notice This function is the simplest entry point for the Portals Router. It is intended
     /// to be called by the sender of the order (i.e. msg.sender).
     /// @param orderPayload The order payload containing the details of the trade
+    /// @param partner The front end operator address
     /// @return outputAmount The quantity of outputToken received after validation of the order
-    function portal(IPortalsRouter.OrderPayload calldata orderPayload)
-        public
-        payable
-        pausable
-        returns (uint256 outputAmount)
-    {
+    function portal(
+        IPortalsRouter.OrderPayload calldata orderPayload,
+        address partner
+    ) public payable pausable returns (uint256 outputAmount) {
         return _execute(
             msg.sender,
             orderPayload.order,
@@ -35,7 +34,8 @@ contract PortalsRouter is RouterBase {
                 msg.sender,
                 orderPayload.order.inputToken,
                 orderPayload.order.inputAmount
-            )
+            ),
+            partner
         );
     }
 
@@ -43,21 +43,25 @@ contract PortalsRouter is RouterBase {
     /// to be called by the sender of the order (i.e. msg.sender).
     /// @param orderPayload The order payload containing the details of the trade
     /// @param permitPayload The permit payload struct containing the details of the permit
+    /// @param partner The front end operator address
     /// @return outputAmount The quantity of outputToken received after validation of the order
     function portalWithPermit(
         IPortalsRouter.OrderPayload calldata orderPayload,
-        IPortalsRouter.PermitPayload calldata permitPayload
+        IPortalsRouter.PermitPayload calldata permitPayload,
+        address partner
     ) external pausable returns (uint256 outputAmount) {
         _permit(orderPayload.order.inputToken, permitPayload);
-        return portal(orderPayload);
+        return portal(orderPayload, partner);
     }
 
     /// This function uses Portals signed orders to facilitate gasless portals. It is intended
     /// to be called by a broadcaster (i.e. msg.sender != order.sender).
     /// @param signedOrderPayload The signed order payload containing the details of the signed order
+    /// @param partner The front end operator address
     /// @return outputAmount The quantity of outputToken received after validation of the order
     function portalWithSignature(
-        IPortalsRouter.SignedOrderPayload calldata signedOrderPayload
+        IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
+        address partner
     ) public pausable returns (uint256 outputAmount) {
         _verify(signedOrderPayload);
         return _execute(
@@ -68,7 +72,8 @@ contract PortalsRouter is RouterBase {
                 signedOrderPayload.signedOrder.sender,
                 signedOrderPayload.signedOrder.order.inputToken,
                 signedOrderPayload.signedOrder.order.inputAmount
-            )
+            ),
+            partner
         );
     }
 
@@ -76,17 +81,19 @@ contract PortalsRouter is RouterBase {
     /// in addition to gassless Portals. It is intended to be called by a broadcaster (i.e. msg.sender != order.sender).
     /// @param signedOrderPayload The signed order payload containing the details of the signed order
     /// @param permitPayload The permit payload struct containing the details of the permit
+    /// @param partner The front end operator address
     /// @return outputAmount The quantity of outputToken received after validation of the order
     function portalWithSignatureAndPermit(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
-        IPortalsRouter.PermitPayload calldata permitPayload
+        IPortalsRouter.PermitPayload calldata permitPayload,
+        address partner
     ) external pausable returns (uint256 outputAmount) {
         _permit(
             signedOrderPayload.signedOrder.order.inputToken,
             permitPayload
         );
 
-        return portalWithSignature(signedOrderPayload);
+        return portalWithSignature(signedOrderPayload, partner);
     }
 
     /// @notice This function executes calls to transform a sell token into a buy token.
@@ -96,12 +103,14 @@ contract PortalsRouter is RouterBase {
     /// @param order The order struct containing the details of the trade
     /// @param calls The array of calls to be executed by the Portals Multicall
     /// @param value The value of native tokens to be sent to the Portals Multicall
+    /// @param partner The front end operator address
     /// @return outputAmount The quantity of outputToken received after validation of the order
     function _execute(
         address sender,
         IPortalsRouter.Order calldata order,
         IPortalsMulticall.Call[] calldata calls,
-        uint256 value
+        uint256 value,
+        address partner
     ) private returns (uint256 outputAmount) {
         outputAmount = _getBalance(order.recipient, order.outputToken);
 
@@ -124,7 +133,7 @@ contract PortalsRouter is RouterBase {
             sender,
             msg.sender,
             order.recipient,
-            order.partner
+            partner
             );
     }
 }
