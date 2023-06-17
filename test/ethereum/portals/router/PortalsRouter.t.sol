@@ -86,8 +86,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
@@ -127,7 +126,7 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        router.portal{ value: value }(orderPayload);
+        router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
@@ -164,8 +163,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         // External quote
@@ -220,7 +218,7 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = user.balance;
 
-        router.portal{ value: value }(orderPayload);
+        router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = user.balance;
 
@@ -249,8 +247,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         IPortalsMulticall.Call[] memory calls =
@@ -283,7 +280,7 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        router.portal{ value: value }(orderPayload);
+        router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
@@ -312,8 +309,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
@@ -363,7 +359,7 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        router.portal{ value: value }(orderPayload);
+        router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
@@ -392,8 +388,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         IPortalsMulticall.Call[] memory calls =
@@ -429,7 +424,7 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        router.portalWithPermit(orderPayload, permitPayload);
+        router.portalWithPermit(orderPayload, permitPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
@@ -457,8 +452,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         address target;
@@ -515,7 +509,7 @@ contract PortalsRouterTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        router.portalWithPermit(orderPayload, permitPayload);
+        router.portalWithPermit(orderPayload, permitPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
@@ -544,8 +538,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         address target;
@@ -597,7 +590,7 @@ contract PortalsRouterTest is Test {
 
         changePrank(broadcaster);
 
-        router.portalWithSignature(signedOrderPayload);
+        router.portalWithSignature(signedOrderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
@@ -625,8 +618,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         address target;
@@ -689,7 +681,7 @@ contract PortalsRouterTest is Test {
 
         changePrank(broadcaster);
 
-        router.portalWithSignature(signedOrderPayload);
+        router.portalWithSignature(signedOrderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
@@ -717,8 +709,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         address target;
@@ -774,7 +765,7 @@ contract PortalsRouterTest is Test {
         changePrank(broadcaster);
 
         router.portalWithSignatureAndPermit(
-            signedOrderPayload, permitPayload
+            signedOrderPayload, permitPayload, partner
         );
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
@@ -808,8 +799,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         address target;
@@ -872,7 +862,7 @@ contract PortalsRouterTest is Test {
 
         changePrank(broadcaster);
 
-        router.portalWithSignature(signedOrderPayload);
+        router.portalWithSignature(signedOrderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
         uint256 finalBalanceCollector =
@@ -905,8 +895,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
@@ -955,7 +944,7 @@ contract PortalsRouterTest is Test {
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
         uint256 initialBalanceCollector = collector.balance;
 
-        router.portal{ value: value }(orderPayload);
+        router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
         uint256 finalBalanceCollector = collector.balance;
@@ -1016,8 +1005,7 @@ contract PortalsRouterTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         address target;
@@ -1078,7 +1066,7 @@ contract PortalsRouterTest is Test {
 
         changePrank(broadcaster);
 
-        router.portalWithSignature(signedOrderPayload);
+        router.portalWithSignature(signedOrderPayload, partner);
     }
 
     function createPermitPayload(

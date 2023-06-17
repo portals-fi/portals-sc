@@ -83,8 +83,7 @@ contract UniswapV2PortalTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
@@ -128,7 +127,7 @@ contract UniswapV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        router.portal{ value: value }(orderPayload);
+        router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
@@ -155,8 +154,7 @@ contract UniswapV2PortalTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
-            recipient: user,
-            partner: partner
+            recipient: user
         });
 
         IPortalsMulticall.Call[] memory calls =
@@ -193,7 +191,7 @@ contract UniswapV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        router.portal{ value: value }(orderPayload);
+        router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 

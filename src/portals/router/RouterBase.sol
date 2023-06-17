@@ -51,14 +51,14 @@ abstract contract RouterBase is IRouterBase, Owned {
     //EIP712 Order Typehash
     bytes32 internal constant ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient,address partner)"
+            "Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
     );
 
     //EIP712 Signed Order Typehash
     bytes32 internal constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
-            "SignedOrder(Order order,bytes32 routeHash,address sender,uint64 deadline,uint64 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient,address partner)"
+            "SignedOrder(Order order,bytes32 routeHash,address sender,uint64 deadline,uint64 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
     );
 
@@ -141,8 +141,7 @@ abstract contract RouterBase is IRouterBase, Owned {
                 signedOrderPayload.signedOrder.order.inputAmount,
                 signedOrderPayload.signedOrder.order.outputToken,
                 signedOrderPayload.signedOrder.order.minOutputAmount,
-                signedOrderPayload.signedOrder.order.recipient,
-                signedOrderPayload.signedOrder.order.partner
+                signedOrderPayload.signedOrder.order.recipient
             )
         );
         bytes32 signedOrderHash = keccak256(
