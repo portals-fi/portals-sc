@@ -1105,7 +1105,6 @@ contract PortalsRouterTest is Test {
             vm.sign(userPrivateKey, digest);
 
         permitPayload = IPortalsRouter.PermitPayload({
-            owner: user,
             amount: type(uint256).max,
             deadline: type(uint256).max,
             signature: abi.encodePacked(r, s, v),

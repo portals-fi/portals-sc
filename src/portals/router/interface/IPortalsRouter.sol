@@ -54,14 +54,13 @@ interface IPortalsRouter {
         IPortalsMulticall.Call[] calls;
     }
 
-    /// @param owner The address which is a source of funds and has signed the Permit
+    /// @dev The signer of the permit message must be the msg.sender of the Order or signer of the SignedOrder
     /// @param amount The quantity of tokens to be spent
     /// @param deadline The timestamp after which the Permit is no longer valid
     /// @param signature The signature of the Permit
     /// @param splitSignature Whether the signature is split into r, s, and v
     /// @param daiPermit Whether the Permit is a DAI Permit (i.e not  EIP-2612)
     struct PermitPayload {
-        address owner;
         uint256 amount;
         uint256 deadline;
         bytes signature;

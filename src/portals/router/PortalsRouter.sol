@@ -50,7 +50,9 @@ contract PortalsRouter is RouterBase {
         IPortalsRouter.PermitPayload calldata permitPayload,
         address partner
     ) external pausable returns (uint256 outputAmount) {
-        _permit(orderPayload.order.inputToken, permitPayload);
+        _permit(
+            msg.sender, orderPayload.order.inputToken, permitPayload
+        );
         return portal(orderPayload, partner);
     }
 
@@ -89,6 +91,7 @@ contract PortalsRouter is RouterBase {
         address partner
     ) external pausable returns (uint256 outputAmount) {
         _permit(
+            signedOrderPayload.signedOrder.sender,
             signedOrderPayload.signedOrder.order.inputToken,
             permitPayload
         );
@@ -134,6 +137,6 @@ contract PortalsRouter is RouterBase {
             msg.sender,
             order.recipient,
             partner
-            );
+        );
     }
 }
