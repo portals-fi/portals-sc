@@ -173,10 +173,12 @@ abstract contract RouterBase is IRouterBase, Owned {
 
     /// @notice Permit function for gasless approvals. Supports both EIP-2612 and DAI style permits with
     /// split signatures, as well as Yearn like permits with combined signatures
+    /// @param owner The address which is a source of funds and has signed the Permit
     /// @param token The address of the token to permit
     /// @param permitPayload The permit payload containing the permit parameters
     /// @dev See IPermit.sol for more details
     function _permit(
+        address owner,
         address token,
         IPortalsRouter.PermitPayload calldata permitPayload
     ) internal {
@@ -192,9 +194,9 @@ abstract contract RouterBase is IRouterBase, Owned {
             }
             if (permitPayload.daiPermit) {
                 IPermit(token).permit(
-                    permitPayload.owner,
+                    owner,
                     address(this),
-                    ERC20(token).nonces(permitPayload.owner),
+                    ERC20(token).nonces(owner),
                     permitPayload.deadline,
                     true,
                     v,
@@ -203,7 +205,7 @@ abstract contract RouterBase is IRouterBase, Owned {
                 );
             } else {
                 IPermit(token).permit(
-                    permitPayload.owner,
+                    owner,
                     address(this),
                     permitPayload.amount,
                     permitPayload.deadline,
@@ -214,7 +216,7 @@ abstract contract RouterBase is IRouterBase, Owned {
             }
         } else {
             IPermit(token).permit(
-                permitPayload.owner,
+                owner,
                 address(this),
                 permitPayload.amount,
                 permitPayload.deadline,
