@@ -2,7 +2,7 @@
 /// @notice Various Permit functions for ERC20 tokens
 
 /// SPDX-License-Identifier: unlicensed
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.19;
 
 interface IPermit {
     /// @notice EIP-2612 Permit

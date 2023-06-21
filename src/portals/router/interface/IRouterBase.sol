@@ -4,7 +4,7 @@
 /// @notice Interface for the Base contract inherited by the Portals Router
 
 /// SPDX-License-Identifier: GPL-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 interface IRouterBase {
     /// @notice Emitted when Portalling

@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.19;
 
 import "forge-std/Script.sol";
 import { UniswapV2Portal } from
     "../../../src/uniswap/UniswapV2Portal.sol";
 
 import { Addresses } from "../../constants/Addresses.sol";
-
 
 contract UniswapV2PortalDeployer is Script {
     Addresses addresses = new Addresses();
