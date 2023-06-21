@@ -7,7 +7,7 @@
 
 /// SPDX-License-Identifier: GPL-3.0
 
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import { IPortalsMulticall } from
     "../multicall/interface/IPortalsMulticall.sol";

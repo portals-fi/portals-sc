@@ -4,7 +4,7 @@
 /// @notice Interface for the Portals Multicall contract
 
 /// SPDX-License-Identifier: GPL-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 interface IPortalsMulticall {
     /// @dev Describes a call to be executed in the aggregate function of PortalsMulticall.sol

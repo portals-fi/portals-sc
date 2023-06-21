@@ -2,10 +2,10 @@
 
 /// @author Portals.fi
 /// @notice This contract routes ERC20 and native tokens to the Portals Multicall contract to
-/// transform a sell token into a minimum quantity of a buy token.
+/// transform an input token into a minimum quantity of an output token.
 
 /// SPDX-License-Identifier: GPL-3.0
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import { IPortalsRouter } from "./interface/IPortalsRouter.sol";
 import { IPortalsMulticall } from
