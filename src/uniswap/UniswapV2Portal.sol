@@ -13,7 +13,7 @@ pragma solidity 0.8.19;
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 import { Owned } from "solmate/auth/Owned.sol";
-import { Babylonian } from "./interface/Babylonian.sol";
+import { Babylonian } from "./lib/Babylonian.sol";
 import { IUniswapV2Router02 } from "./interface/IUniswapV2Router.sol";
 import { IUniswapV2Pair } from "./interface/IUniswapV2Pair.sol";
 
