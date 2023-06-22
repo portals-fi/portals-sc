@@ -245,7 +245,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     /// @notice Invalidates the next order of msg.sender
     /// @notice Orders that have already been confirmed are not invalidated
     function invalidateNextOrder() external {
-        nonces[msg.sender]++;
+        ++nonces[msg.sender];
     }
 
     /// @notice Recovers stuck tokens and sends them to the admin
