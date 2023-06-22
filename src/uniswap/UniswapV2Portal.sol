@@ -14,26 +14,15 @@ pragma solidity 0.8.19;
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 import { Owned } from "solmate/auth/Owned.sol";
+import { Pausable } from
+    "openzeppelin-contracts/security/Pausable.sol";
 import { Babylonian } from "./lib/Babylonian.sol";
 import { IUniswapV2Router02 } from "./interface/IUniswapV2Router.sol";
 import { IUniswapV2Pair } from "./interface/IUniswapV2Pair.sol";
 
-contract UniswapV2Portal is Owned {
+contract UniswapV2Portal is Owned, Pausable {
     using SafeTransferLib for address;
     using SafeTransferLib for ERC20;
-
-    // Active status of this contract. If false, contract is active (i.e un-paused)
-    bool public paused;
-
-    // Circuit breaker
-    modifier pausable() {
-        require(!paused, "Paused");
-        _;
-    }
-
-    /// @notice Emitted when a portal is paused
-    /// @param paused The active status of this contract. If false, contract is active (i.e un-paused)
-    event Pause(bool paused);
 
     constructor(address admin) Owned(admin) { }
 
@@ -49,7 +38,7 @@ contract UniswapV2Portal is Owned {
         address outputToken,
         IUniswapV2Router02 router,
         address recipient
-    ) external payable pausable {
+    ) external payable whenNotPaused {
         uint256 amount = _transferFromCaller(inputToken, inputAmount);
 
         _deposit(inputToken, amount, outputToken, router, recipient);
@@ -202,10 +191,14 @@ contract UniswapV2Portal is Owned {
         }
     }
 
-    /// @dev Pause or unpause the contract
+    /// @dev Pause the contract
     function pause() external onlyOwner {
-        paused = !paused;
-        emit Pause(paused);
+        _pause();
+    }
+
+    /// @dev Unpause the contract
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     /// @notice Recovers stuck tokens

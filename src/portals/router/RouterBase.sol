@@ -17,22 +17,15 @@ import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 import { Owned } from "solmate/auth/Owned.sol";
 import { SignatureChecker } from
     "openzeppelin-contracts/utils/cryptography/SignatureChecker.sol";
+import { Pausable } from
+    "openzeppelin-contracts/security/Pausable.sol";
 
-abstract contract RouterBase is IRouterBase, Owned {
+abstract contract RouterBase is IRouterBase, Owned, Pausable {
     using SafeTransferLib for address;
     using SafeTransferLib for ERC20;
 
     // The Portals Multicall contract
     IPortalsMulticall public Portals_Multicall;
-
-    // Active status of this contract. If false, contract is active (i.e un-paused)
-    bool public paused;
-
-    // Circuit breaker
-    modifier pausable() {
-        require(!paused, "Paused");
-        _;
-    }
 
     //EIP-712 variables:
     //Contract name
@@ -225,10 +218,14 @@ abstract contract RouterBase is IRouterBase, Owned {
         }
     }
 
-    /// @dev Pause or unpause the contract
+    /// @dev Pause the contract
     function pause() external onlyOwner {
-        paused = !paused;
-        emit Pause(paused);
+        _pause();
+    }
+
+    /// @dev Unpause the contract
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     /// @dev Updates the multicall

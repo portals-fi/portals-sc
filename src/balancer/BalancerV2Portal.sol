@@ -13,24 +13,13 @@ pragma solidity 0.8.19;
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 import { Owned } from "solmate/auth/Owned.sol";
+import { Pausable } from
+    "openzeppelin-contracts/security/Pausable.sol";
 import { IBalancerVault } from "./interface/IBalancerVault.sol";
 
-contract BalancerV2Portal is Owned {
+contract BalancerV2Portal is Owned, Pausable {
     using SafeTransferLib for address;
     using SafeTransferLib for ERC20;
-
-    // Active status of this contract. If false, contract is active (i.e un-paused)
-    bool public paused;
-
-    // Circuit breaker
-    modifier pausable() {
-        require(!paused, "Paused");
-        _;
-    }
-
-    /// @notice Emitted when a portal is paused
-    /// @param paused The active status of this contract. If false, contract is active (i.e un-paused)
-    event Pause(bool paused);
 
     constructor(address admin) Owned(admin) { }
 
@@ -50,7 +39,7 @@ contract BalancerV2Portal is Owned {
         address[] memory assets,
         uint256 index,
         address recipient
-    ) external payable pausable {
+    ) external payable whenNotPaused {
         uint256 amount = _transferFromCaller(inputToken, inputAmount);
 
         uint256[] memory maxAmountsIn = new uint256[](assets.length);
@@ -89,7 +78,7 @@ contract BalancerV2Portal is Owned {
         address[] memory assets,
         uint256 index,
         address payable recipient
-    ) external payable pausable {
+    ) external payable whenNotPaused {
         uint256 amount = _transferFromCaller(inputToken, inputAmount);
 
         uint256[] memory minAmountsOut = new uint256[](assets.length);
@@ -146,10 +135,14 @@ contract BalancerV2Portal is Owned {
         }
     }
 
-    /// @dev Pause or unpause the contract
+    /// @dev Pause the contract
     function pause() external onlyOwner {
-        paused = !paused;
-        emit Pause(paused);
+        _pause();
+    }
+
+    /// @dev Unpause the contract
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     /// @notice Recovers stuck tokens

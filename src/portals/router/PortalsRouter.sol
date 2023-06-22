@@ -26,7 +26,7 @@ contract PortalsRouter is RouterBase {
     function portal(
         IPortalsRouter.OrderPayload calldata orderPayload,
         address partner
-    ) public payable pausable returns (uint256 outputAmount) {
+    ) public payable whenNotPaused returns (uint256 outputAmount) {
         return _execute(
             msg.sender,
             orderPayload.order,
@@ -50,7 +50,7 @@ contract PortalsRouter is RouterBase {
         IPortalsRouter.OrderPayload calldata orderPayload,
         IPortalsRouter.PermitPayload calldata permitPayload,
         address partner
-    ) external pausable returns (uint256 outputAmount) {
+    ) external whenNotPaused returns (uint256 outputAmount) {
         _permit(
             msg.sender, orderPayload.order.inputToken, permitPayload
         );
@@ -65,7 +65,7 @@ contract PortalsRouter is RouterBase {
     function portalWithSignature(
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         address partner
-    ) public pausable returns (uint256 outputAmount) {
+    ) public whenNotPaused returns (uint256 outputAmount) {
         _verify(signedOrderPayload);
         return _execute(
             signedOrderPayload.signedOrder.sender,
@@ -90,7 +90,7 @@ contract PortalsRouter is RouterBase {
         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,
         IPortalsRouter.PermitPayload calldata permitPayload,
         address partner
-    ) external pausable returns (uint256 outputAmount) {
+    ) external whenNotPaused returns (uint256 outputAmount) {
         _permit(
             signedOrderPayload.signedOrder.sender,
             signedOrderPayload.signedOrder.order.inputToken,

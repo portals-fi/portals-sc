@@ -959,9 +959,18 @@ contract PortalsRouterTest is Test {
 
     function test_Pausable() public {
         changePrank(owner);
-        assertTrue(!router.paused());
+        assertFalse(router.paused());
         router.pause();
         assertTrue(router.paused());
+    }
+
+    function test_UnPausable() public {
+        changePrank(owner);
+        assertFalse(router.paused());
+        router.pause();
+        assertTrue(router.paused());
+        router.unpause();
+        assertFalse(router.paused());
     }
 
     function testFail_Portal_Reverts_When_Paused() public {
