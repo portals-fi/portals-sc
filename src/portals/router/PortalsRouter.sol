@@ -1,10 +1,11 @@
+/// SPDX-License-Identifier: GPL-3.0
+
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
 /// @notice This contract routes ERC20 and native tokens to the Portals Multicall contract to
 /// transform an input token into a minimum quantity of an output token.
 
-/// SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.19;
 
 import { IPortalsRouter } from "./interface/IPortalsRouter.sol";

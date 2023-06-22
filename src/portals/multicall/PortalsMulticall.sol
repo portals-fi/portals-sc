@@ -1,11 +1,11 @@
+/// SPDX-License-Identifier: GPL-3.0
+
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
 /// @notice This contract bundles multiple methods into a single transaction.
 /// @dev Do not grant approvals to this contract unless they are completely
 /// consumed or are revoked at the end of the transaction.
-
-/// SPDX-License-Identifier: GPL-3.0
 
 pragma solidity 0.8.19;
 

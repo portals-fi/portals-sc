@@ -1,7 +1,8 @@
+/// SPDX-License-Identifier: unlicensed
+
 /// @author Portals.fi
 /// @notice Various Permit functions for ERC20 tokens
 
-/// SPDX-License-Identifier: unlicensed
 pragma solidity ^0.8.19;
 
 interface IPermit {

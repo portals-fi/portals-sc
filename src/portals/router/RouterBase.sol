@@ -1,9 +1,9 @@
+/// SPDX-License-Identifier: GPL-3.0
+
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
 /// @notice Base contract inherited by the Portals Router
-
-/// SPDX-License-Identifier: GPL-3.0
 
 pragma solidity 0.8.19;
 

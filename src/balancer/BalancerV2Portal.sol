@@ -1,3 +1,5 @@
+/// SPDX-License-Identifier: GPL-3.0
+
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
@@ -6,7 +8,6 @@
 /// including slippage and does not return the quantity of tokens acquired. These checks should be handled
 /// by the caller
 
-/// SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.19;
 
 import { ERC20 } from "solmate/tokens/ERC20.sol";
