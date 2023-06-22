@@ -29,10 +29,10 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
 
     //EIP-712 variables:
     //Contract name
-    string private name = "PortalsRouter";
+    string private constant name = "PortalsRouter";
 
     //Contract version
-    string public constant version = "1";
+    string private constant version = "1";
 
     //EIP712 Domain Typehash
     bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(
@@ -42,14 +42,14 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
     );
 
     //EIP712 Order Typehash
-    bytes32 internal constant ORDER_TYPEHASH = keccak256(
+    bytes32 private constant ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
             "Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
     );
 
     //EIP712 Signed Order Typehash
-    bytes32 internal constant SIGNED_ORDER_TYPEHASH = keccak256(
+    bytes32 private constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
             "SignedOrder(Order order,bytes32 routeHash,address sender,uint64 deadline,uint64 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
