@@ -233,10 +233,6 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
     /// @dev Updates the multicall
     /// @param multicall The new multicall address
     function setMulticall(address multicall) external onlyOwner {
-        require(
-            multicall != address(0),
-            "PortalsRouter: Invalid multicall"
-        );
         Portals_Multicall = IPortalsMulticall(multicall);
         emit Multicall(multicall);
     }
