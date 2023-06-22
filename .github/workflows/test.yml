@@ -39,8 +39,3 @@ jobs:
         run: |
           forge test -vvv
         id: test
-
-      - name: Run Coverage
-        run: |
-          yarn coverage
-        id: coverage
