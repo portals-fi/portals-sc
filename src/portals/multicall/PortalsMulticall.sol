@@ -20,6 +20,7 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
     function aggregate(Call[] calldata calls)
         external
         payable
+        override
         nonReentrant
     {
         for (uint256 i = 0; i < calls.length;) {
