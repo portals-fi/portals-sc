@@ -5,7 +5,7 @@
 /// @author Portals.fi
 /// @notice Interface for the Portals Router contract
 
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { IPortalsMulticall } from
     "../..//multicall/interface/IPortalsMulticall.sol";

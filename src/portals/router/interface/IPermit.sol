@@ -3,7 +3,7 @@
 /// @author Portals.fi
 /// @notice Various Permit functions for ERC20 tokens
 
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 interface IPermit {
     /// @notice EIP-2612 Permit
