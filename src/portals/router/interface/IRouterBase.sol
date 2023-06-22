@@ -32,10 +32,6 @@ interface IRouterBase {
     /// @param multicall The new multicall contract
     event Multicall(address multicall);
 
-    /// @notice Emitted when this contract is paused
-    /// @param paused The active status of this contract. If false, contract is active (i.e un-paused)
-    event Pause(bool paused);
-
     /// Thrown when insufficient liquidity is received after deposit or withdrawal
     /// @param outputAmount The amount of liquidity received
     /// @param minOutputAmount The minimum acceptable quantity of liquidity received
