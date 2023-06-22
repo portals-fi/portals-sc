@@ -110,12 +110,12 @@ contract BalancerV2Portal is Owned, Pausable {
         returns (uint256)
     {
         if (token == address(0)) {
-            require(msg.value > 0, "Invalid msg.value");
+            require(msg.value != 0, "Invalid msg.value");
             return msg.value;
         }
 
         require(
-            quantity > 0 && msg.value == 0,
+            quantity != 0 && msg.value == 0,
             "Invalid quantity or msg.value"
         );
         ERC20(token).safeTransferFrom(

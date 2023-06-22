@@ -85,12 +85,14 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
         uint256 quantity
     ) internal returns (uint256) {
         if (token == address(0)) {
-            require(msg.value > 0, "PortalsRouter: Invalid msg.value");
+            require(
+                msg.value != 0, "PortalsRouter: Invalid msg.value"
+            );
             return msg.value;
         }
 
         require(
-            msg.value == 0 && quantity > 0,
+            msg.value == 0 && quantity != 0,
             "PortalsRouter: Invalid quantity or msg.value"
         );
         ERC20(token).safeTransferFrom(
