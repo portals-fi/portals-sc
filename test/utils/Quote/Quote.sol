@@ -1,10 +1,11 @@
+/// SPDX-License-Identifier: GPL-3.0
+
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
 /// @notice A utility contract for getting quotes from portals or dex
 /// aggregators
 
-/// SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
 import { IQuote } from "./interface/IQuote.sol";

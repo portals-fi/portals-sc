@@ -1,9 +1,10 @@
+/// SPDX-License-Identifier: GPL-3.0
+
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
 /// @notice This contract tests PortalsRouter.sol
 
-/// SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.19;
 
 import "forge-std/Test.sol";
@@ -958,9 +959,18 @@ contract PortalsRouterTest is Test {
 
     function test_Pausable() public {
         changePrank(owner);
-        assertTrue(!router.paused());
+        assertFalse(router.paused());
         router.pause();
         assertTrue(router.paused());
+    }
+
+    function test_UnPausable() public {
+        changePrank(owner);
+        assertFalse(router.paused());
+        router.pause();
+        assertTrue(router.paused());
+        router.unpause();
+        assertFalse(router.paused());
     }
 
     function testFail_Portal_Reverts_When_Paused() public {

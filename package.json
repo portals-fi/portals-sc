@@ -12,5 +12,7 @@
   "devDependencies": {
     "solhint": "^3.3.7"
   },
-  "scripts": {}
+  "scripts": {
+    "coverage": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage"
+  }
 }

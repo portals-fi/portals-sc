@@ -1,9 +1,10 @@
+/// SPDX-License-Identifier: GPL-3.0
+
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
 /// @notice Interface for the Portals Multicall contract
 
-/// SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.19;
 
 interface IPortalsMulticall {

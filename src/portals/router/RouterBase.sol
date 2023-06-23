@@ -1,9 +1,9 @@
+/// SPDX-License-Identifier: GPL-3.0
+
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
 /// @notice Base contract inherited by the Portals Router
-
-/// SPDX-License-Identifier: GPL-3.0
 
 pragma solidity 0.8.19;
 
@@ -17,29 +17,22 @@ import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 import { Owned } from "solmate/auth/Owned.sol";
 import { SignatureChecker } from
     "openzeppelin-contracts/utils/cryptography/SignatureChecker.sol";
+import { Pausable } from
+    "openzeppelin-contracts/security/Pausable.sol";
 
-abstract contract RouterBase is IRouterBase, Owned {
+abstract contract RouterBase is IRouterBase, Owned, Pausable {
     using SafeTransferLib for address;
     using SafeTransferLib for ERC20;
 
     // The Portals Multicall contract
     IPortalsMulticall public Portals_Multicall;
 
-    // Active status of this contract. If false, contract is active (i.e un-paused)
-    bool public paused;
-
-    // Circuit breaker
-    modifier pausable() {
-        require(!paused, "Paused");
-        _;
-    }
-
     //EIP-712 variables:
     //Contract name
-    string private name = "PortalsRouter";
+    string private constant name = "PortalsRouter";
 
     //Contract version
-    string public constant version = "1";
+    string private constant version = "1";
 
     //EIP712 Domain Typehash
     bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(
@@ -49,14 +42,14 @@ abstract contract RouterBase is IRouterBase, Owned {
     );
 
     //EIP712 Order Typehash
-    bytes32 internal constant ORDER_TYPEHASH = keccak256(
+    bytes32 private constant ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
             "Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
     );
 
     //EIP712 Signed Order Typehash
-    bytes32 internal constant SIGNED_ORDER_TYPEHASH = keccak256(
+    bytes32 private constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
             "SignedOrder(Order order,bytes32 routeHash,address sender,uint64 deadline,uint64 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
@@ -92,12 +85,14 @@ abstract contract RouterBase is IRouterBase, Owned {
         uint256 quantity
     ) internal returns (uint256) {
         if (token == address(0)) {
-            require(msg.value > 0, "PortalsRouter: Invalid msg.value");
+            require(
+                msg.value != 0, "PortalsRouter: Invalid msg.value"
+            );
             return msg.value;
         }
 
         require(
-            msg.value == 0 && quantity > 0,
+            msg.value == 0 && quantity != 0,
             "PortalsRouter: Invalid quantity or msg.value"
         );
         ERC20(token).safeTransferFrom(
@@ -225,19 +220,19 @@ abstract contract RouterBase is IRouterBase, Owned {
         }
     }
 
-    /// @dev Pause or unpause the contract
+    /// @dev Pause the contract
     function pause() external onlyOwner {
-        paused = !paused;
-        emit Pause(paused);
+        _pause();
+    }
+
+    /// @dev Unpause the contract
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     /// @dev Updates the multicall
     /// @param multicall The new multicall address
     function setMulticall(address multicall) external onlyOwner {
-        require(
-            multicall != address(0),
-            "PortalsRouter: Invalid multicall"
-        );
         Portals_Multicall = IPortalsMulticall(multicall);
         emit Multicall(multicall);
     }
@@ -245,7 +240,7 @@ abstract contract RouterBase is IRouterBase, Owned {
     /// @notice Invalidates the next order of msg.sender
     /// @notice Orders that have already been confirmed are not invalidated
     function invalidateNextOrder() external {
-        nonces[msg.sender]++;
+        ++nonces[msg.sender];
     }
 
     /// @notice Recovers stuck tokens and sends them to the admin
