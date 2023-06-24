@@ -57,7 +57,10 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
     /// @notice Transfers ETH from this contract to the specified address
     /// @param to The address to transfer ETH to
     /// @param amount The quantity of ETH to transfer
-    function transferEth(address to, uint256 amount) public payable {
+    function transferEth(address to, uint256 amount)
+        external
+        payable
+    {
         (bool success,) = to.call{ value: amount }("");
         require(success, "PortalsMulticall: failed to transfer ETH");
     }
@@ -77,7 +80,5 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
     }
 
     /// @notice Reverts if network tokens are sent directly to this contract
-    receive() external payable {
-        require(msg.sender != tx.origin);
-    }
+    receive() external payable { }
 }
