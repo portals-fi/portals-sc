@@ -161,6 +161,5 @@ contract BalancerV2Portal is Owned, Pausable {
         }
     }
 
-    /// @notice Reverts if networks tokens are sent directly to this contract
     receive() external payable { }
 }
