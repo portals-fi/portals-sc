@@ -217,8 +217,5 @@ contract UniswapV2Portal is Owned, Pausable {
         }
     }
 
-    /// @notice Reverts if networks tokens are sent directly to this contract
-    receive() external payable {
-        require(msg.sender != tx.origin);
-    }
+    receive() external payable { }
 }
