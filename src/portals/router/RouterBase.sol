@@ -61,8 +61,10 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
     //Order nonces
     mapping(address => uint64) public nonces;
 
-    constructor(address _admin, address _multicall) Owned(_admin) {
-        portalsMulticall = IPortalsMulticall(_multicall);
+    constructor(address _admin, IPortalsMulticall _multicall)
+        Owned(_admin)
+    {
+        portalsMulticall = _multicall;
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 EIP712_DOMAIN_TYPEHASH,

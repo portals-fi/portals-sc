@@ -14,7 +14,7 @@ import { IPortalsMulticall } from
 import { RouterBase } from "./RouterBase.sol";
 
 contract PortalsRouter is RouterBase {
-    constructor(address _admin, address _multicall)
+    constructor(address _admin, IPortalsMulticall _multicall)
         RouterBase(_admin, _multicall)
     { }
 
