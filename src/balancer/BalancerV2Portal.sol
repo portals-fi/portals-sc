@@ -36,7 +36,7 @@ contract BalancerV2Portal is Owned, Pausable {
         uint256 inputAmount,
         address vault,
         bytes32 poolId,
-        address[] memory assets,
+        address[] calldata assets,
         uint256 index,
         address recipient
     ) external payable whenNotPaused {
@@ -75,7 +75,7 @@ contract BalancerV2Portal is Owned, Pausable {
         uint256 inputAmount,
         address vault,
         bytes32 poolId,
-        address[] memory assets,
+        address[] calldata assets,
         uint256 index,
         address payable recipient
     ) external payable whenNotPaused {
@@ -161,8 +161,5 @@ contract BalancerV2Portal is Owned, Pausable {
         }
     }
 
-    /// @notice Reverts if networks tokens are sent directly to this contract
-    receive() external payable {
-        require(msg.sender != tx.origin);
-    }
+    receive() external payable { }
 }
