@@ -14,7 +14,7 @@ import { IPortalsMulticall } from
 import { RouterBase } from "./RouterBase.sol";
 
 contract PortalsRouter is RouterBase {
-    constructor(address _admin, address _multicall)
+    constructor(address _admin, IPortalsMulticall _multicall)
         RouterBase(_admin, _multicall)
     { }
 
@@ -118,7 +118,7 @@ contract PortalsRouter is RouterBase {
     ) private returns (uint256 outputAmount) {
         outputAmount = _getBalance(order.recipient, order.outputToken);
 
-        Portals_Multicall.aggregate{ value: value }(calls);
+        portalsMulticall.aggregate{ value: value }(calls);
 
         outputAmount = _getBalance(order.recipient, order.outputToken)
             - outputAmount;

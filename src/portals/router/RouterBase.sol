@@ -25,7 +25,7 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
     using SafeTransferLib for ERC20;
 
     // The Portals Multicall contract
-    IPortalsMulticall public Portals_Multicall;
+    IPortalsMulticall public portalsMulticall;
 
     //EIP-712 variables:
     //Contract name
@@ -61,8 +61,10 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
     //Order nonces
     mapping(address => uint64) public nonces;
 
-    constructor(address _admin, address _multicall) Owned(_admin) {
-        Portals_Multicall = IPortalsMulticall(_multicall);
+    constructor(address _admin, IPortalsMulticall _multicall)
+        Owned(_admin)
+    {
+        portalsMulticall = _multicall;
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 EIP712_DOMAIN_TYPEHASH,
@@ -96,7 +98,7 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
             "PortalsRouter: Invalid quantity or msg.value"
         );
         ERC20(token).safeTransferFrom(
-            sender, address(Portals_Multicall), quantity
+            sender, address(portalsMulticall), quantity
         );
         return 0;
     }
@@ -233,7 +235,7 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
     /// @dev Updates the multicall
     /// @param multicall The new multicall address
     function setMulticall(address multicall) external onlyOwner {
-        Portals_Multicall = IPortalsMulticall(multicall);
+        portalsMulticall = IPortalsMulticall(multicall);
         emit Multicall(multicall);
     }
 
