@@ -79,6 +79,5 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
         }
     }
 
-    /// @notice Reverts if network tokens are sent directly to this contract
     receive() external payable { }
 }
