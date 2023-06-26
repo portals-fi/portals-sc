@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2023-06-24 00:51:26</td>
+            <td class="headerValue">2023-06-25 23:42:03</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryLo">57.1&nbsp;%</td>
@@ -107,7 +107,7 @@
 <span id="L36"><span class="lineNum">      36</span>                 :             :         uint256 inputAmount,</span>
 <span id="L37"><span class="lineNum">      37</span>                 :             :         address vault,</span>
 <span id="L38"><span class="lineNum">      38</span>                 :             :         bytes32 poolId,</span>
-<span id="L39"><span class="lineNum">      39</span>                 :             :         address[] memory assets,</span>
+<span id="L39"><span class="lineNum">      39</span>                 :             :         address[] calldata assets,</span>
 <span id="L40"><span class="lineNum">      40</span>                 :             :         uint256 index,</span>
 <span id="L41"><span class="lineNum">      41</span>                 :             :         address recipient</span>
 <span id="L42"><span class="lineNum">      42</span>                 :             :     ) external payable whenNotPaused {</span>
@@ -146,7 +146,7 @@
 <span id="L75"><span class="lineNum">      75</span>                 :             :         uint256 inputAmount,</span>
 <span id="L76"><span class="lineNum">      76</span>                 :             :         address vault,</span>
 <span id="L77"><span class="lineNum">      77</span>                 :             :         bytes32 poolId,</span>
-<span id="L78"><span class="lineNum">      78</span>                 :             :         address[] memory assets,</span>
+<span id="L78"><span class="lineNum">      78</span>                 :             :         address[] calldata assets,</span>
 <span id="L79"><span class="lineNum">      79</span>                 :             :         uint256 index,</span>
 <span id="L80"><span class="lineNum">      80</span>                 :             :         address payable recipient</span>
 <span id="L81"><span class="lineNum">      81</span>                 :             :     ) external payable whenNotPaused {</span>
@@ -232,11 +232,8 @@
 <span id="L161"><span class="lineNum">     161</span>                 :             :         }</span>
 <span id="L162"><span class="lineNum">     162</span>                 :             :     }</span>
 <span id="L163"><span class="lineNum">     163</span>                 :             : </span>
-<span id="L164"><span class="lineNum">     164</span>                 :             :     /// @notice Reverts if networks tokens are sent directly to this contract</span>
-<span id="L165"><span class="lineNum">     165</span>                 :             :     receive() external payable {</span>
-<span id="L166"><span class="lineNum">     166</span>                 :             :         require(msg.sender != tx.origin);</span>
-<span id="L167"><span class="lineNum">     167</span>                 :             :     }</span>
-<span id="L168"><span class="lineNum">     168</span>                 :             : }</span>
+<span id="L164"><span class="lineNum">     164</span>                 :             :     receive() external payable { }</span>
+<span id="L165"><span class="lineNum">     165</span>                 :             : }</span>
         </pre>
               </td>
             </tr>

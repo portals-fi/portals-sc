@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2023-06-24 00:51:26</td>
+            <td class="headerValue">2023-06-25 23:42:45</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
@@ -85,7 +85,7 @@
 <span id="L14"><span class="lineNum">      14</span>                 :             : import { RouterBase } from &quot;./RouterBase.sol&quot;;</span>
 <span id="L15"><span class="lineNum">      15</span>                 :             : </span>
 <span id="L16"><span class="lineNum">      16</span>                 :             : contract PortalsRouter is RouterBase {</span>
-<span id="L17"><span class="lineNum">      17</span>                 :             :     constructor(address _admin, address _multicall)</span>
+<span id="L17"><span class="lineNum">      17</span>                 :             :     constructor(address _admin, IPortalsMulticall _multicall)</span>
 <span id="L18"><span class="lineNum">      18</span>                 :             :         RouterBase(_admin, _multicall)</span>
 <span id="L19"><span class="lineNum">      19</span>                 :             :     { }</span>
 <span id="L20"><span class="lineNum">      20</span>                 :             : </span>
@@ -133,11 +133,11 @@
 <span id="L62"><span class="lineNum">      62</span>                 :             :     /// @param signedOrderPayload The signed order payload containing the details of the signed order</span>
 <span id="L63"><span class="lineNum">      63</span>                 :             :     /// @param partner The front end operator address</span>
 <span id="L64"><span class="lineNum">      64</span>                 :             :     /// @return outputAmount The quantity of outputToken received after validation of the order</span>
-<span id="L65"><span class="lineNum">      65</span>                 :<span class="tlaGNC">         513 :     function portalWithSignature(</span></span>
+<span id="L65"><span class="lineNum">      65</span>                 :<span class="tlaGNC">         769 :     function portalWithSignature(</span></span>
 <span id="L66"><span class="lineNum">      66</span>                 :             :         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,</span>
 <span id="L67"><span class="lineNum">      67</span>                 :             :         address partner</span>
 <span id="L68"><span class="lineNum">      68</span>                 :             :     ) public whenNotPaused returns (uint256 outputAmount) {</span>
-<span id="L69"><span class="lineNum">      69</span>                 :<span class="tlaGNC">         514 :         _verify(signedOrderPayload);</span></span>
+<span id="L69"><span class="lineNum">      69</span>                 :<span class="tlaGNC">         770 :         _verify(signedOrderPayload);</span></span>
 <span id="L70"><span class="lineNum">      70</span>                 :<span class="tlaGNC">         514 :         return _execute(</span></span>
 <span id="L71"><span class="lineNum">      71</span>                 :             :             signedOrderPayload.signedOrder.sender,</span>
 <span id="L72"><span class="lineNum">      72</span>                 :             :             signedOrderPayload.signedOrder.order,</span>
@@ -189,7 +189,7 @@
 <span id="L118"><span class="lineNum">     118</span>                 :             :     ) private returns (uint256 outputAmount) {</span>
 <span id="L119"><span class="lineNum">     119</span>                 :<span class="tlaGNC">         782 :         outputAmount = _getBalance(order.recipient, order.outputToken);</span></span>
 <span id="L120"><span class="lineNum">     120</span>                 :             : </span>
-<span id="L121"><span class="lineNum">     121</span>                 :<span class="tlaGNC">         782 :         Portals_Multicall.aggregate{ value: value }(calls);</span></span>
+<span id="L121"><span class="lineNum">     121</span>                 :<span class="tlaGNC">         782 :         portalsMulticall.aggregate{ value: value }(calls);</span></span>
 <span id="L122"><span class="lineNum">     122</span>                 :             : </span>
 <span id="L123"><span class="lineNum">     123</span>                 :<span class="tlaGNC">         782 :         outputAmount = _getBalance(order.recipient, order.outputToken)</span></span>
 <span id="L124"><span class="lineNum">     124</span>                 :             :             - outputAmount;</span>
