@@ -27,35 +27,24 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
     // The Portals Multicall contract
     IPortalsMulticall public portalsMulticall;
 
-    //EIP-712 variables:
-    //Contract name
-    string private constant name = "PortalsRouter";
-
-    //Contract version
-    string private constant version = "1";
-
-    //EIP712 Domain Typehash
     bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(
         abi.encodePacked(
             "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
         )
     );
 
-    //EIP712 Order Typehash
     bytes32 private constant ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
             "Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
     );
 
-    //EIP712 Signed Order Typehash
     bytes32 private constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
             "SignedOrder(Order order,bytes32 routeHash,address sender,uint64 deadline,uint64 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
     );
 
-    //EIP712 Domain Separator
     bytes32 public immutable DOMAIN_SEPARATOR;
 
     //Order nonces
@@ -68,8 +57,8 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 EIP712_DOMAIN_TYPEHASH,
-                keccak256(bytes(name)),
-                keccak256(bytes(version)),
+                keccak256(bytes("PortalsRouter")),
+                keccak256(bytes("1")),
                 block.chainid,
                 address(this)
             )
