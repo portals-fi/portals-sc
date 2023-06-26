@@ -24,6 +24,9 @@ import { SigUtils } from "../../../utils/SigUtils.sol";
 
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 
+import { IRouterBase } from
+    "../../../../src/portals/router/interface/IRouterBase.sol";
+
 contract PortalTest is Test {
     uint256 mainnetFork =
         vm.createSelectFork(vm.envString("MAINNET_RPC_URL"));
@@ -309,6 +312,84 @@ contract PortalTest is Test {
             inputAmount: inputAmount,
             outputToken: outputToken,
             minOutputAmount: 1,
+            recipient: user
+        });
+
+        IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+            inputToken, inputAmount, intermediateToken, "0.03"
+        );
+
+        (address target, bytes memory data) = quote.quote(quoteParams);
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            inputToken,
+            inputToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", target, 0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(
+            inputToken, target, data, type(uint256).max
+        );
+        calls[2] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[3] = IPortalsMulticall.Call(
+            intermediateToken,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
+        ERC20(inputToken).approve(address(router), inputAmount);
+
+        uint256 initialBalance = ERC20(outputToken).balanceOf(user);
+
+        router.portal{ value: value }(orderPayload, partner);
+
+        uint256 finalBalance = ERC20(outputToken).balanceOf(user);
+
+        assertTrue(finalBalance > initialBalance);
+    }
+
+    function testFail_Revert_When_Slippage_is_High() public {
+        address inputToken = DAI;
+        uint256 inputAmount = 5000 ether;
+        uint256 value = 0;
+
+        deal(address(DAI), user, inputAmount);
+        assertEq(ERC20(DAI).balanceOf(user), inputAmount);
+
+        address intermediateToken = USDC;
+
+        address outputToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 4;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            inputToken: inputToken,
+            inputAmount: inputAmount,
+            outputToken: outputToken,
+            minOutputAmount: type(uint256).max,
             recipient: user
         });
 
