@@ -239,6 +239,92 @@ contract PortalWithSignatureTest is Test {
         assertTrue(finalBalance > initialBalance);
     }
 
+    function test_Revert_if_SignedOrder_is_Expired() public {
+        address inputToken = WETH;
+        uint256 inputAmount = 5 ether;
+
+        deal(address(inputToken), user, inputAmount);
+        assertEq(ERC20(inputToken).balanceOf(user), inputAmount);
+
+        address intermediateToken = USDC;
+
+        address outputToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 4;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            inputToken: inputToken,
+            inputAmount: inputAmount,
+            outputToken: outputToken,
+            minOutputAmount: 1,
+            recipient: user
+        });
+
+        address target;
+        bytes memory data;
+        if (inputToken != intermediateToken) {
+            IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+                inputToken, inputAmount, intermediateToken, "0.03"
+            );
+
+            (target, data) = quote.quote(quoteParams);
+        }
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            inputToken,
+            inputToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", target, 0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(
+            inputToken, target, data, type(uint256).max
+        );
+        calls[2] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[3] = IPortalsMulticall.Call(
+            intermediateToken,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        IPortalsRouter.SignedOrderPayload memory signedOrderPayload =
+        createSignedOrderPayload(
+            order,
+            calls,
+            router.DOMAIN_SEPARATOR(),
+            user,
+            userPrivateKey
+        );
+        signedOrderPayload.calls = calls;
+        signedOrderPayload.signedOrder.deadline = 1_687_733_771;
+
+        ERC20(inputToken).approve(address(router), inputAmount);
+
+        changePrank(broadcaster);
+
+        vm.expectRevert("PortalsRouter: Order expired");
+        router.portalWithSignature(signedOrderPayload, partner);
+    }
+
     function createPermitPayload(
         address inputToken,
         bool splitSignature,
