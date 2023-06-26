@@ -28,10 +28,6 @@ interface IRouterBase {
         address indexed partner
     );
 
-    /// @notice Emitted when the Portals multicall is changed
-    /// @param multicall The new multicall contract
-    event MulticallUpdated(address multicall);
-
     /// Thrown when insufficient liquidity is received after deposit or withdrawal
     /// @param outputAmount The amount of liquidity received
     /// @param minOutputAmount The minimum acceptable quantity of liquidity received

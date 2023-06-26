@@ -480,34 +480,6 @@ contract RouterBaseTest is Test {
         assertTrue(router.paused());
     }
 
-    function test_setMulticall() public {
-        IPortalsMulticall newMulticall = new PortalsMulticall();
-        assertFalse(
-            address(router.portalsMulticall())
-                == address(newMulticall)
-        );
-        assertEq(
-            address(router.portalsMulticall()), address(multicall)
-        );
-        changePrank(owner);
-        router.setMulticall(newMulticall);
-        assertEq(
-            address(router.portalsMulticall()), address(newMulticall)
-        );
-    }
-
-    function testFail_setMulticall_by_Admin_Only() public {
-        IPortalsMulticall newMulticall = new PortalsMulticall();
-        assertFalse(
-            address(router.portalsMulticall())
-                == address(newMulticall)
-        );
-        assertEq(
-            address(router.portalsMulticall()), address(multicall)
-        );
-        router.setMulticall(newMulticall);
-    }
-
     function test_ERC20_recoverToken() public {
         address inputToken = USDC;
         uint256 inputAmount = 5_000_000_000; // 5000 USDC
