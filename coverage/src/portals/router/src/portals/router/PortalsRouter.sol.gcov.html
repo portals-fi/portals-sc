@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2023-06-25 23:50:47</td>
+            <td class="headerValue">2023-06-26 16:07:19</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
@@ -94,11 +94,11 @@
 <span id="L23"><span class="lineNum">      23</span>                 :             :     /// @param orderPayload The order payload containing the details of the trade</span>
 <span id="L24"><span class="lineNum">      24</span>                 :             :     /// @param partner The front end operator address</span>
 <span id="L25"><span class="lineNum">      25</span>                 :             :     /// @return outputAmount The quantity of outputToken received after validation of the order</span>
-<span id="L26"><span class="lineNum">      26</span>                 :<span class="tlaGNC tlaBgGNC">          11 :     function portal(</span></span>
+<span id="L26"><span class="lineNum">      26</span>                 :<span class="tlaGNC tlaBgGNC">          13 :     function portal(</span></span>
 <span id="L27"><span class="lineNum">      27</span>                 :             :         IPortalsRouter.OrderPayload calldata orderPayload,</span>
 <span id="L28"><span class="lineNum">      28</span>                 :             :         address partner</span>
 <span id="L29"><span class="lineNum">      29</span>                 :             :     ) public payable whenNotPaused returns (uint256 outputAmount) {</span>
-<span id="L30"><span class="lineNum">      30</span>                 :<span class="tlaGNC">         268 :         return _execute(</span></span>
+<span id="L30"><span class="lineNum">      30</span>                 :<span class="tlaGNC">         270 :         return _execute(</span></span>
 <span id="L31"><span class="lineNum">      31</span>                 :             :             msg.sender,</span>
 <span id="L32"><span class="lineNum">      32</span>                 :             :             orderPayload.order,</span>
 <span id="L33"><span class="lineNum">      33</span>                 :             :             orderPayload.calls,</span>
@@ -133,11 +133,11 @@
 <span id="L62"><span class="lineNum">      62</span>                 :             :     /// @param signedOrderPayload The signed order payload containing the details of the signed order</span>
 <span id="L63"><span class="lineNum">      63</span>                 :             :     /// @param partner The front end operator address</span>
 <span id="L64"><span class="lineNum">      64</span>                 :             :     /// @return outputAmount The quantity of outputToken received after validation of the order</span>
-<span id="L65"><span class="lineNum">      65</span>                 :<span class="tlaGNC">         769 :     function portalWithSignature(</span></span>
+<span id="L65"><span class="lineNum">      65</span>                 :<span class="tlaGNC">         770 :     function portalWithSignature(</span></span>
 <span id="L66"><span class="lineNum">      66</span>                 :             :         IPortalsRouter.SignedOrderPayload calldata signedOrderPayload,</span>
 <span id="L67"><span class="lineNum">      67</span>                 :             :         address partner</span>
 <span id="L68"><span class="lineNum">      68</span>                 :             :     ) public whenNotPaused returns (uint256 outputAmount) {</span>
-<span id="L69"><span class="lineNum">      69</span>                 :<span class="tlaGNC">         770 :         _verify(signedOrderPayload);</span></span>
+<span id="L69"><span class="lineNum">      69</span>                 :<span class="tlaGNC">         771 :         _verify(signedOrderPayload);</span></span>
 <span id="L70"><span class="lineNum">      70</span>                 :<span class="tlaGNC">         514 :         return _execute(</span></span>
 <span id="L71"><span class="lineNum">      71</span>                 :             :             signedOrderPayload.signedOrder.sender,</span>
 <span id="L72"><span class="lineNum">      72</span>                 :             :             signedOrderPayload.signedOrder.order,</span>
