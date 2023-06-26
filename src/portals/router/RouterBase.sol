@@ -222,6 +222,12 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
         }
     }
 
+    /// @notice Invalidates the next order of msg.sender
+    /// @notice Orders that have already been confirmed are not invalidated
+    function invalidateNextOrder() external {
+        ++nonces[msg.sender];
+    }
+
     /// @dev Pause the contract
     function pause() external onlyOwner {
         _pause();
@@ -234,27 +240,27 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
 
     /// @dev Updates the multicall
     /// @param multicall The new multicall address
-    function setMulticall(address multicall) external onlyOwner {
-        portalsMulticall = IPortalsMulticall(multicall);
-        emit Multicall(multicall);
+    function setMulticall(IPortalsMulticall multicall)
+        external
+        onlyOwner
+    {
+        portalsMulticall = multicall;
+        emit MulticallUpdated(address(multicall));
     }
 
-    /// @notice Invalidates the next order of msg.sender
-    /// @notice Orders that have already been confirmed are not invalidated
-    function invalidateNextOrder() external {
-        ++nonces[msg.sender];
-    }
-
-    /// @notice Recovers stuck tokens and sends them to the admin
+    /// @notice Recovers stuck tokens
     /// @param tokenAddress The address of the token to recover (address(0) if ETH)
     /// @param tokenAmount The quantity of tokens to recover
-    function recoverToken(address tokenAddress, uint256 tokenAmount)
-        external
-    {
+    /// @param to The address to send the recovered tokens to
+    function recoverToken(
+        address tokenAddress,
+        uint256 tokenAmount,
+        address to
+    ) external onlyOwner {
         if (tokenAddress == address(0)) {
-            owner.safeTransferETH(tokenAmount);
+            to.safeTransferETH(tokenAmount);
         } else {
-            ERC20(tokenAddress).safeTransfer(owner, tokenAmount);
+            ERC20(tokenAddress).safeTransfer(to, tokenAmount);
         }
     }
 }
