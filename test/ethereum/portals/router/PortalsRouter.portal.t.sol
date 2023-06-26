@@ -290,6 +290,126 @@ contract PortalTest is Test {
         assertTrue(finalBalance > initialBalance);
     }
 
+    function test_Revert_When_0_Value_Sent_With_ETH() public {
+        address inputToken = address(0);
+        uint256 inputAmount = 5 ether;
+        uint256 value = 0;
+
+        address intermediateToken = USDC;
+
+        address outputToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 3;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            inputToken: inputToken,
+            inputAmount: inputAmount,
+            outputToken: outputToken,
+            minOutputAmount: 1,
+            recipient: user
+        });
+
+        IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+            inputToken, inputAmount, intermediateToken, "0.03"
+        );
+
+        (address target, bytes memory data) = quote.quote(quoteParams);
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            inputToken, target, data, type(uint256).max
+        );
+        calls[1] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[2] = IPortalsMulticall.Call(
+            intermediateToken,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
+        vm.expectRevert("PortalsRouter: Invalid msg.value");
+        router.portal{ value: value }(orderPayload, partner);
+    }
+
+    function test_Revert_When_Non_Zero_ETH_Value_Sent_With_ERC20()
+        public
+    {
+        address inputToken = USDC;
+        uint256 inputAmount = 5_000_000_000; // 5000 USDC
+        uint256 value = 1 ether;
+
+        deal(address(inputToken), user, inputAmount);
+        assertEq(ERC20(inputToken).balanceOf(user), inputAmount);
+
+        address intermediateToken = USDC;
+
+        address outputToken = StargateUSDC;
+
+        uint16 poolId = 1;
+
+        uint256 numCalls = 2;
+
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            inputToken: inputToken,
+            inputAmount: inputAmount,
+            outputToken: outputToken,
+            minOutputAmount: 1,
+            recipient: user
+        });
+
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
+
+        calls[0] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)", StargateRouter, 0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(
+            intermediateToken,
+            StargateRouter,
+            abi.encodeWithSignature(
+                "addLiquidity(uint256,uint256,address)",
+                poolId,
+                0,
+                user
+            ),
+            1
+        );
+
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
+
+        ERC20(inputToken).approve(address(router), inputAmount);
+
+        vm.expectRevert(
+            "PortalsRouter: Invalid quantity or msg.value"
+        );
+        router.portal{ value: value }(orderPayload, partner);
+    }
+
     function test_PortalIn_Stargate_SUSDC_From_DAI_With_USDC_Intermediate(
     ) public {
         address inputToken = DAI;
