@@ -30,7 +30,7 @@ interface IRouterBase {
 
     /// @notice Emitted when the Portals multicall is changed
     /// @param multicall The new multicall contract
-    event Multicall(address multicall);
+    event MulticallUpdated(address multicall);
 
     /// Thrown when insufficient liquidity is received after deposit or withdrawal
     /// @param outputAmount The amount of liquidity received

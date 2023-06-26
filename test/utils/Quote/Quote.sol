@@ -54,4 +54,7 @@ contract Quote is IQuote, Script {
         return
             (json.readAddress(".tx.to"), json.readBytes(".tx.data"));
     }
+
+    // add this to be excluded from coverage report
+    function test() public { }
 }

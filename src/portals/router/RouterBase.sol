@@ -27,35 +27,24 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
     // The Portals Multicall contract
     IPortalsMulticall public portalsMulticall;
 
-    //EIP-712 variables:
-    //Contract name
-    string private constant name = "PortalsRouter";
-
-    //Contract version
-    string private constant version = "1";
-
-    //EIP712 Domain Typehash
     bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(
         abi.encodePacked(
             "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
         )
     );
 
-    //EIP712 Order Typehash
     bytes32 private constant ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
             "Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
     );
 
-    //EIP712 Signed Order Typehash
     bytes32 private constant SIGNED_ORDER_TYPEHASH = keccak256(
         abi.encodePacked(
             "SignedOrder(Order order,bytes32 routeHash,address sender,uint64 deadline,uint64 nonce)Order(address inputToken,uint256 inputAmount,address outputToken,uint256 minOutputAmount,address recipient)"
         )
     );
 
-    //EIP712 Domain Separator
     bytes32 public immutable DOMAIN_SEPARATOR;
 
     //Order nonces
@@ -68,8 +57,8 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 EIP712_DOMAIN_TYPEHASH,
-                keccak256(bytes(name)),
-                keccak256(bytes(version)),
+                keccak256(bytes("PortalsRouter")),
+                keccak256(bytes("1")),
                 block.chainid,
                 address(this)
             )
@@ -222,6 +211,12 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
         }
     }
 
+    /// @notice Invalidates the next order of msg.sender
+    /// @notice Orders that have already been confirmed are not invalidated
+    function invalidateNextOrder() external {
+        ++nonces[msg.sender];
+    }
+
     /// @dev Pause the contract
     function pause() external onlyOwner {
         _pause();
@@ -234,27 +229,27 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
 
     /// @dev Updates the multicall
     /// @param multicall The new multicall address
-    function setMulticall(address multicall) external onlyOwner {
-        portalsMulticall = IPortalsMulticall(multicall);
-        emit Multicall(multicall);
+    function setMulticall(IPortalsMulticall multicall)
+        external
+        onlyOwner
+    {
+        portalsMulticall = multicall;
+        emit MulticallUpdated(address(multicall));
     }
 
-    /// @notice Invalidates the next order of msg.sender
-    /// @notice Orders that have already been confirmed are not invalidated
-    function invalidateNextOrder() external {
-        ++nonces[msg.sender];
-    }
-
-    /// @notice Recovers stuck tokens and sends them to the admin
+    /// @notice Recovers stuck tokens
     /// @param tokenAddress The address of the token to recover (address(0) if ETH)
     /// @param tokenAmount The quantity of tokens to recover
-    function recoverToken(address tokenAddress, uint256 tokenAmount)
-        external
-    {
+    /// @param to The address to send the recovered tokens to
+    function recoverToken(
+        address tokenAddress,
+        uint256 tokenAmount,
+        address to
+    ) external onlyOwner {
         if (tokenAddress == address(0)) {
-            owner.safeTransferETH(tokenAmount);
+            to.safeTransferETH(tokenAmount);
         } else {
-            ERC20(tokenAddress).safeTransfer(owner, tokenAmount);
+            ERC20(tokenAddress).safeTransfer(to, tokenAmount);
         }
     }
 }

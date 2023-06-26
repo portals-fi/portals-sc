@@ -68,4 +68,7 @@ contract Addresses {
             revert NoAddress(network, name);
         }
     }
+
+    // add this to be excluded from coverage report
+    function test() public { }
 }

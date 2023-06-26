@@ -16,3 +16,7 @@ node_modules/
 
 ##DS_store
 .DS_Store
+
+##Coverage
+coverage/
+lcov

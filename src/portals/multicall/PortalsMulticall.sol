@@ -25,15 +25,16 @@ contract PortalsMulticall is IPortalsMulticall, ReentrancyGuard {
     {
         for (uint256 i = 0; i < calls.length;) {
             IPortalsMulticall.Call memory call = calls[i];
-            uint256 balance;
             uint256 value;
             if (call.inputToken == address(0)) {
                 value = address(this).balance;
                 _setAmount(call.data, call.amountIndex, value);
             } else {
-                balance =
-                    ERC20(call.inputToken).balanceOf(address(this));
-                _setAmount(call.data, call.amountIndex, balance);
+                _setAmount(
+                    call.data,
+                    call.amountIndex,
+                    ERC20(call.inputToken).balanceOf(address(this))
+                );
             }
 
             (bool success, bytes memory returnData) =
