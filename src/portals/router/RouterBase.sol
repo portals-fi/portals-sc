@@ -19,8 +19,15 @@ import { SignatureChecker } from
     "openzeppelin-contracts/utils/cryptography/SignatureChecker.sol";
 import { Pausable } from
     "openzeppelin-contracts/security/Pausable.sol";
+import { EIP712 } from
+    "openzeppelin-contracts/utils/cryptography/EIP712.sol";
 
-abstract contract RouterBase is IRouterBase, Owned, Pausable {
+abstract contract RouterBase is
+    IRouterBase,
+    Owned,
+    Pausable,
+    EIP712
+{
     using SafeTransferLib for address;
     using SafeTransferLib for ERC20;
 
@@ -44,24 +51,14 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
         )
     );
 
-    bytes32 public immutable DOMAIN_SEPARATOR;
-
     //Order nonces
     mapping(address => uint64) public nonces;
 
     constructor(address _admin, IPortalsMulticall _multicall)
         Owned(_admin)
+        EIP712("PortalsRouter", "1")
     {
         PORTALS_MULTICALL = _multicall;
-        DOMAIN_SEPARATOR = keccak256(
-            abi.encode(
-                EIP712_DOMAIN_TYPEHASH,
-                keccak256(bytes("PortalsRouter")),
-                keccak256(bytes("1")),
-                block.chainid,
-                address(this)
-            )
-        );
     }
 
     /// @notice Transfers tokens or the network token from the sender to the Portals multicall contract
@@ -140,11 +137,7 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
             )
         );
 
-        bytes32 digest = keccak256(
-            abi.encodePacked(
-                "\x19\x01", DOMAIN_SEPARATOR, signedOrderHash
-            )
-        );
+        bytes32 digest = _hashTypedDataV4(signedOrderHash);
 
         require(
             SignatureChecker.isValidSignatureNow(
@@ -208,6 +201,11 @@ abstract contract RouterBase is IRouterBase, Owned, Pausable {
                 permitPayload.signature
             );
         }
+    }
+
+    /// @notice The EIP712 domain separator of this contract
+    function domainSeparator() external view returns (bytes32) {
+        return _domainSeparatorV4();
     }
 
     /// @notice Invalidates the next order of msg.sender

@@ -129,7 +129,7 @@ contract PortalWithSignatureTest is Test {
         createSignedOrderPayload(
             order,
             calls,
-            router.DOMAIN_SEPARATOR(),
+            router.domainSeparator(),
             user,
             userPrivateKey
         );
@@ -220,7 +220,7 @@ contract PortalWithSignatureTest is Test {
         createSignedOrderPayload(
             order,
             calls,
-            router.DOMAIN_SEPARATOR(),
+            router.domainSeparator(),
             user,
             userPrivateKey
         );
@@ -310,7 +310,7 @@ contract PortalWithSignatureTest is Test {
         createSignedOrderPayload(
             order,
             calls,
-            router.DOMAIN_SEPARATOR(),
+            router.domainSeparator(),
             user,
             userPrivateKey
         );
@@ -442,7 +442,7 @@ contract PortalWithSignatureTest is Test {
         createSignedOrderPayload(
             order,
             calls,
-            router.DOMAIN_SEPARATOR(),
+            router.domainSeparator(),
             adversary,
             adversaryPivateKey
         );
@@ -566,7 +566,7 @@ contract PortalWithSignatureTest is Test {
         createSignedOrderPayload(
             order,
             calls,
-            router.DOMAIN_SEPARATOR(),
+            router.domainSeparator(),
             user,
             userPrivateKey
         );
