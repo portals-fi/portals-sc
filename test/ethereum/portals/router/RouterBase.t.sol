@@ -261,7 +261,7 @@ contract RouterBaseTest is Test {
         createSignedOrderPayload(
             order,
             calls,
-            router.DOMAIN_SEPARATOR(),
+            router.domainSeparator(),
             user,
             userPrivateKey
         );
@@ -341,7 +341,7 @@ contract RouterBaseTest is Test {
         createSignedOrderPayload(
             order,
             calls,
-            router.DOMAIN_SEPARATOR(),
+            router.domainSeparator(),
             user,
             userPrivateKey
         );
@@ -427,7 +427,7 @@ contract RouterBaseTest is Test {
         createSignedOrderPayload(
             order,
             calls,
-            router.DOMAIN_SEPARATOR(),
+            router.domainSeparator(),
             user,
             userPrivateKey
         );
