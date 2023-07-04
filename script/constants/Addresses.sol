@@ -6,6 +6,9 @@ contract Addresses {
     mapping(string => address) private Polygon;
     mapping(string => address) private Fantom;
     mapping(string => address) private Avalanche;
+    mapping(string => address) private Optimism;
+    mapping(string => address) private Arbitrum;
+    mapping(string => address) private BNB;
 
     error NoAddress(string network, string name);
 
@@ -15,20 +18,9 @@ contract Addresses {
         Fantom["admin"] = 0xC585C45D6538DABc58E7740a07e840a679AB872B;
         Avalanche["admin"] =
             0xB0f6bC7b4D996cC483EA3578585Fa74E71280C53;
-
-        Polygon["collector"] =
-            0x508ee1b661c7DeE089A5b5c3fD234f1058F03c38;
-        Ethereum["collector"] =
-            0xFBD4C3D8bE6B15b7cf428Db2838bb44C0054fCd2;
-        Fantom["collector"] =
-            0x9144439a1d4d5Fb371C491101045815F32150444;
-        Avalanche["collector"] =
-            0xdDe0bb7c1F953667538bBf11798F0BbbF90Fa313;
-
-        Ethereum["zeroEx"] =
-            0xDef1C0ded9bec7F1a1670819833240f027b25EfF;
-
-        Ethereum["WETH"] = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+        Optimism["admin"] = 0x183a0490C4b5BC5cA8a9eB65F8EE8Fd5B019aD86;
+        Arbitrum["admin"] = 0xa7D040C780A84A18DbD8F47a6beCa2aA17A60ea3;
+        BNB["admin"] = 0x5199c0E2726C91a13F8d674c6977c765D61716d9;
     }
 
     function get(string memory network, string memory name)
@@ -60,10 +52,32 @@ contract Addresses {
             keccak256(abi.encodePacked(network))
                 == keccak256(abi.encodePacked("Avalanche"))
         ) {
-            entity = Fantom[name];
+            entity = Avalanche[name];
             require(
                 entity != address(0), "Avalanche address not found"
             );
+        } else if (
+            keccak256(abi.encodePacked(network))
+                == keccak256(abi.encodePacked("Optimism"))
+        ) {
+            entity = Optimism[name];
+            require(
+                entity != address(0), "Optimism address not found"
+            );
+        } else if (
+            keccak256(abi.encodePacked(network))
+                == keccak256(abi.encodePacked("Arbitrum"))
+        ) {
+            entity = Arbitrum[name];
+            require(
+                entity != address(0), "Arbitrum address not found"
+            );
+        } else if (
+            keccak256(abi.encodePacked(network))
+                == keccak256(abi.encodePacked("BNB"))
+        ) {
+            entity = BNB[name];
+            require(entity != address(0), "BNB address not found");
         } else {
             revert NoAddress(network, name);
         }
