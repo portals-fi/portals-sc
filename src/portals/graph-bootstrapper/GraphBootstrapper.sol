@@ -24,11 +24,7 @@ contract GraphBootstrapper is AccessControl {
         }
     }
 
-    function bootstrap()
-        external
-        payable
-        onlyRole((BOOTSTRAP_ROLE))
-    {
+    function bootstrap() external onlyRole((BOOTSTRAP_ROLE)) {
         emit Bootstrap();
     }
 }
