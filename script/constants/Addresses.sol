@@ -9,6 +9,7 @@ contract Addresses {
     mapping(string => address) private Optimism;
     mapping(string => address) private Arbitrum;
     mapping(string => address) private BSC;
+    mapping(string => address) private Base;
 
     error NoAddress(string network, string name);
 
@@ -21,6 +22,7 @@ contract Addresses {
         Optimism["admin"] = 0x183a0490C4b5BC5cA8a9eB65F8EE8Fd5B019aD86;
         Arbitrum["admin"] = 0xa7D040C780A84A18DbD8F47a6beCa2aA17A60ea3;
         BSC["admin"] = 0x5199c0E2726C91a13F8d674c6977c765D61716d9;
+        Base["admin"] = 0xb703A646fEB68eB31FBf0E1e2b63F69075EA4440;
     }
 
     function get(string memory network, string memory name)
@@ -78,6 +80,12 @@ contract Addresses {
         ) {
             entity = BSC[name];
             require(entity != address(0), "BSC address not found");
+        } else if (
+            keccak256(abi.encodePacked(network))
+                == keccak256(abi.encodePacked("Base"))
+        ) {
+            entity = Base[name];
+            require(entity != address(0), "Base address not found");
         } else {
             revert NoAddress(network, name);
         }

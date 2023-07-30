@@ -20,6 +20,7 @@ optimism = "${OPTIMISM_RPC_URL}"
 arbitrum = "${ARBITRUM_RPC_URL}"
 bsc = "${BSC_RPC_URL}"
 cronos = "${CRONOS_RPC_URL}"
+base = "${BASE_RPC_URL}"
 [etherscan]
 mainnet = { key = "${MAINNET_ETHERSCAN_API_KEY}" }
 fantom = { key = "${FANTOM_ETHERSCAN_API_KEY}" }
@@ -29,6 +30,7 @@ optimism = { key = "${OPTIMISM_ETHERSCAN_API_KEY}" }
 arbitrum = { key = "${ARBITRUM_ETHERSCAN_API_KEY}" }
 bsc = { key = "${BSC_ETHERSCAN_API_KEY}" }
 cronos = { key = "${CRONOS_ETHERSCAN_API_KEY}" }
+base = { key = "${BASE_ETHERSCAN_API_KEY}" }
 [fuzz]
 runs = 16
 
