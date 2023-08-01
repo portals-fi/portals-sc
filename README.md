@@ -2,13 +2,13 @@
 
 ## Summary
 
-Portals.fi uses an RFQ system where a caller requests a quote from the Portals API with the input and output tokens, the input amount and the sender/recipient. Once a request is received, the "Warpdrive" algorithm is used to determine the best route (highest USD output + least gas consumption) to complete the transformation. In addition, as the route is being generated, all of the appropriate calls required (i.e. the steps) are appended to a `Call` array for use in the [Portals Multicall](https://github.com/portals-fi/portals-sc/blob/main/src/portals/multicall/PortalsMulticall.sol) contract. Finally, the API returns an unsigned "Order" transaction or EIP-712 "Signed Order" representing the caller's intent to transform the input token into the output token, which can be signed and broadcasted by a user's wallet (or by the Galaxy Broadcasting System for gas-abstracted swaps).
+Portals.fi uses an RFQ system where a caller requests a quote from the Portals API with the input and output tokens, the input amount and the sender/recipient. Once a request is received, the "Warpdrive" algorithm is used to determine the best route (highest USD output + least gas consumption) to complete the transformation. In addition, as the route is being generated, all of the appropriate calls required (i.e. the steps) are appended to a `Call` array for use in the [Portals Multicall](https://github.com/portals-fi/portals-sc/blob/main/src/portals/multicall/PortalsMulticall.sol) contract. Finally, the API returns an unsigned `Order` transaction or EIP-712 `Signed Order` representing the caller's intent to transform the input token into the output token, which can be signed and broadcasted by a user's wallet (or by the Galaxy Broadcasting System for gas-abstracted swaps).
 
 ## Architecture
 
 ### Flow
 
-The [Portals Router](https://github.com/portals-fi/portals-sc/blob/main/src/portals/router/PortalsRouter.sol) is the entry point and approval target for this system. The Router inherits its base functionality from the [Router Base](https://github.com/portals-fi/portals-sc/blob/main/src/portals/router/RouterBase.sol) contract which allows the `PortalsRouter` to check balances, perform transfers, verify signed orders and permit messages, pause or unpause the contract, and update the address of the `PortalsMulticall` contract.
+The [Portals Router](https://github.com/portals-fi/portals-sc/blob/main/src/portals/router/PortalsRouter.sol) is the entry point and approval target for this system. The Router inherits its base functionality from the [Router Base](https://github.com/portals-fi/portals-sc/blob/main/src/portals/router/RouterBase.sol) contract which allows the `PortalsRouter` to check balances, perform transfers, verify signed orders and permit messages, pause or unpause the contract, and recover stuck tokens.
 
 The Router facilitates two types of orders as described in the [summary](#summary): Orders and Signed Orders.
 
