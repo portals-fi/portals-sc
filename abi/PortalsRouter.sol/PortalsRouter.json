@@ -7,12 +7,7 @@
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "_collector",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
+        "internalType": "contract IPortalsMulticall",
         "name": "_multicall",
         "type": "address"
       }
@@ -37,29 +32,25 @@
     "type": "error"
   },
   {
-    "anonymous": false,
+    "inputs": [],
+    "name": "InvalidShortString",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "collector",
-        "type": "address"
+        "internalType": "string",
+        "name": "str",
+        "type": "string"
       }
     ],
-    "name": "Collector",
-    "type": "event"
+    "name": "StringTooLong",
+    "type": "error"
   },
   {
     "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "multicall",
-        "type": "address"
-      }
-    ],
-    "name": "Multicall",
+    "inputs": [],
+    "name": "EIP712DomainChanged",
     "type": "event"
   },
   {
@@ -86,12 +77,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "paused",
-        "type": "bool"
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
       }
     ],
-    "name": "Pause",
+    "name": "Paused",
     "type": "event"
   },
   {
@@ -119,18 +110,6 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "outputAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "feeToken",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "fee",
         "type": "uint256"
       },
       {
@@ -162,8 +141,21 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Unpaused",
+    "type": "event"
+  },
+  {
     "inputs": [],
-    "name": "DOMAIN_SEPARATOR",
+    "name": "domainSeparator",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -176,25 +168,42 @@
   },
   {
     "inputs": [],
-    "name": "Portals_Multicall",
+    "name": "eip712Domain",
     "outputs": [
       {
-        "internalType": "contract IPortalsMulticall",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "collector",
-    "outputs": [
+        "internalType": "bytes1",
+        "name": "fields",
+        "type": "bytes1"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "version",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "chainId",
+        "type": "uint256"
+      },
       {
         "internalType": "address",
-        "name": "",
+        "name": "verifyingContract",
         "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "salt",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "extensions",
+        "type": "uint256[]"
       }
     ],
     "stateMutability": "view",
@@ -287,22 +296,7 @@
               },
               {
                 "internalType": "address",
-                "name": "feeToken",
-                "type": "address"
-              },
-              {
-                "internalType": "uint256",
-                "name": "fee",
-                "type": "uint256"
-              },
-              {
-                "internalType": "address",
                 "name": "recipient",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "partner",
                 "type": "address"
               }
             ],
@@ -341,6 +335,11 @@
         "internalType": "struct IPortalsRouter.OrderPayload",
         "name": "orderPayload",
         "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
       }
     ],
     "name": "portal",
@@ -382,22 +381,7 @@
               },
               {
                 "internalType": "address",
-                "name": "feeToken",
-                "type": "address"
-              },
-              {
-                "internalType": "uint256",
-                "name": "fee",
-                "type": "uint256"
-              },
-              {
-                "internalType": "address",
                 "name": "recipient",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "partner",
                 "type": "address"
               }
             ],
@@ -440,11 +424,6 @@
       {
         "components": [
           {
-            "internalType": "address",
-            "name": "owner",
-            "type": "address"
-          },
-          {
             "internalType": "uint256",
             "name": "amount",
             "type": "uint256"
@@ -473,6 +452,11 @@
         "internalType": "struct IPortalsRouter.PermitPayload",
         "name": "permitPayload",
         "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
       }
     ],
     "name": "portalWithPermit",
@@ -516,22 +500,7 @@
                   },
                   {
                     "internalType": "address",
-                    "name": "feeToken",
-                    "type": "address"
-                  },
-                  {
-                    "internalType": "uint256",
-                    "name": "fee",
-                    "type": "uint256"
-                  },
-                  {
-                    "internalType": "address",
                     "name": "recipient",
-                    "type": "address"
-                  },
-                  {
-                    "internalType": "address",
-                    "name": "partner",
                     "type": "address"
                   }
                 ],
@@ -600,6 +569,11 @@
         "internalType": "struct IPortalsRouter.SignedOrderPayload",
         "name": "signedOrderPayload",
         "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
       }
     ],
     "name": "portalWithSignature",
@@ -643,22 +617,7 @@
                   },
                   {
                     "internalType": "address",
-                    "name": "feeToken",
-                    "type": "address"
-                  },
-                  {
-                    "internalType": "uint256",
-                    "name": "fee",
-                    "type": "uint256"
-                  },
-                  {
-                    "internalType": "address",
                     "name": "recipient",
-                    "type": "address"
-                  },
-                  {
-                    "internalType": "address",
-                    "name": "partner",
                     "type": "address"
                   }
                 ],
@@ -731,11 +690,6 @@
       {
         "components": [
           {
-            "internalType": "address",
-            "name": "owner",
-            "type": "address"
-          },
-          {
             "internalType": "uint256",
             "name": "amount",
             "type": "uint256"
@@ -764,6 +718,11 @@
         "internalType": "struct IPortalsRouter.PermitPayload",
         "name": "permitPayload",
         "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
       }
     ],
     "name": "portalWithSignatureAndPermit",
@@ -788,35 +747,14 @@
         "internalType": "uint256",
         "name": "tokenAmount",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
       }
     ],
     "name": "recoverToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_collector",
-        "type": "address"
-      }
-    ],
-    "name": "setCollector",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "multicall",
-        "type": "address"
-      }
-    ],
-    "name": "setMulticall",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -836,15 +774,9 @@
   },
   {
     "inputs": [],
-    "name": "version",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "unpause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]
