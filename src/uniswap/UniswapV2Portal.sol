@@ -111,12 +111,15 @@ contract UniswapV2Portal is Owned, Pausable {
         pure
         returns (uint256)
     {
+        uint256 fee = 30;
         return (
             Babylonian.sqrt(
-                reserves
-                    * ((amount * 3_988_000) + (reserves * 3_988_009))
-            ) - (reserves * 1997)
-        ) / 1994;
+                (
+                    (2 * 10_000 - fee) * (2 * 10_000 - fee) * reserves
+                        * reserves
+                ) + (4 * (10_000 - fee) * 10_000 * amount * reserves)
+            ) - (2 * 10_000 - fee) * (reserves)
+        ) / (2 * (10_000 - fee));
     }
 
     /// @notice Used for intra-pool swaps of ERC20 assets
