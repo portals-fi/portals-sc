@@ -24,6 +24,8 @@ contract UniswapV2Portal is Owned, Pausable {
     using SafeTransferLib for address;
     using SafeTransferLib for ERC20;
 
+    uint256 internal constant BPS = 10_000;
+
     constructor(address admin) Owned(admin) { }
 
     /// @notice Add liquidity to Uniswap V2-like pools with network tokens/ERC20 tokens
@@ -31,17 +33,21 @@ contract UniswapV2Portal is Owned, Pausable {
     /// @param inputAmount The quantity of inputToken to Portal in
     /// @param outputToken The pool (i.e. pair) address
     /// @param router The Uniswap V2-like router to be used for adding liquidity
+    /// @param fee The swap fee for the pool in BPS
     /// @param recipient The recipient of the liquidity tokens
     function portalIn(
         address inputToken,
         uint256 inputAmount,
         address outputToken,
         IUniswapV2Router02 router,
+        uint256 fee,
         address recipient
     ) external payable whenNotPaused {
         uint256 amount = _transferFromCaller(inputToken, inputAmount);
 
-        _deposit(inputToken, amount, outputToken, router, recipient);
+        _deposit(
+            inputToken, amount, outputToken, router, fee, recipient
+        );
     }
 
     /// @notice Sets up the correct token ratio and deposits into the pool
@@ -49,12 +55,14 @@ contract UniswapV2Portal is Owned, Pausable {
     /// @param inputAmount The quantity of tokens to sell
     /// @param outputToken The pool (i.e. pair) address
     /// @param router The Uniswap V2-like router to be used for adding liquidity
+    /// @param fee The swap fee for the pool in BPS
     /// @param recipient The recipient of the liquidity tokens
     function _deposit(
         address inputToken,
         uint256 inputAmount,
         address outputToken,
         IUniswapV2Router02 router,
+        uint256 fee,
         address recipient
     ) internal {
         IUniswapV2Pair pair = IUniswapV2Pair(outputToken);
@@ -67,7 +75,8 @@ contract UniswapV2Portal is Owned, Pausable {
         uint256 token1Amount;
 
         if (inputToken == token0) {
-            uint256 swapAmount = _getSwapAmount(res0, inputAmount);
+            uint256 swapAmount =
+                _getSwapAmount(res0, inputAmount, fee);
             if (swapAmount == 0) swapAmount = inputAmount / 2;
 
             token1Amount =
@@ -75,7 +84,8 @@ contract UniswapV2Portal is Owned, Pausable {
 
             token0Amount = inputAmount - swapAmount;
         } else {
-            uint256 swapAmount = _getSwapAmount(res1, inputAmount);
+            uint256 swapAmount =
+                _getSwapAmount(res1, inputAmount, fee);
             if (swapAmount == 0) swapAmount = inputAmount / 2;
 
             token0Amount =
@@ -104,21 +114,21 @@ contract UniswapV2Portal is Owned, Pausable {
     /// equal to the proportion of the assets in the pool
     /// @param reserves The reserves of the inputToken
     /// @param amount The total quantity of tokens held
+    /// @param fee The swap fee for the pool in BPS
     /// @return The quantity of the sell token to swap
-    function _getSwapAmount(uint256 reserves, uint256 amount)
-        internal
-        pure
-        returns (uint256)
-    {
-        uint256 fee = 30;
+    function _getSwapAmount(
+        uint256 reserves,
+        uint256 amount,
+        uint256 fee
+    ) internal pure returns (uint256) {
         return (
             Babylonian.sqrt(
                 (
-                    (2 * 10_000 - fee) * (2 * 10_000 - fee) * reserves
+                    (2 * BPS - fee) * (2 * BPS - fee) * reserves
                         * reserves
-                ) + (4 * (10_000 - fee) * 10_000 * amount * reserves)
-            ) - (2 * 10_000 - fee) * (reserves)
-        ) / (2 * (10_000 - fee));
+                ) + (4 * (BPS - fee) * BPS * amount * reserves)
+            ) - (2 * BPS - fee) * (reserves)
+        ) / (2 * (BPS - fee));
     }
 
     /// @notice Used for intra-pool swaps of ERC20 assets
