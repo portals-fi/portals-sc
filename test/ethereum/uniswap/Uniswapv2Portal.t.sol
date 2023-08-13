@@ -45,11 +45,14 @@ contract UniswapV2PortalTest is Test {
 
     address internal USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address internal DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address internal WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address internal ETH = address(0);
     address internal USDC_WETH =
         0xB4e16d0168e52d35CaCD2c6185b44281Ec28C9Dc;
     address internal UniswapV2router =
         0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+
+    uint256 internal constant UNISWAP_FEE = 30; // 30 BPS
 
     PortalsMulticall public multicall = new PortalsMulticall();
 
@@ -69,7 +72,7 @@ contract UniswapV2PortalTest is Test {
     function test_PortalIn_UniswapV2_USDC_WETH_With_ETH_Using_USDC_Intermediate(
     ) public {
         address inputToken = address(0);
-        uint256 inputAmount = 5 ether;
+        uint256 inputAmount = 50 ether;
         uint256 value = inputAmount;
 
         address intermediateToken = USDC;
@@ -112,11 +115,12 @@ contract UniswapV2PortalTest is Test {
             intermediateToken,
             address(uniswapV2Portal),
             abi.encodeWithSignature(
-                "portalIn(address,uint256,address,address,address)",
+                "portalIn(address,uint256,address,address,uint256,address)",
                 intermediateToken,
                 0,
                 outputToken,
                 UniswapV2router,
+                UNISWAP_FEE,
                 user
             ),
             1
@@ -127,17 +131,34 @@ contract UniswapV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
+        console2.log(
+            "WETH Before",
+            ERC20(WETH).balanceOf(address(uniswapV2Portal))
+        );
+        console2.log(
+            "USDC Before",
+            ERC20(USDC).balanceOf(address(uniswapV2Portal))
+        );
+
         router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
+        console2.log(
+            "WETH After",
+            ERC20(WETH).balanceOf(address(uniswapV2Portal))
+        );
+        console2.log(
+            "USDC After",
+            ERC20(USDC).balanceOf(address(uniswapV2Portal))
+        );
     }
 
     function test_PortalIn_UniswapV2_USDC_WETH_With_USDC_Using_USDC_Intermediate(
     ) public {
         address inputToken = USDC;
-        uint256 inputAmount = 5_000_000_000; // 5000 USDC
+        uint256 inputAmount = 50_000_000_000; // 50,000 USDC
         uint256 value = 0;
 
         deal(address(inputToken), user, inputAmount);
@@ -174,11 +195,12 @@ contract UniswapV2PortalTest is Test {
             intermediateToken,
             address(uniswapV2Portal),
             abi.encodeWithSignature(
-                "portalIn(address,uint256,address,address,address)",
+                "portalIn(address,uint256,address,address,uint256,address)",
                 intermediateToken,
                 inputAmount,
                 outputToken,
                 UniswapV2router,
+                UNISWAP_FEE,
                 user
             ),
             1
@@ -190,12 +212,28 @@ contract UniswapV2PortalTest is Test {
         ERC20(inputToken).approve(address(router), inputAmount);
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
+        console2.log(
+            "WETH Before",
+            ERC20(WETH).balanceOf(address(uniswapV2Portal))
+        );
+        console2.log(
+            "USDC Before",
+            ERC20(USDC).balanceOf(address(uniswapV2Portal))
+        );
 
         router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
+        console2.log(
+            "WETH After",
+            ERC20(WETH).balanceOf(address(uniswapV2Portal))
+        );
+        console2.log(
+            "USDC After",
+            ERC20(USDC).balanceOf(address(uniswapV2Portal))
+        );
     }
 
     function test_Pausable() public {
