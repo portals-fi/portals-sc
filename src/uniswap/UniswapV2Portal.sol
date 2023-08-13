@@ -101,8 +101,7 @@ contract UniswapV2Portal is Owned, Pausable {
 
     /// @notice Returns the optimal intra-pool swap quantity such that
     /// that the proportion of both tokens held subsequent to the swap is
-    /// equal to the proportion of the assets in the pool. Assumes typical
-    /// Uniswap V2 fee.
+    /// equal to the proportion of the assets in the pool
     /// @param reserves The reserves of the inputToken
     /// @param amount The total quantity of tokens held
     /// @return The quantity of the sell token to swap
