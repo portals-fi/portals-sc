@@ -131,29 +131,13 @@ contract UniswapV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        console2.log(
-            "WETH Before",
-            ERC20(WETH).balanceOf(address(uniswapV2Portal))
-        );
-        console2.log(
-            "USDC Before",
-            ERC20(USDC).balanceOf(address(uniswapV2Portal))
-        );
 
         router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
-        console2.log(
-            "WETH After",
-            ERC20(WETH).balanceOf(address(uniswapV2Portal))
-        );
-        console2.log(
-            "USDC After",
-            ERC20(USDC).balanceOf(address(uniswapV2Portal))
-        );
-    }
+
 
     function test_PortalIn_UniswapV2_USDC_WETH_With_USDC_Using_USDC_Intermediate(
     ) public {
@@ -212,28 +196,14 @@ contract UniswapV2PortalTest is Test {
         ERC20(inputToken).approve(address(router), inputAmount);
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
-        console2.log(
-            "WETH Before",
-            ERC20(WETH).balanceOf(address(uniswapV2Portal))
-        );
-        console2.log(
-            "USDC Before",
-            ERC20(USDC).balanceOf(address(uniswapV2Portal))
-        );
+
 
         router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
-        console2.log(
-            "WETH After",
-            ERC20(WETH).balanceOf(address(uniswapV2Portal))
-        );
-        console2.log(
-            "USDC After",
-            ERC20(USDC).balanceOf(address(uniswapV2Portal))
-        );
+
     }
 
     function test_Pausable() public {
