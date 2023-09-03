@@ -30,7 +30,7 @@ import { Addresses } from "../../../script/constants/Addresses.sol";
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 
 contract PearlFiPortalTest is Test {
-    uint256 optimismFork =
+    uint256 fork =
         vm.createSelectFork(vm.envString("POLYGON_RPC_URL"));
 
     uint256 internal ownerPrivateKey = 0xDAD;
