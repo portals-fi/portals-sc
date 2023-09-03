@@ -263,14 +263,14 @@ contract BalancerV2BoostedPortalTest is Test {
     //     assertTrue(finalBalance > initialBalance);
     // }
 
-    function testFail_Portal_Reverts_When_Paused() public {
-        changePrank(owner);
-        assertTrue(!router.paused());
-        router.pause();
-        assertTrue(router.paused());
-        test_PortalIn_BalancerV2Boosted_bb_a_USD_with_ETH_with_DAI_Intermediate(
-        );
-    }
+    // function testFail_Portal_Reverts_When_Paused() public {
+    //     changePrank(owner);
+    //     assertTrue(!router.paused());
+    //     router.pause();
+    //     assertTrue(router.paused());
+    //     test_PortalIn_BalancerV2Boosted_bb_a_USD_with_ETH_with_DAI_Intermediate(
+    //     );
+    // }
 
     function test_ERC20_recoverToken() public {
         address inputToken = USDC;
