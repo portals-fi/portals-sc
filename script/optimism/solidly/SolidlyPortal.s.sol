@@ -2,8 +2,7 @@
 pragma solidity 0.8.19;
 
 import "forge-std/Script.sol";
-import { SolidlyPortal } from
-    "../../../src/velodrome/SolidlyPortal.sol";
+import { SolidlyPortal } from "../../../src/solidly/SolidlyPortal.sol";
 
 import { Addresses } from "../../constants/Addresses.sol";
 

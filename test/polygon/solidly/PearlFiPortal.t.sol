@@ -13,10 +13,9 @@ import { PortalsRouter } from
     "../../../src/portals/router/PortalsRouter.sol";
 import { PortalsMulticall } from
     "../../../src/portals/multicall/PortalsMulticall.sol";
-import { SolidlyPortal } from
-    "../../../src/velodrome/SolidlyPortal.sol";
+import { SolidlyPortal } from "../../../src/solidly/SolidlyPortal.sol";
 import { ISolidlyRouter } from
-    "../../../src/velodrome/interface/ISolidlyRouter.sol";
+    "../../../src/solidly/interface/ISolidlyRouter.sol";
 import { IPortalsRouter } from
     "../../../src/portals/router/interface/IPortalsRouter.sol";
 import { IPortalsMulticall } from
