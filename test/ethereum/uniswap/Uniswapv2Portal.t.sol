@@ -131,14 +131,13 @@ contract UniswapV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-
         router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
     }
-    
+
     function test_PortalIn_UniswapV2_USDC_WETH_With_USDC_Using_USDC_Intermediate(
     ) public {
         address inputToken = USDC;
@@ -197,13 +196,11 @@ contract UniswapV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-
         router.portal{ value: value }(orderPayload, partner);
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
-
     }
 
     function test_Pausable() public {

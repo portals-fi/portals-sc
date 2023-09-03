@@ -15,8 +15,7 @@ import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 import { Owned } from "solmate/auth/Owned.sol";
 import { Pausable } from
     "openzeppelin-contracts/security/Pausable.sol";
-import { ISolidlyRouter } from
-    "./interface/ISolidlyRouter.sol";
+import { ISolidlyRouter } from "./interface/ISolidlyRouter.sol";
 import { Babylonian } from "./lib/Babylonian.sol";
 
 import { ISolidlyPool } from "./interface/ISolidlyPool.sol";
@@ -26,8 +25,6 @@ contract SolidlyPortal is Owned, Pausable {
     using SafeTransferLib for ERC20;
 
     uint256 internal constant BPS = 10_000;
-
-    event Residual(address token, uint256 amount);
 
     constructor(address admin) Owned(admin) { }
 
@@ -185,13 +182,11 @@ contract SolidlyPortal is Owned, Pausable {
             ERC20(token0).safeTransfer(
                 recipient, token0Amount - amount0Sent
             );
-            emit Residual(token0, token0Amount - amount0Sent);
         }
         if (token1Amount > amount1Sent) {
             ERC20(token1).safeTransfer(
                 recipient, token1Amount - amount1Sent
             );
-            emit Residual(token1, token1Amount - amount1Sent);
         }
     }
 

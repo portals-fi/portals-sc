@@ -54,9 +54,10 @@ contract VelodromeV2PortalTest is Test {
         0xB720FBC32d60BB6dcc955Be86b98D8fD3c4bA645;
     address internal WETH_USDC =
         0x0493Bf8b6DBB159Ce2Db2E0E8403E753Abd1235b;
-        address internal USDC_MAI = 0xE54e4020d1C3afDB312095D90054103E68fe34B0;
+    address internal USDC_MAI =
+        0xE54e4020d1C3afDB312095D90054103E68fe34B0;
     ISolidlyRouter internal velodromeV2Router =
-    ISolidlyRouter(0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858);
+        ISolidlyRouter(0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858);
 
     PortalsMulticall public multicall = new PortalsMulticall();
 
@@ -64,8 +65,7 @@ contract VelodromeV2PortalTest is Test {
 
     Addresses public addresses = new Addresses();
 
-    SolidlyPortal public solidlyPortal =
-        new SolidlyPortal(owner);
+    SolidlyPortal public solidlyPortal = new SolidlyPortal(owner);
 
     Quote public quote = new Quote();
 
@@ -89,9 +89,7 @@ contract VelodromeV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        ERC20(inputToken).approve(
-            address(solidlyPortal), inputAmount
-        );
+        ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
             inputToken,
@@ -109,7 +107,7 @@ contract VelodromeV2PortalTest is Test {
         assertTrue(finalBalance > initialBalance);
     }
 
-        function test_PortalIn_VelodromeV2_VolatileV2_WETH_USDC_Direct_with_USDC(
+    function test_PortalIn_VelodromeV2_VolatileV2_WETH_USDC_Direct_with_USDC(
     ) public {
         address inputToken = USDC;
 
@@ -125,9 +123,7 @@ contract VelodromeV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        ERC20(inputToken).approve(
-            address(solidlyPortal), inputAmount
-        );
+        ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
             inputToken,
@@ -161,9 +157,7 @@ contract VelodromeV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        ERC20(inputToken).approve(
-            address(solidlyPortal), inputAmount
-        );
+        ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
             inputToken,
@@ -197,9 +191,7 @@ contract VelodromeV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        ERC20(inputToken).approve(
-            address(solidlyPortal), inputAmount
-        );
+        ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
             inputToken,
@@ -233,9 +225,7 @@ contract VelodromeV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        ERC20(inputToken).approve(
-            address(solidlyPortal), inputAmount
-        );
+        ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
             inputToken,
@@ -253,7 +243,7 @@ contract VelodromeV2PortalTest is Test {
         assertTrue(finalBalance > initialBalance);
     }
 
-        function test_PortalIn_VelodromeV2_StableV2_USDC_MAI_Direct_with_USDC(
+    function test_PortalIn_VelodromeV2_StableV2_USDC_MAI_Direct_with_USDC(
     ) public {
         address inputToken = USDC;
 
@@ -269,9 +259,7 @@ contract VelodromeV2PortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        ERC20(inputToken).approve(
-            address(solidlyPortal), inputAmount
-        );
+        ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
             inputToken,

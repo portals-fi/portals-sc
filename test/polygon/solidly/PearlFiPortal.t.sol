@@ -50,9 +50,8 @@ contract PearlFiPortalTest is Test {
     address internal USDC_USDR =
         0xD17cb0f162f133e339C0BbFc18c36c357E681D6b;
 
-    ISolidlyRouter internal PearlFiRouter = ISolidlyRouter(
-        0xcC25C0FD84737F44a7d38649b69491BBf0c7f083
-    );
+    ISolidlyRouter internal PearlFiRouter =
+        ISolidlyRouter(0xcC25C0FD84737F44a7d38649b69491BBf0c7f083);
 
     PortalsMulticall public multicall = new PortalsMulticall();
 
@@ -60,8 +59,7 @@ contract PearlFiPortalTest is Test {
 
     Addresses public addresses = new Addresses();
 
-    SolidlyPortal public solidlyPortal =
-        new SolidlyPortal(owner);
+    SolidlyPortal public solidlyPortal = new SolidlyPortal(owner);
 
     Quote public quote = new Quote();
 
@@ -85,9 +83,7 @@ contract PearlFiPortalTest is Test {
 
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-        ERC20(inputToken).approve(
-            address(solidlyPortal), inputAmount
-        );
+        ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
             inputToken,
@@ -128,6 +124,7 @@ contract PearlFiPortalTest is Test {
         assertTrue(solidlyPortal.paused());
         test_PortalIn_PearlFi_StableV1_USDC_USDR_Direct_with_USDC();
     }
+
     function testFail_Pausable_by_Admin_Only() public {
         assertTrue(!solidlyPortal.paused());
         solidlyPortal.pause();
