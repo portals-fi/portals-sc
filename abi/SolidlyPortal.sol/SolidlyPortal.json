@@ -106,29 +106,41 @@
         "type": "address"
       },
       {
-        "internalType": "contract ISolidlyRouter",
-        "name": "router",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "isVelodromeV2",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "stable",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      },
-      {
         "internalType": "address",
         "name": "recipient",
         "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "contract ISolidlyRouter",
+            "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isVelodromeV2",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "stable",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "fee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "gauge",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct ISolidlyPortal.SolidlyParams",
+        "name": "solidlyParams",
+        "type": "tuple"
       }
     ],
     "name": "portalIn",

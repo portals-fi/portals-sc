@@ -25,8 +25,9 @@ import { Quote } from "../../utils/Quote/Quote.sol";
 import { IQuote } from "../../utils/Quote/interface/IQuote.sol";
 import { SigUtils } from "../../utils/SigUtils.sol";
 import { Addresses } from "../../../script/constants/Addresses.sol";
-
 import { ERC20 } from "solmate/tokens/ERC20.sol";
+import { ISolidlyPortal } from
+    "../../../src/solidly/interface/ISolidlyPortal.sol";
 
 contract PearlFiPortalTest is Test {
     uint256 fork =
@@ -80,19 +81,15 @@ contract PearlFiPortalTest is Test {
 
         address outputToken = USDC_USDR;
 
+        ISolidlyPortal.SolidlyParams memory params = ISolidlyPortal
+            .SolidlyParams(PearlFiRouter, false, true, 5, address(0));
+
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken,
-            inputAmount,
-            outputToken,
-            PearlFiRouter,
-            false,
-            true,
-            5,
-            user
+            inputToken, inputAmount, outputToken, user, params
         );
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);

@@ -3,10 +3,10 @@
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
-/// @notice This contract adds liquidity to Velodrome V2-like pools using any ERC20 token.
+/// @notice This contract adds liquidity to Solidly-like pools using any ERC20 token.
 /// @dev This contract is intended to be consumed via a multicall contract and as such omits various checks
 /// including slippage and does not return the quantity of tokens acquired. These checks should be handled
-/// by the caller
+/// by the caller. Optionally stakes LP tokens into a Velodrome V2-like gauge.
 
 pragma solidity 0.8.19;
 
@@ -16,9 +16,10 @@ import { Owned } from "solmate/auth/Owned.sol";
 import { Pausable } from
     "openzeppelin-contracts/security/Pausable.sol";
 import { ISolidlyRouter } from "./interface/ISolidlyRouter.sol";
-import { Babylonian } from "./lib/Babylonian.sol";
-
 import { ISolidlyPool } from "./interface/ISolidlyPool.sol";
+import { ISolidlyPortal } from "./interface/ISolidlyPortal.sol";
+import { IVelodromeV2Gauge } from "./interface/IVelodromeV2Gauge.sol";
+import { Babylonian } from "./lib/Babylonian.sol";
 
 contract SolidlyPortal is Owned, Pausable {
     using SafeTransferLib for address;
@@ -32,19 +33,14 @@ contract SolidlyPortal is Owned, Pausable {
     /// @param inputToken The ERC20 token address to spend
     /// @param inputAmount The quantity of inputToken to Portal in
     /// @param outputToken The pool (i.e. pair) address
-    /// @param router The Solidly-like router to be used for adding liquidity
-    /// @param stable True if pool is stable, false if volatile
-    /// @param fee The swap fee for the pool in BPS
     /// @param recipient The recipient of the liquidity tokens
+    /// @param solidlyParams The Solidly-specific parameters for the Portal
     function portalIn(
         address inputToken,
         uint256 inputAmount,
         address outputToken,
-        ISolidlyRouter router,
-        bool isVelodromeV2,
-        bool stable,
-        uint256 fee,
-        address recipient
+        address recipient,
+        ISolidlyPortal.SolidlyParams calldata solidlyParams
     ) external payable whenNotPaused {
         uint256 amount = _transferFromCaller(inputToken, inputAmount);
 
@@ -52,12 +48,23 @@ contract SolidlyPortal is Owned, Pausable {
             inputToken,
             amount,
             outputToken,
-            router,
-            isVelodromeV2,
-            stable,
-            fee,
-            recipient
+            solidlyParams.router,
+            solidlyParams.isVelodromeV2,
+            solidlyParams.stable,
+            solidlyParams.fee,
+            solidlyParams.gauge == address(0)
+                ? recipient
+                : address(this)
         );
+        // For Velodrome V2-like Gauges
+        if (solidlyParams.gauge != address(0)) {
+            address gauge = solidlyParams.gauge;
+
+            _approve(outputToken, gauge);
+            IVelodromeV2Gauge(gauge).deposit(
+                _getBalance(address(this), outputToken), recipient
+            );
+        }
     }
 
     /// @notice Sets up the correct token ratio and deposits into the pool
@@ -192,7 +199,7 @@ contract SolidlyPortal is Owned, Pausable {
 
     /// @notice Returns the optimal intra-pool swap quantity, for stable pools, such that
     /// that the proportion of both tokens held subsequent to the swap is
-    /// equal to the proportion of the assets in the pool
+    /// approximately equal to the proportion of the assets in the pool
     /// @param inputToken The ERC20 token address to swap from
     /// @param inputAmount The total quantity of tokens held
     /// @param outputToken The pool (i.e. pair) address
@@ -239,8 +246,8 @@ contract SolidlyPortal is Owned, Pausable {
         token0Amount = token0Amount * 1e18 / 10 ** token0Decimals;
         token1Amount = token1Amount * 1e18 / 10 ** token1Decimals;
 
-        amountBDesired = amountBDesired * 1e18 / 10 ** token1Decimals;
         amountADesired = amountADesired * 1e18 / 10 ** token0Decimals;
+        amountBDesired = amountBDesired * 1e18 / 10 ** token1Decimals;
 
         uint256 ratio = amountBDesired * 1e18 / amountADesired
             * token0Amount / token1Amount;
@@ -274,7 +281,7 @@ contract SolidlyPortal is Owned, Pausable {
     /// @param inputToken The token address to swap from
     /// @param inputAmount The quantity of tokens to sell
     /// @param outputToken The token address to swap to
-    /// @param router The Velodrome V2-like router to use for the swap
+    /// @param router The Solidly-like router to use for the swap
     /// @return tokenBought The quantity of tokens bought
     function _intraSwap(
         address inputToken,

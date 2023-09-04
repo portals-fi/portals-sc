@@ -25,6 +25,8 @@ import { Quote } from "../../utils/Quote/Quote.sol";
 import { IQuote } from "../../utils/Quote/interface/IQuote.sol";
 import { SigUtils } from "../../utils/SigUtils.sol";
 import { Addresses } from "../../../script/constants/Addresses.sol";
+import { ISolidlyPortal } from
+    "../../../src/solidly/interface/ISolidlyPortal.sol";
 
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 
@@ -51,6 +53,8 @@ contract VelodromeV2PortalTest is Test {
     address internal ETH = address(0);
     address internal USDC_DOLA =
         0xB720FBC32d60BB6dcc955Be86b98D8fD3c4bA645;
+    address internal USDC_DOLA_GAUGE =
+        0xa1034Ed2C9eb616d6F7f318614316e64682e7923;
     address internal WETH_USDC =
         0x0493Bf8b6DBB159Ce2Db2E0E8403E753Abd1235b;
     address internal USDC_MAI =
@@ -86,19 +90,15 @@ contract VelodromeV2PortalTest is Test {
 
         address outputToken = WETH_USDC;
 
+        ISolidlyPortal.SolidlyParams memory params = ISolidlyPortal
+            .SolidlyParams(velodromeV2Router, true, false, 30, address(0));
+
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken,
-            inputAmount,
-            outputToken,
-            velodromeV2Router,
-            true,
-            false,
-            30,
-            user
+            inputToken, inputAmount, outputToken, user, params
         );
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
@@ -120,19 +120,15 @@ contract VelodromeV2PortalTest is Test {
 
         address outputToken = WETH_USDC;
 
+        ISolidlyPortal.SolidlyParams memory params = ISolidlyPortal
+            .SolidlyParams(velodromeV2Router, true, false, 30, address(0));
+
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken,
-            inputAmount,
-            outputToken,
-            velodromeV2Router,
-            true,
-            false,
-            30,
-            user
+            inputToken, inputAmount, outputToken, user, params
         );
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
@@ -154,22 +150,21 @@ contract VelodromeV2PortalTest is Test {
 
         address outputToken = USDC_DOLA;
 
-        uint256 initialBalance = ERC20(outputToken).balanceOf(user);
+        ISolidlyPortal.SolidlyParams memory params = ISolidlyPortal
+            .SolidlyParams(
+            velodromeV2Router, true, true, 5, USDC_DOLA_GAUGE
+        );
+
+        uint256 initialBalance =
+            ERC20(USDC_DOLA_GAUGE).balanceOf(user);
 
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken,
-            inputAmount,
-            outputToken,
-            velodromeV2Router,
-            true,
-            true,
-            5,
-            user
+            inputToken, inputAmount, outputToken, user, params
         );
 
-        uint256 finalBalance = ERC20(outputToken).balanceOf(user);
+        uint256 finalBalance = ERC20(USDC_DOLA_GAUGE).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
     }
@@ -187,23 +182,21 @@ contract VelodromeV2PortalTest is Test {
         uint256 value = 0;
 
         address outputToken = USDC_DOLA;
+        ISolidlyPortal.SolidlyParams memory params = ISolidlyPortal
+            .SolidlyParams(
+            velodromeV2Router, true, true, 5, USDC_DOLA_GAUGE
+        );
 
-        uint256 initialBalance = ERC20(outputToken).balanceOf(user);
+        uint256 initialBalance =
+            ERC20(USDC_DOLA_GAUGE).balanceOf(user);
 
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken,
-            inputAmount,
-            outputToken,
-            velodromeV2Router,
-            true,
-            true,
-            5,
-            user
+            inputToken, inputAmount, outputToken, user, params
         );
 
-        uint256 finalBalance = ERC20(outputToken).balanceOf(user);
+        uint256 finalBalance = ERC20(USDC_DOLA_GAUGE).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
     }
@@ -222,19 +215,15 @@ contract VelodromeV2PortalTest is Test {
 
         address outputToken = USDC_MAI;
 
+        ISolidlyPortal.SolidlyParams memory params = ISolidlyPortal
+            .SolidlyParams(velodromeV2Router, true, true, 5, address(0));
+
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken,
-            inputAmount,
-            outputToken,
-            velodromeV2Router,
-            true,
-            true,
-            5,
-            user
+            inputToken, inputAmount, outputToken, user, params
         );
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
@@ -256,19 +245,15 @@ contract VelodromeV2PortalTest is Test {
 
         address outputToken = USDC_MAI;
 
+        ISolidlyPortal.SolidlyParams memory params = ISolidlyPortal
+            .SolidlyParams(velodromeV2Router, true, true, 5, address(0));
+
         uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken,
-            inputAmount,
-            outputToken,
-            velodromeV2Router,
-            true,
-            true,
-            5,
-            user
+            inputToken, inputAmount, outputToken, user, params
         );
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
@@ -276,32 +261,33 @@ contract VelodromeV2PortalTest is Test {
         assertTrue(finalBalance > initialBalance);
     }
 
-    // function test_Pausable() public {
-    //     changePrank(owner);
-    //     assertTrue(!solidlyPortal.paused());
-    //     solidlyPortal.pause();
-    //     assertTrue(solidlyPortal.paused());
-    // }
+    function test_Pausable() public {
+        changePrank(owner);
+        assertTrue(!solidlyPortal.paused());
+        solidlyPortal.pause();
+        assertTrue(solidlyPortal.paused());
+    }
 
-    // function test_UnPausable() public {
-    //     changePrank(owner);
-    //     assertFalse(solidlyPortal.paused());
-    //     solidlyPortal.pause();
-    //     assertTrue(solidlyPortal.paused());
-    //     solidlyPortal.unpause();
-    //     assertFalse(solidlyPortal.paused());
-    // }
+    function test_UnPausable() public {
+        changePrank(owner);
+        assertFalse(solidlyPortal.paused());
+        solidlyPortal.pause();
+        assertTrue(solidlyPortal.paused());
+        solidlyPortal.unpause();
+        assertFalse(solidlyPortal.paused());
+    }
 
-    // function testFail_Portal_Reverts_When_Paused() public {
-    //     changePrank(owner);
-    //     assertTrue(!solidlyPortal.paused());
-    //     solidlyPortal.pause();
-    //     assertTrue(solidlyPortal.paused());
-    //     test_PortalIn_VelodromeV2_StableV2_USDC_DOLA_Direct_with_DOLA();
-    // }
+    function testFail_Portal_Reverts_When_Paused() public {
+        changePrank(owner);
+        assertTrue(!solidlyPortal.paused());
+        solidlyPortal.pause();
+        assertTrue(solidlyPortal.paused());
+        test_PortalIn_VelodromeV2_StableV2_USDC_DOLA_Direct_with_DOLA(
+        );
+    }
 
-    // function testFail_Pausable_by_Admin_Only() public {
-    //     assertTrue(!solidlyPortal.paused());
-    //     solidlyPortal.pause();
-    // }
+    function testFail_Pausable_by_Admin_Only() public {
+        assertTrue(!solidlyPortal.paused());
+        solidlyPortal.pause();
+    }
 }
