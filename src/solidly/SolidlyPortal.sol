@@ -38,36 +38,50 @@ contract SolidlyPortal is Owned, Pausable {
     function portalIn(
         address inputToken,
         uint256 inputAmount,
-        address outputToken,
+        ISolidlyPool outputToken,
         address recipient,
         ISolidlyPortal.SolidlyParams calldata solidlyParams
     ) external payable whenNotPaused {
         uint256 amount = _transferFromCaller(inputToken, inputAmount);
 
-        _deposit(
+        (uint256 token0Amount, uint256 token1Amount) =
+        _beforeAddLiquidity(
             inputToken,
             amount,
             outputToken,
             solidlyParams.router,
             solidlyParams.isVelodromeV2,
             solidlyParams.stable,
-            solidlyParams.fee,
-            solidlyParams.gauge == address(0)
-                ? recipient
-                : address(this)
+            solidlyParams.fee
         );
+
+        bool staking =
+            solidlyParams.gauge == address(0) ? false : true;
+
+        _addLiquidity(
+            outputToken.token0(),
+            outputToken.token1(),
+            token0Amount,
+            token1Amount,
+            solidlyParams.router,
+            solidlyParams.stable,
+            recipient,
+            staking
+        );
+
         // For Velodrome V2-like Gauges
-        if (solidlyParams.gauge != address(0)) {
+        if (staking) {
             address gauge = solidlyParams.gauge;
 
-            _approve(outputToken, gauge);
+            _approve(address(outputToken), gauge);
             IVelodromeV2Gauge(gauge).deposit(
-                _getBalance(address(this), outputToken), recipient
+                _getBalance(address(this), address(outputToken)),
+                recipient
             );
         }
     }
 
-    /// @notice Sets up the correct token ratio and deposits into the pool
+    /// @notice Sets up the correct token ratio prior to depositing into the pool
     /// @param inputToken The token address to swap from
     /// @param inputAmount The quantity of tokens to sell
     /// @param outputToken The pool (i.e. pair) address
@@ -75,30 +89,24 @@ contract SolidlyPortal is Owned, Pausable {
     /// @param isVelodromeV2 True if router is Velodrome V2-like, false otherwise
     /// @param stable True if pool is stable, false if volatile
     /// @param fee The swap fee for the pool in BPS
-    /// @param recipient The recipient of the liquidity tokens
-    function _deposit(
+    function _beforeAddLiquidity(
         address inputToken,
         uint256 inputAmount,
-        address outputToken,
+        ISolidlyPool outputToken,
         ISolidlyRouter router,
         bool isVelodromeV2,
         bool stable,
-        uint256 fee,
-        address recipient
-    ) internal {
-        ISolidlyPool pool = ISolidlyPool(outputToken);
+        uint256 fee
+    ) internal returns (uint256 token0Amount, uint256 token1Amount) {
+        (uint256 res0, uint256 res1,) = outputToken.getReserves();
 
-        (uint256 res0, uint256 res1,) = pool.getReserves();
-
-        uint256 token0Amount;
-        uint256 token1Amount;
-        if (inputToken == pool.token0()) {
+        if (inputToken == outputToken.token0()) {
             uint256 swapAmount = stable
                 ? _getSwapAmountStable(
-                    pool.token0(),
+                    outputToken.token0(),
                     inputAmount,
-                    pool.token1(),
-                    pool,
+                    outputToken.token1(),
+                    outputToken,
                     router,
                     isVelodromeV2,
                     stable
@@ -109,7 +117,7 @@ contract SolidlyPortal is Owned, Pausable {
             token1Amount = _intraSwap(
                 inputToken,
                 swapAmount,
-                pool.token1(),
+                outputToken.token1(),
                 router,
                 isVelodromeV2,
                 stable
@@ -119,10 +127,10 @@ contract SolidlyPortal is Owned, Pausable {
         } else {
             uint256 swapAmount = stable
                 ? _getSwapAmountStable(
-                    pool.token1(),
+                    outputToken.token1(),
                     inputAmount,
-                    pool.token0(),
-                    pool,
+                    outputToken.token0(),
+                    outputToken,
                     router,
                     isVelodromeV2,
                     stable
@@ -133,7 +141,7 @@ contract SolidlyPortal is Owned, Pausable {
             token0Amount = _intraSwap(
                 inputToken,
                 swapAmount,
-                pool.token0(),
+                outputToken.token0(),
                 router,
                 isVelodromeV2,
                 stable
@@ -141,16 +149,6 @@ contract SolidlyPortal is Owned, Pausable {
 
             token1Amount = inputAmount - swapAmount;
         }
-
-        _addLiquidity(
-            pool.token0(),
-            pool.token1(),
-            token0Amount,
-            token1Amount,
-            router,
-            stable,
-            recipient
-        );
     }
 
     /// @notice Adds liquidity to the pool
@@ -161,6 +159,7 @@ contract SolidlyPortal is Owned, Pausable {
     /// @param router The Solidly-like router to be used for adding liquidity
     /// @param stable True if pool is stable, false if volatile
     /// @param recipient The recipient of the liquidity tokens
+    /// @param staking True if LP tokens will be staked, false if they should be transferred to recipient
     function _addLiquidity(
         address token0,
         address token1,
@@ -168,7 +167,8 @@ contract SolidlyPortal is Owned, Pausable {
         uint256 token1Amount,
         ISolidlyRouter router,
         bool stable,
-        address recipient
+        address recipient,
+        bool staking
     ) internal {
         _approve(token0, address(router));
         _approve(token1, address(router));
@@ -182,7 +182,7 @@ contract SolidlyPortal is Owned, Pausable {
             token1Amount,
             0,
             0,
-            recipient,
+            staking ? address(this) : recipient,
             0xf000000000000000000000000000000000000000000000000000000000000000
         );
         if (token0Amount > amount0Sent) {

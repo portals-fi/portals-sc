@@ -27,6 +27,8 @@ import { SigUtils } from "../../utils/SigUtils.sol";
 import { Addresses } from "../../../script/constants/Addresses.sol";
 import { ISolidlyPortal } from
     "../../../src/solidly/interface/ISolidlyPortal.sol";
+import { ISolidlyPool } from
+    "../../../src/solidly/interface/ISolidlyPool.sol";
 
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 
@@ -98,7 +100,11 @@ contract VelodromeV2PortalTest is Test {
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken, inputAmount, outputToken, user, params
+            inputToken,
+            inputAmount,
+            ISolidlyPool(outputToken),
+            user,
+            params
         );
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
@@ -128,7 +134,11 @@ contract VelodromeV2PortalTest is Test {
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken, inputAmount, outputToken, user, params
+            inputToken,
+            inputAmount,
+            ISolidlyPool(outputToken),
+            user,
+            params
         );
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
@@ -161,7 +171,11 @@ contract VelodromeV2PortalTest is Test {
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken, inputAmount, outputToken, user, params
+            inputToken,
+            inputAmount,
+            ISolidlyPool(outputToken),
+            user,
+            params
         );
 
         uint256 finalBalance = ERC20(USDC_DOLA_GAUGE).balanceOf(user);
@@ -193,12 +207,101 @@ contract VelodromeV2PortalTest is Test {
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken, inputAmount, outputToken, user, params
+            inputToken,
+            inputAmount,
+            ISolidlyPool(outputToken),
+            user,
+            params
         );
 
         uint256 finalBalance = ERC20(USDC_DOLA_GAUGE).balanceOf(user);
 
         assertTrue(finalBalance > initialBalance);
+    }
+
+    function test_Returns_Residual_to_Recipient_When_Staking()
+        public
+    {
+        address inputToken = DOLA;
+
+        uint256 inputAmount = 80_000 ether; // 80000 DOLA
+
+        deal(address(inputToken), user, inputAmount);
+
+        assertEq(ERC20(inputToken).balanceOf(user), inputAmount);
+
+        uint256 value = 0;
+
+        address outputToken = USDC_DOLA;
+        ISolidlyPortal.SolidlyParams memory params = ISolidlyPortal
+            .SolidlyParams(
+            velodromeV2Router, true, true, 5, USDC_DOLA_GAUGE
+        );
+
+        uint256 initialBalance =
+            ERC20(USDC_DOLA_GAUGE).balanceOf(user);
+        uint256 initialUSDCBalance = ERC20(USDC).balanceOf(user);
+        uint256 initialDOLABalance =
+            ERC20(DOLA).balanceOf(user) - inputAmount;
+
+        ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
+
+        solidlyPortal.portalIn{ value: value }(
+            inputToken,
+            inputAmount,
+            ISolidlyPool(outputToken),
+            user,
+            params
+        );
+
+        uint256 finalBalance = ERC20(USDC_DOLA_GAUGE).balanceOf(user);
+        uint256 finalUSDCBalance = ERC20(USDC).balanceOf(user);
+        uint256 finalDOLABalance = ERC20(DOLA).balanceOf(user);
+
+        assertTrue(finalBalance > initialBalance);
+        assertTrue(finalUSDCBalance >= initialUSDCBalance);
+        assertTrue(finalDOLABalance >= initialDOLABalance);
+    }
+
+    function test_Returns_Residual_to_Recipient_When_not_Staking()
+        public
+    {
+        address inputToken = DOLA;
+
+        uint256 inputAmount = 80_000 ether; // 80000 DOLA
+
+        deal(address(inputToken), user, inputAmount);
+
+        assertEq(ERC20(inputToken).balanceOf(user), inputAmount);
+
+        uint256 value = 0;
+
+        address outputToken = USDC_DOLA;
+        ISolidlyPortal.SolidlyParams memory params = ISolidlyPortal
+            .SolidlyParams(velodromeV2Router, true, true, 5, address(0));
+
+        uint256 initialBalance = ERC20(outputToken).balanceOf(user);
+        uint256 initialUSDCBalance = ERC20(USDC).balanceOf(user);
+        uint256 initialDOLABalance =
+            ERC20(DOLA).balanceOf(user) - inputAmount;
+
+        ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
+
+        solidlyPortal.portalIn{ value: value }(
+            inputToken,
+            inputAmount,
+            ISolidlyPool(outputToken),
+            user,
+            params
+        );
+
+        uint256 finalBalance = ERC20(outputToken).balanceOf(user);
+        uint256 finalUSDCBalance = ERC20(USDC).balanceOf(user);
+        uint256 finalDOLABalance = ERC20(DOLA).balanceOf(user);
+
+        assertTrue(finalBalance > initialBalance);
+        assertTrue(finalUSDCBalance >= initialUSDCBalance);
+        assertTrue(finalDOLABalance >= initialDOLABalance);
     }
 
     function test_PortalIn_VelodromeV2_StableV2_USDC_MAI_Direct_with_MAI(
@@ -223,7 +326,11 @@ contract VelodromeV2PortalTest is Test {
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken, inputAmount, outputToken, user, params
+            inputToken,
+            inputAmount,
+            ISolidlyPool(outputToken),
+            user,
+            params
         );
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
@@ -253,7 +360,11 @@ contract VelodromeV2PortalTest is Test {
         ERC20(inputToken).approve(address(solidlyPortal), inputAmount);
 
         solidlyPortal.portalIn{ value: value }(
-            inputToken, inputAmount, outputToken, user, params
+            inputToken,
+            inputAmount,
+            ISolidlyPool(outputToken),
+            user,
+            params
         );
 
         uint256 finalBalance = ERC20(outputToken).balanceOf(user);
