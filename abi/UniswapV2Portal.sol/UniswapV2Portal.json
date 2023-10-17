@@ -34,12 +34,25 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "paused",
-        "type": "bool"
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
       }
     ],
-    "name": "Pause",
+    "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Unpaused",
     "type": "event"
   },
   {
@@ -79,17 +92,17 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "sellToken",
+        "name": "inputToken",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "sellAmount",
+        "name": "inputAmount",
         "type": "uint256"
       },
       {
         "internalType": "address",
-        "name": "buyToken",
+        "name": "outputToken",
         "type": "address"
       },
       {
@@ -140,6 +153,13 @@
       }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unpause",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
