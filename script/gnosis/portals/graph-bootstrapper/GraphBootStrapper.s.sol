@@ -10,7 +10,7 @@ contract GraphBootstrapperDeployer is Script {
     Addresses addresses = new Addresses();
 
     function run() external {
-        string memory network = "BSC";
+        string memory network = "Gnosis";
 
         address[] memory devs = new address[](3);
 

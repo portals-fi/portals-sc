@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 
 import "forge-std/Script.sol";
 import { GraphBootstrapper } from
-    "../../../../src/portals/graph-bootstrapper/GraphBootstrapper.sol";
+    "../../../../src/portals/graph-bootstrapper/GraphBootstrapperFlat.sol";
 import { Addresses } from "../../../constants/Addresses.sol";
 
 contract GraphBootstrapperDeployer is Script {
