@@ -44,7 +44,7 @@ contract PortalsCollector is Owned {
             tokenAddresses.length == tokenAmounts.length,
             "PortalsCollector: length mismatch"
         );
-        for (uint256 i = 0; i < tokenAddresses.length; i++) {
+        for (uint256 i = 0; i < tokenAddresses.length;) {
             tokenAddress = tokenAddresses[i];
             tokenAmount = tokenAmounts[i];
             if (tokenAddress == address(0)) {
@@ -52,7 +52,10 @@ contract PortalsCollector is Owned {
             } else {
                 ERC20(tokenAddress).safeTransfer(partner, tokenAmount);
             }
-            emit Dole(tokenAddress, tokenAddress, partner);
+            emit Dole(tokenAddress, tokenAmount, partner);
+            unchecked {
+                ++i;
+            }
         }
     }
 

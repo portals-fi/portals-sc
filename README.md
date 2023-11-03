@@ -53,6 +53,10 @@ Once the funds have been successfully transferred to the `PortalsMulticall` cont
 
 `forge test`
 
+### Flatten Contracts
+
+`forge flatten --output ./src/portals/collector/PortalsCollectorFlat.sol ./src/portals/collector/PortalsCollector.sol`
+
 ### Deployments
 
 #### Simulate Deployment:
