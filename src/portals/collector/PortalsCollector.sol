@@ -40,6 +40,10 @@ contract PortalsCollector is Owned {
     ) external onlyOwner {
         address tokenAddress;
         uint256 tokenAmount;
+        require(
+            tokenAddresses.length == tokenAmounts.length,
+            "PortalsCollector: length mismatch"
+        );
         for (uint256 i = 0; i < tokenAddresses.length; i++) {
             tokenAddress = tokenAddresses[i];
             tokenAmount = tokenAmounts[i];
@@ -48,6 +52,7 @@ contract PortalsCollector is Owned {
             } else {
                 ERC20(tokenAddress).safeTransfer(partner, tokenAmount);
             }
+            emit Dole(tokenAddress, tokenAddress, partner);
         }
     }
 
