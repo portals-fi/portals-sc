@@ -85,92 +85,92 @@ contract BalancerV2BoostedPortalTest is Test {
         uint256 inputAmount = 5 ether;
         uint256 value = inputAmount;
 
-    //     address intermediateToken = DAI;
+        address intermediateToken = DAI;
 
-    //     address outputToken = bb_a_usd;
+        address outputToken = bb_a_usd;
 
-    //     uint256 numCalls = 5;
+        uint256 numCalls = 5;
 
-    //     IPortalsRouter.Order memory order = IPortalsRouter.Order({
-    //         inputToken: inputToken,
-    //         inputAmount: inputAmount,
-    //         outputToken: outputToken,
-    //         minOutputAmount: 1,
-    //         recipient: user
-    //     });
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            inputToken: inputToken,
+            inputAmount: inputAmount,
+            outputToken: outputToken,
+            minOutputAmount: 1,
+            recipient: user
+        });
 
-    //     IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
-    //         inputToken, inputAmount, intermediateToken, "0.03"
-    //     );
+        IQuote.QuoteParams memory quoteParams = IQuote.QuoteParams(
+            inputToken, inputAmount, intermediateToken, "0.03"
+        );
 
-    //     (address target, bytes memory data) = quote.quote(quoteParams);
+        (address target, bytes memory data) = quote.quote(quoteParams);
 
-    //     IPortalsMulticall.Call[] memory calls =
-    //         new IPortalsMulticall.Call[](numCalls);
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
 
-    //     calls[0] = IPortalsMulticall.Call(
-    //         inputToken, target, data, type(uint256).max
-    //     );
-    //     calls[1] = IPortalsMulticall.Call(
-    //         intermediateToken,
-    //         intermediateToken,
-    //         abi.encodeWithSignature(
-    //             "approve(address,uint256)",
-    //             address(balancerV2BoostedPortal),
-    //             0
-    //         ),
-    //         1
-    //     );
-    //     calls[2] = IPortalsMulticall.Call(
-    //         intermediateToken,
-    //         address(balancerV2BoostedPortal),
-    //         abi.encodeWithSignature(
-    //             "portal(address,uint256,address,address,bytes32,address)",
-    //             intermediateToken,
-    //             0,
-    //             bb_a_dai,
-    //             BalancerV2Vault,
-    //             bb_a_daiPoolId,
-    //             address(multicall)
-    //         ),
-    //         1
-    //     );
-    //     calls[3] = IPortalsMulticall.Call(
-    //         bb_a_dai,
-    //         bb_a_dai,
-    //         abi.encodeWithSignature(
-    //             "approve(address,uint256)",
-    //             address(balancerV2BoostedPortal),
-    //             0
-    //         ),
-    //         1
-    //     );
-    //     calls[4] = IPortalsMulticall.Call(
-    //         bb_a_dai,
-    //         address(balancerV2BoostedPortal),
-    //         abi.encodeWithSignature(
-    //             "portal(address,uint256,address,address,bytes32,address)",
-    //             bb_a_dai,
-    //             0,
-    //             outputToken,
-    //             BalancerV2Vault,
-    //             bb_a_usdPoolId,
-    //             user
-    //         ),
-    //         1
-    //     );
+        calls[0] = IPortalsMulticall.Call(
+            inputToken, target, data, type(uint256).max
+        );
+        calls[1] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)",
+                address(balancerV2BoostedPortal),
+                0
+            ),
+            1
+        );
+        calls[2] = IPortalsMulticall.Call(
+            intermediateToken,
+            address(balancerV2BoostedPortal),
+            abi.encodeWithSignature(
+                "portal(address,uint256,address,address,bytes32,address)",
+                intermediateToken,
+                0,
+                bb_a_dai,
+                BalancerV2Vault,
+                bb_a_daiPoolId,
+                address(multicall)
+            ),
+            1
+        );
+        calls[3] = IPortalsMulticall.Call(
+            bb_a_dai,
+            bb_a_dai,
+            abi.encodeWithSignature(
+                "approve(address,uint256)",
+                address(balancerV2BoostedPortal),
+                0
+            ),
+            1
+        );
+        calls[4] = IPortalsMulticall.Call(
+            bb_a_dai,
+            address(balancerV2BoostedPortal),
+            abi.encodeWithSignature(
+                "portal(address,uint256,address,address,bytes32,address)",
+                bb_a_dai,
+                0,
+                outputToken,
+                BalancerV2Vault,
+                bb_a_usdPoolId,
+                user
+            ),
+            1
+        );
 
-    //     IPortalsRouter.OrderPayload memory orderPayload =
-    //     IPortalsRouter.OrderPayload({ order: order, calls: calls });
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
 
-    //     uint256 initialBalance = ERC20(outputToken).balanceOf(user);
+        uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-    //     router.portal{ value: value }(orderPayload, partner);
+        router.portal{ value: value }(orderPayload, partner);
 
-    //     uint256 finalBalance = ERC20(outputToken).balanceOf(user);
+        uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
-    //     assertTrue(finalBalance > initialBalance);
-    // }
+        assertTrue(finalBalance > initialBalance);
+    }
 
     function test_PortalOut_BalancerV2Boosted_bb_a_USD_to_DAI()
         private
@@ -182,92 +182,92 @@ contract BalancerV2BoostedPortalTest is Test {
         uint256 value = 0;
         address intermediateToken = bb_a_dai;
 
-    //     address outputToken = DAI;
+        address outputToken = DAI;
 
-    //     uint256 numCalls = 4;
+        uint256 numCalls = 4;
 
-    //     IPortalsRouter.Order memory order = IPortalsRouter.Order({
-    //         inputToken: inputToken,
-    //         inputAmount: inputAmount,
-    //         outputToken: outputToken,
-    //         minOutputAmount: 1,
-    //         recipient: user
-    //     });
+        IPortalsRouter.Order memory order = IPortalsRouter.Order({
+            inputToken: inputToken,
+            inputAmount: inputAmount,
+            outputToken: outputToken,
+            minOutputAmount: 1,
+            recipient: user
+        });
 
-    //     IPortalsMulticall.Call[] memory calls =
-    //         new IPortalsMulticall.Call[](numCalls);
+        IPortalsMulticall.Call[] memory calls =
+            new IPortalsMulticall.Call[](numCalls);
 
-    //     calls[0] = IPortalsMulticall.Call(
-    //         inputToken,
-    //         inputToken,
-    //         abi.encodeWithSignature(
-    //             "approve(address,uint256)",
-    //             address(balancerV2BoostedPortal),
-    //             0
-    //         ),
-    //         1
-    //     );
-    //     calls[1] = IPortalsMulticall.Call(
-    //         inputToken,
-    //         address(balancerV2BoostedPortal),
-    //         abi.encodeWithSignature(
-    //             "portal(address,uint256,address,address,bytes32,address)",
-    //             inputToken,
-    //             0,
-    //             intermediateToken,
-    //             BalancerV2Vault,
-    //             bb_a_usdPoolId,
-    //             address(multicall)
-    //         ),
-    //         1
-    //     );
-    //     calls[2] = IPortalsMulticall.Call(
-    //         intermediateToken,
-    //         intermediateToken,
-    //         abi.encodeWithSignature(
-    //             "approve(address,uint256)",
-    //             address(balancerV2BoostedPortal),
-    //             0
-    //         ),
-    //         1
-    //     );
-    //     calls[3] = IPortalsMulticall.Call(
-    //         intermediateToken,
-    //         address(balancerV2BoostedPortal),
-    //         abi.encodeWithSignature(
-    //             "portal(address,uint256,address,address,bytes32,address)",
-    //             intermediateToken,
-    //             0,
-    //             outputToken,
-    //             BalancerV2Vault,
-    //             bb_a_daiPoolId,
-    //             user
-    //         ),
-    //         1
-    //     );
+        calls[0] = IPortalsMulticall.Call(
+            inputToken,
+            inputToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)",
+                address(balancerV2BoostedPortal),
+                0
+            ),
+            1
+        );
+        calls[1] = IPortalsMulticall.Call(
+            inputToken,
+            address(balancerV2BoostedPortal),
+            abi.encodeWithSignature(
+                "portal(address,uint256,address,address,bytes32,address)",
+                inputToken,
+                0,
+                intermediateToken,
+                BalancerV2Vault,
+                bb_a_usdPoolId,
+                address(multicall)
+            ),
+            1
+        );
+        calls[2] = IPortalsMulticall.Call(
+            intermediateToken,
+            intermediateToken,
+            abi.encodeWithSignature(
+                "approve(address,uint256)",
+                address(balancerV2BoostedPortal),
+                0
+            ),
+            1
+        );
+        calls[3] = IPortalsMulticall.Call(
+            intermediateToken,
+            address(balancerV2BoostedPortal),
+            abi.encodeWithSignature(
+                "portal(address,uint256,address,address,bytes32,address)",
+                intermediateToken,
+                0,
+                outputToken,
+                BalancerV2Vault,
+                bb_a_daiPoolId,
+                user
+            ),
+            1
+        );
 
-    //     IPortalsRouter.OrderPayload memory orderPayload =
-    //     IPortalsRouter.OrderPayload({ order: order, calls: calls });
+        IPortalsRouter.OrderPayload memory orderPayload =
+        IPortalsRouter.OrderPayload({ order: order, calls: calls });
 
-    //     ERC20(inputToken).approve(address(router), type(uint256).max);
+        ERC20(inputToken).approve(address(router), type(uint256).max);
 
-    //     uint256 initialBalance = ERC20(outputToken).balanceOf(user);
+        uint256 initialBalance = ERC20(outputToken).balanceOf(user);
 
-    //     router.portal{ value: value }(orderPayload, partner);
+        router.portal{ value: value }(orderPayload, partner);
 
-    //     uint256 finalBalance = ERC20(outputToken).balanceOf(user);
+        uint256 finalBalance = ERC20(outputToken).balanceOf(user);
 
-    //     assertTrue(finalBalance > initialBalance);
-    // }
+        assertTrue(finalBalance > initialBalance);
+    }
 
-    // function testFail_Portal_Reverts_When_Paused() public {
-    //     changePrank(owner);
-    //     assertTrue(!router.paused());
-    //     router.pause();
-    //     assertTrue(router.paused());
-    //     test_PortalIn_BalancerV2Boosted_bb_a_USD_with_ETH_with_DAI_Intermediate(
-    //     );
-    // }
+    function testFail_Portal_Reverts_When_Paused() public {
+        changePrank(owner);
+        assertTrue(!router.paused());
+        router.pause();
+        assertTrue(router.paused());
+        test_PortalIn_BalancerV2Boosted_bb_a_USD_with_ETH_with_DAI_Intermediate(
+        );
+    }
 
     function test_ERC20_recoverToken() public {
         address inputToken = USDC;
