@@ -2,12 +2,11 @@
 pragma solidity 0.8.19;
 
 import "forge-std/Script.sol";
-import { VelodromeV2Portal } from
-    "../../../src/velodrome/VelodromeV2Portal.sol";
+import { SolidlyPortal } from "../../../src/solidly/SolidlyPortal.sol";
 
 import { Addresses } from "../../constants/Addresses.sol";
 
-contract VelodromeV2PortalDeployer is Script {
+contract SolidlyPortalDeployer is Script {
     Addresses addresses = new Addresses();
 
     function run() external {
@@ -19,9 +18,9 @@ contract VelodromeV2PortalDeployer is Script {
 
         console2.log("Deployer address", vm.addr(deployerPrivateKey));
 
-        VelodromeV2Portal velodromeV2Portal =
-            new VelodromeV2Portal(addresses.get(network, "admin"));
-        console2.log("Deployed", address(velodromeV2Portal));
+        SolidlyPortal solidlyPortal =
+            new SolidlyPortal(addresses.get(network, "admin"));
+        console2.log("Deployed", address(solidlyPortal));
 
         vm.stopBroadcast();
     }

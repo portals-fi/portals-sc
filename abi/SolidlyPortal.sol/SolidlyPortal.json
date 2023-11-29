@@ -92,28 +92,55 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "tokenA",
+        "name": "inputToken",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "inputAmount",
+        "type": "uint256"
       },
       {
         "internalType": "address",
-        "name": "tokenB",
+        "name": "outputToken",
         "type": "address"
-      },
-      {
-        "internalType": "contract IVelodromeV2Router02",
-        "name": "router",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "stable",
-        "type": "bool"
       },
       {
         "internalType": "address",
         "name": "recipient",
         "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "contract ISolidlyRouter",
+            "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isVelodromeV2",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "stable",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "fee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "gauge",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct ISolidlyPortal.SolidlyParams",
+        "name": "solidlyParams",
+        "type": "tuple"
       }
     ],
     "name": "portalIn",
@@ -163,9 +190,5 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
-  },
-  {
-    "stateMutability": "payable",
-    "type": "receive"
   }
 ]
