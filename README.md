@@ -62,3 +62,5 @@ Once the funds have been successfully transferred to the `PortalsMulticall` cont
 #### Broadcast Deployment:
 
 `forge script script/polygon/portals/router/PortalsRouter.s.sol:PortalsRouterDeployer -vvvv --rpc-url $POLYGON_RPC_URL --broadcast`
+
+Note: Ensure that the `ETHERSCAN_API_KEY` environment variable is set to a valid Etherscan API key for the deployment network for verification
