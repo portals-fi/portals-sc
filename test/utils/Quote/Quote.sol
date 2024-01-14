@@ -22,18 +22,19 @@ contract Quote is IQuote, Script {
         public
         returns (address, bytes memory)
     {
-        string memory url =
-            "https://api.portals.fi/v1/portal/ethereum";
+        string memory url = "https://api.portals.fi/v2/portal";
         string memory params = string.concat(
-            "?takerAddress=",
+            "?sender=",
             vm.toString(address(0)),
-            "&sellToken=",
+            "&inputToken=",
+            "arbitrum:",
             vm.toString(quoteParams.sellToken),
-            "&buyToken=",
+            "&outputToken=",
+            "arbitrum:",
             vm.toString(quoteParams.buyToken),
-            "&sellAmount=",
+            "&inputAmount=",
             vm.toString(quoteParams.sellAmount),
-            "&slippagePercentage=",
+            "&slippageTolerancePercentage=",
             quoteParams.slippagePercentage,
             "&validate=false"
         );
