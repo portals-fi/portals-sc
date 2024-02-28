@@ -15,8 +15,7 @@ contract GraphBootstrapperDeployer is Script {
         address[] memory devs = new address[](3);
 
         devs[0] = 0x4689CFF824d63117F9C4C42F3EC0001676F00d25;
-        devs[1] = 0x3dc27165F9329AFe2D0EB89dD8ED70FCb7473472;
-        devs[2] = 0xC6d7148287C3fD606c15e6778626494c9B474cfB;
+        devs[2] = 0x4aa191F6b2c7FE700EECf5E060544F0618a552a4;
 
         string memory deployerMnemonic = vm.envString("MNEMONIC");
         uint256 deployerPrivateKey = vm.deriveKey(deployerMnemonic, 0);
@@ -24,8 +23,9 @@ contract GraphBootstrapperDeployer is Script {
 
         console2.log("Deployer address", vm.addr(deployerPrivateKey));
 
-        GraphBootstrapper graphBootstrapper =
-        new GraphBootstrapper(addresses.get(network, "admin"), devs);
+        GraphBootstrapper graphBootstrapper = new GraphBootstrapper(
+            addresses.get(network, "admin"), devs
+        );
         console2.log(
             "Deployed GraphBootstrapper at",
             address(graphBootstrapper)
