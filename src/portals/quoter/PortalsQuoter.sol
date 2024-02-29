@@ -131,7 +131,7 @@ contract PortalsQuoter {
     }
 
     function _quoteSolidly(QuoteParams memory params)
-        public
+        internal
         view
         returns (uint256 amountOut)
     {
