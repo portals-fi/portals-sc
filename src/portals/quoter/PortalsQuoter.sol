@@ -13,21 +13,12 @@ import { IQuoterV2 } from "./interface/IQuoterV2.sol";
 import { ICurvePool } from "./interface/ICurvePool.sol";
 import { ISolidlyPool } from "./interface/ISolidlyPool.sol";
 import { IBalancerQueries } from "./interface/IBalancerQueries.sol";
+import { IPortalsQuoter } from "./interface/IPortalsQuoter.sol";
 
 contract PortalsQuoter {
-    struct QuoteParams {
-        uint8 protocol;
-        uint24 fee;
-        address pool;
-        address tokenIn;
-        address tokenOut;
-        address quoteContract;
-        uint256 amount;
-    }
-
     constructor() { }
 
-    function quote(QuoteParams[] calldata paramsArray)
+    function quote(IPortalsQuoter.QuoteParams[] calldata paramsArray)
         external
         view
         returns (uint256)
@@ -36,7 +27,7 @@ contract PortalsQuoter {
         uint256 paramsArrayLength = paramsArray.length;
 
         for (uint256 i; i < paramsArrayLength;) {
-            QuoteParams memory params = paramsArray[i];
+            IPortalsQuoter.QuoteParams memory params = paramsArray[i];
 
             if (amountOut == 0) {
                 amountOut = params.amount;
@@ -64,16 +55,13 @@ contract PortalsQuoter {
         return amountOut;
     }
 
-    function _quoteUniswapV2(QuoteParams memory params)
+    function _quoteUniswapV2(IPortalsQuoter.QuoteParams memory params)
         internal
         view
         returns (uint256 amountOut)
     {
         (uint256 reserveIn, uint256 reserveOut) = UniswapV2Library
-            .getReserves(
-            params.quoteContract, params.tokenIn, params.tokenOut
-        );
-
+            .getReserves(params.pool, params.tokenIn, params.tokenOut);
         uint256 amountInWithFee =
             params.amount * (10_000 - params.fee);
         uint256 numerator = amountInWithFee * reserveOut;
@@ -81,7 +69,7 @@ contract PortalsQuoter {
         amountOut = numerator / denominator;
     }
 
-    function _quoteUniswapV3(QuoteParams memory params)
+    function _quoteUniswapV3(IPortalsQuoter.QuoteParams memory params)
         internal
         view
         returns (uint256 amountOut)
@@ -96,7 +84,7 @@ contract PortalsQuoter {
         (amountOut,,,) = quoter.quoteExactInputSingle(quoterParams);
     }
 
-    function _quoteCurve(QuoteParams memory params)
+    function _quoteCurve(IPortalsQuoter.QuoteParams memory params)
         internal
         view
         returns (uint256 amountOut)
@@ -130,7 +118,7 @@ contract PortalsQuoter {
             ICurvePool(params.pool).get_dy(i, j, params.amount);
     }
 
-    function _quoteSolidly(QuoteParams memory params)
+    function _quoteSolidly(IPortalsQuoter.QuoteParams memory params)
         internal
         view
         returns (uint256 amountOut)
@@ -139,11 +127,9 @@ contract PortalsQuoter {
         amountOut = quoter.getAmountOut(params.amount, params.tokenIn);
     }
 
-    function _quoteBalancerV2(QuoteParams memory params)
-        internal
-        view
-        returns (uint256 amountOut)
-    {
+    function _quoteBalancerV2(
+        IPortalsQuoter.QuoteParams memory params
+    ) internal view returns (uint256 amountOut) {
         amountOut = IBalancerQueries(params.quoteContract).querySwap(
             IBalancerQueries.SingleSwap({
                 poolId: IBalancerQueries(params.pool).getPoolId(),
