@@ -6,73 +6,22 @@
   },
   {
     "type": "function",
-    "name": "_quoteSolidly",
-    "inputs": [
-      {
-        "name": "params",
-        "type": "tuple",
-        "internalType": "struct PortalsQuoter.QuoteParams",
-        "components": [
-          {
-            "name": "protocol",
-            "type": "uint8",
-            "internalType": "uint8"
-          },
-          {
-            "name": "pool",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "tokenIn",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "tokenOut",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "fee",
-            "type": "uint24",
-            "internalType": "uint24"
-          },
-          {
-            "name": "amount",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "quoteContract",
-            "type": "address",
-            "internalType": "address"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "amountOut",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "quote",
     "inputs": [
       {
         "name": "paramsArray",
         "type": "tuple[]",
-        "internalType": "struct PortalsQuoter.QuoteParams[]",
+        "internalType": "struct IPortalsQuoter.QuoteParams[]",
         "components": [
           {
             "name": "protocol",
             "type": "uint8",
             "internalType": "uint8"
+          },
+          {
+            "name": "fee",
+            "type": "uint24",
+            "internalType": "uint24"
           },
           {
             "name": "pool",
@@ -90,19 +39,14 @@
             "internalType": "address"
           },
           {
-            "name": "fee",
-            "type": "uint24",
-            "internalType": "uint24"
+            "name": "quoteContract",
+            "type": "address",
+            "internalType": "address"
           },
           {
             "name": "amount",
             "type": "uint256",
             "internalType": "uint256"
-          },
-          {
-            "name": "quoteContract",
-            "type": "address",
-            "internalType": "address"
           }
         ]
       }

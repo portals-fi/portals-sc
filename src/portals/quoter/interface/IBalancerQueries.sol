@@ -28,5 +28,5 @@ interface IBalancerQueries {
     function querySwap(
         SingleSwap memory singleSwap,
         FundManagement memory funds
-    ) external view returns (uint256);
+    ) external returns (uint256);
 }

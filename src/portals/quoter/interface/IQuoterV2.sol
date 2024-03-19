@@ -31,7 +31,6 @@ interface IQuoterV2 {
         QuoteExactInputSingleParams memory params
     )
         external
-        view
         returns (
             uint256 amountOut,
             uint160 sqrtPriceX96After,

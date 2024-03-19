@@ -14,13 +14,13 @@ import { ICurvePool } from "./interface/ICurvePool.sol";
 import { ISolidlyPool } from "./interface/ISolidlyPool.sol";
 import { IBalancerQueries } from "./interface/IBalancerQueries.sol";
 import { IPortalsQuoter } from "./interface/IPortalsQuoter.sol";
+import "forge-std/console.sol";
 
 contract PortalsQuoter {
     constructor() { }
 
     function quote(IPortalsQuoter.QuoteParams[] calldata paramsArray)
         external
-        view
         returns (uint256)
     {
         uint256 amountOut = 0;
@@ -71,7 +71,6 @@ contract PortalsQuoter {
 
     function _quoteUniswapV3(IPortalsQuoter.QuoteParams memory params)
         internal
-        view
         returns (uint256 amountOut)
     {
         IQuoterV2 quoter = IQuoterV2(params.quoteContract);
@@ -91,10 +90,10 @@ contract PortalsQuoter {
     {
         ICurvePool pool = ICurvePool(params.pool);
 
-        int128 i = 0;
-        int128 j = 0;
+        uint256 i = 0;
+        uint256 j = 0;
 
-        int128 coinIdx = 0;
+        uint256 coinIdx = 0;
 
         while (i == j) {
             address coin = pool.coins(coinIdx);
@@ -114,8 +113,9 @@ contract PortalsQuoter {
             }
         }
 
-        amountOut =
-            ICurvePool(params.pool).get_dy(i, j, params.amount);
+        amountOut = ICurvePool(params.pool).get_dy(
+            int128(uint128(i)), int128(uint128(j)), params.amount
+        );
     }
 
     function _quoteSolidly(IPortalsQuoter.QuoteParams memory params)
@@ -129,7 +129,7 @@ contract PortalsQuoter {
 
     function _quoteBalancerV2(
         IPortalsQuoter.QuoteParams memory params
-    ) internal view returns (uint256 amountOut) {
+    ) internal returns (uint256 amountOut) {
         amountOut = IBalancerQueries(params.quoteContract).querySwap(
             IBalancerQueries.SingleSwap({
                 poolId: IBalancerQueries(params.pool).getPoolId(),
