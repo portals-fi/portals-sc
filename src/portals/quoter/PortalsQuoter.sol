@@ -14,7 +14,6 @@ import { ICurvePool } from "./interface/ICurvePool.sol";
 import { ISolidlyPool } from "./interface/ISolidlyPool.sol";
 import { IBalancerQueries } from "./interface/IBalancerQueries.sol";
 import { IPortalsQuoter } from "./interface/IPortalsQuoter.sol";
-import "forge-std/console.sol";
 
 contract PortalsQuoter {
     constructor() { }
