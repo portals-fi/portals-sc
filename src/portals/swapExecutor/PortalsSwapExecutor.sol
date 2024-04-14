@@ -125,7 +125,7 @@ contract PortalsSwapExecutor is Owned, Pausable {
             block.timestamp
         );
 
-        return uint256(output[output.length - 1]);
+        return uint256(-output[output.length - 1]);
     }
 
     /// @notice Swap tokens on Balancer V2 like DEXes using a single swap
