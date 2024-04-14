@@ -86,6 +86,46 @@ contract PortalsSwapExecutor is Owned, Pausable {
         return router.exactInput(params);
     }
 
+    /// @notice Swap tokens on Balancer V2 like DEXes using a single swap
+    /// @param inputToken The ERC20 token address to spend (address(0) if network token)
+    /// @param inputAmount The quantity of inputToken to swap
+    /// @param outputToken The ERC20 token address to buy (address(0) if network token)
+    /// @param poolId The Balancer V2 like pool identifier
+    /// @param vault The Balancer V2 like Vault contract to interact with for swaps
+    /// @param recipient The recipient of the outputToken
+    /// @return outputAmount The quantity of the output token received
+    function swapBalancerV2Single(
+        address inputToken,
+        uint256 inputAmount,
+        address outputToken,
+        bytes32 poolId,
+        IBalancerV2Vault vault,
+        address payable recipient
+    ) external payable whenNotPaused returns (uint256) {
+        uint256 amount = _transferFromCaller(inputToken, inputAmount);
+        _approve(inputToken, address(vault));
+
+        IBalancerV2Vault.SingleSwap memory singleSwap =
+        IBalancerV2Vault.SingleSwap({
+            poolId: poolId,
+            kind: IBalancerV2Vault.SwapKind.GIVEN_IN,
+            assetIn: inputToken,
+            assetOut: outputToken,
+            amount: amount,
+            userData: ""
+        });
+
+        IBalancerV2Vault.FundManagement memory funds =
+        IBalancerV2Vault.FundManagement({
+            sender: address(this),
+            fromInternalBalance: false,
+            recipient: recipient,
+            toInternalBalance: false
+        });
+
+        return vault.swap(singleSwap, funds, 0, block.timestamp);
+    }
+
     /// @notice Swap tokens on Balancer V2 like DEXes using batch swaps
     /// @param assets An array of ERC20 token addresses involved in the swaps
     /// @param inputAmount The quantity of the initial asset to swap
@@ -126,46 +166,6 @@ contract PortalsSwapExecutor is Owned, Pausable {
         );
 
         return uint256(-output[output.length - 1]);
-    }
-
-    /// @notice Swap tokens on Balancer V2 like DEXes using a single swap
-    /// @param inputToken The ERC20 token address to spend (address(0) if network token)
-    /// @param inputAmount The quantity of inputToken to swap
-    /// @param outputToken The ERC20 token address to buy (address(0) if network token)
-    /// @param poolId The Balancer V2 like pool identifier
-    /// @param vault The Balancer V2 like Vault contract to interact with for swaps
-    /// @param recipient The recipient of the outputToken
-    /// @return outputAmount The quantity of the output token received
-    function swapBalancerV2Single(
-        address inputToken,
-        uint256 inputAmount,
-        address outputToken,
-        bytes32 poolId,
-        IBalancerV2Vault vault,
-        address payable recipient
-    ) external payable whenNotPaused returns (uint256) {
-        uint256 amount = _transferFromCaller(inputToken, inputAmount);
-        _approve(inputToken, address(vault));
-
-        IBalancerV2Vault.SingleSwap memory singleSwap =
-        IBalancerV2Vault.SingleSwap({
-            poolId: poolId,
-            kind: IBalancerV2Vault.SwapKind.GIVEN_IN,
-            assetIn: inputToken,
-            assetOut: outputToken,
-            amount: amount,
-            userData: ""
-        });
-
-        IBalancerV2Vault.FundManagement memory funds =
-        IBalancerV2Vault.FundManagement({
-            sender: address(this),
-            fromInternalBalance: false,
-            recipient: recipient,
-            toInternalBalance: false
-        });
-
-        return vault.swap(singleSwap, funds, 0, block.timestamp);
     }
 
     /// @notice Transfers tokens or the network token from the caller to this contract
