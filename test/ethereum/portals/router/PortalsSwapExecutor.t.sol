@@ -1,9 +1,9 @@
 /// SPDX-License-Identifier: GPL-3.0
 
-/// Copyright (C) 2023 Portals.fi
+/// Copyright (C) 2024 Portals.fi
 
 /// @author Portals.fi
-/// @notice This contract tests the portal function from PortalsRouter.sol
+/// @notice This contract tests the portal function from PortalsSwapExecutor.sol
 
 pragma solidity 0.8.19;
 
@@ -106,7 +106,6 @@ contract PortalsSwapExecutorTest is Test {
         assets[0] = WETH;
         assets[1] = DAI;
 
-        // Define the swap steps using a real pool
         IBalancerV2Vault.BatchSwapStep[] memory swaps =
             new IBalancerV2Vault.BatchSwapStep[](1);
         swaps[0] = IBalancerV2Vault.BatchSwapStep({
