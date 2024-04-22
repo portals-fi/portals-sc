@@ -11,7 +11,7 @@ contract PortalsSwapExecutorDeployer is Script {
     Addresses addresses = new Addresses();
 
     function run() external {
-        string memory network = "Polygon";
+        string memory network = "BSC";
 
         string memory deployerMnemonic = vm.envString("MNEMONIC");
         uint256 deployerPrivateKey = vm.deriveKey(deployerMnemonic, 0);
