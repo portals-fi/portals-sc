@@ -170,7 +170,7 @@ contract GammaThenaTest is Test {
        assertTrue(finalBalance > initialBalance, "Balance should be higher after portalIn");
     }
 
-/*
+
     function test_Pausable() public {
         changePrank(owner);
         assertTrue(!gammaPortal.paused());
@@ -192,12 +192,12 @@ contract GammaThenaTest is Test {
         assertTrue(!gammaPortal.paused());
         gammaPortal.pause();
         assertTrue(gammaPortal.paused());
-        test_PortalIn();
+        test_PortalIn_UseFullToken1();
     }
 
     function testFail_Pausable_by_Admin_Only() public {
         assertTrue(!gammaPortal.paused());
         gammaPortal.pause();
     }
-    */
+    
 }
