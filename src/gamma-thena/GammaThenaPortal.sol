@@ -25,7 +25,7 @@ contract GammaThenaPortal is Owned, Pausable {
 
     constructor(address admin) Owned(admin) { }
 
-    /// @notice Add liquidity to Hop-like pools with network tokens/ERC20 tokens
+    /// @notice Add liquidity to Gamma-like pools with network tokens/ERC20 tokens
     /// @param router The address of the Gamma-like router
     /// @param token0 The address of the first token
     /// @param token1 The address of the second token
