@@ -3,7 +3,7 @@
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
-/// @notice This contract adds liquidity to Hop-like pools using any ERC20 token,
+/// @notice This contract adds liquidity to Gamma-like pools using any ERC20 token,
 /// or the network token.
 /// @note This contract is intended to be consumed via a multicall contract and as such omits various checks
 /// including slippage and does not return the quantity of tokens acquired. These checks should be handled
@@ -26,9 +26,10 @@ contract GammaThenaPortal is Owned, Pausable {
     constructor(address admin) Owned(admin) { }
 
     /// @notice Add liquidity to Hop-like pools with network tokens/ERC20 tokens
-    /// @param token0 The ERC20 token address to spend (address(0) if network token)
-    /// @param token1 The LPToken (i.e. pool token) address
-    /// @param poolAddress The Hop-like pool address
+    /// @param router The address of the Gamma-like router
+    /// @param token0 The address of the first token
+    /// @param token1 The address of the second token
+    /// @param poolAddress The Gamma-like pool address
     /// @param recipient The recipient of the liquidity tokens
     function portalIn(
         address router,
@@ -38,8 +39,8 @@ contract GammaThenaPortal is Owned, Pausable {
         address recipient
     ) external payable whenNotPaused {
         // Get available balance of token0 and token1
-        uint256 balance0 =  ERC20(token0).balanceOf(msg.sender);
-        uint256 balance1 =  ERC20(token1).balanceOf(msg.sender);
+        uint256 balance0 = ERC20(token0).balanceOf(msg.sender);
+        uint256 balance1 = ERC20(token1).balanceOf(msg.sender);
 
         // Get Depopsit Amount Options
         IUniProxy uniProxy = IUniProxy(router);
@@ -67,46 +68,78 @@ contract GammaThenaPortal is Owned, Pausable {
 
         */
 
+        (uint256 amount1Start, uint256 amount1End) =
+            uniProxy.getDepositAmount(poolAddress, token0, balance0);
+        (uint256 amount0Start, uint256 amount0End) =
+            uniProxy.getDepositAmount(poolAddress, token1, balance1);
 
-        (uint256 amount1Start, uint256 amount1End) = uniProxy.getDepositAmount(poolAddress, token0, balance0);
-        (uint256 amount0Start, uint256 amount0End) = uniProxy.getDepositAmount(poolAddress, token1, balance1);
-     
         uint256 zero = 0;
 
-        if(balance1 >= amount1Start && balance1 <= amount1End && balance0 >= amount0Start && balance0 <= amount0End) {  
+        if (
+            balance1 >= amount1Start && balance1 <= amount1End
+                && balance0 >= amount0Start && balance0 <= amount0End
+        ) {
             // Perfect case
-            ERC20(token0).safeTransferFrom(msg.sender, address(this), balance0);
-            ERC20(token1).safeTransferFrom(msg.sender, address(this), balance1);
+            ERC20(token0).safeTransferFrom(
+                msg.sender, address(this), balance0
+            );
+            ERC20(token1).safeTransferFrom(
+                msg.sender, address(this), balance1
+            );
             ERC20(token0).safeApprove(poolAddress, balance0);
             ERC20(token1).safeApprove(poolAddress, balance1);
-            uniProxy.deposit(balance0, balance1, recipient, poolAddress, [zero, zero, zero, zero]);
+            uniProxy.deposit(
+                balance0,
+                balance1,
+                recipient,
+                poolAddress,
+                [zero, zero, zero, zero]
+            );
             return;
         }
 
-        if(balance1 <= amount1End && balance0 >= amount0End){
+        if (balance1 <= amount1End && balance0 >= amount0End) {
             // Tested test_PortalIn_UseFullToken1
-            ERC20(token0).safeTransferFrom(msg.sender, address(this), amount0End);
-            ERC20(token1).safeTransferFrom(msg.sender, address(this), balance1);
+            ERC20(token0).safeTransferFrom(
+                msg.sender, address(this), amount0End
+            );
+            ERC20(token1).safeTransferFrom(
+                msg.sender, address(this), balance1
+            );
             ERC20(token0).safeApprove(poolAddress, amount0End);
             ERC20(token1).safeApprove(poolAddress, balance1);
-            uniProxy.deposit(amount0End, balance1, recipient, poolAddress, [zero, zero, zero, zero]);
+            uniProxy.deposit(
+                amount0End,
+                balance1,
+                recipient,
+                poolAddress,
+                [zero, zero, zero, zero]
+            );
             return;
         }
 
-        if(balance1 >= amount1Start && balance1 >= amount1End){
+        if (balance1 >= amount1Start && balance1 >= amount1End) {
             // Tested test_PortalIn_UseFullToken0
-            ERC20(token0).safeTransferFrom(msg.sender, address(this), balance0);
-            ERC20(token1).safeTransferFrom(msg.sender, address(this), amount1End);
+            ERC20(token0).safeTransferFrom(
+                msg.sender, address(this), balance0
+            );
+            ERC20(token1).safeTransferFrom(
+                msg.sender, address(this), amount1End
+            );
             ERC20(token0).safeApprove(poolAddress, balance0);
             ERC20(token1).safeApprove(poolAddress, amount1End);
-            uniProxy.deposit(balance0, amount1End, recipient, poolAddress, [zero, zero, zero, zero]);
+            uniProxy.deposit(
+                balance0,
+                amount1End,
+                recipient,
+                poolAddress,
+                [zero, zero, zero, zero]
+            );
             return;
         }
-  
-        revert("Insufficient balance"); 
+
+        revert("Insufficient balance");
     }
-
-
 
     /// @notice Transfers tokens or the network token from the caller to this contract
     /// @param token The address of the token to transfer (address(0) if network token)
