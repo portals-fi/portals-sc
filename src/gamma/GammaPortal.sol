@@ -54,7 +54,6 @@ contract GammaPortal is Owned, Pausable {
             balance1 >= amount1Start && balance1 <= amount1End
                 && balance0 >= amount0Start && balance0 <= amount0End
         ) {
-            // Perfect case
             ERC20(token0).safeTransferFrom(
                 msg.sender, address(this), balance0
             );
