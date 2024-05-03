@@ -8,7 +8,7 @@ interface IUniProxy {
     /// @param deposit1 Amount of token1 to deposit
     /// @param to Address to receive liquidity tokens
     /// @param pos Hypervisor Address
-    /// @param minIn min assets to expect in position during a direct deposit 
+    /// @param minIn min assets to expect in position during a direct deposit
     /// @return shares Amount of liquidity tokens received
     function deposit(
         uint256 deposit0,
@@ -28,5 +28,8 @@ interface IUniProxy {
         address pos,
         address token,
         uint256 _deposit
-    ) external view returns (uint256 amountStart, uint256 amountEnd);
+    )
+        external
+        view
+        returns (uint256 amountStart, uint256 amountEnd);
 }

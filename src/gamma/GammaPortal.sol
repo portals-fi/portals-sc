@@ -3,8 +3,7 @@
 /// Copyright (C) 2023 Portals.fi
 
 /// @author Portals.fi
-/// @notice This contract adds liquidity to Gamma-like pools using any ERC20 token,
-/// or the network token.
+/// @notice This contract adds liquidity to Gamma-like pools using any ERC20 token, or the network token.
 /// @note This contract is intended to be consumed via a multicall contract and as such omits various checks
 /// including slippage and does not return the quantity of tokens acquired. These checks should be handled
 /// by the caller
@@ -19,36 +18,35 @@ import { Pausable } from
 
 import { IUniProxy } from "./interface/IUniProxy.sol";
 
-contract GammaThenaPortal is Owned, Pausable {
+contract GammaPortal is Owned, Pausable {
     using SafeTransferLib for address;
     using SafeTransferLib for ERC20;
 
     constructor(address admin) Owned(admin) { }
 
     /// @notice Add liquidity to Gamma-like pools with network tokens/ERC20 tokens
-    /// @param router The address of the Gamma-like router
+    /// @param uniproxy The address of the Gamma-like uniproxy
     /// @param token0 The address of the first token
     /// @param token1 The address of the second token
-    /// @param poolAddress The Gamma-like pool address
+    /// @param hypervisor The Gamma-like pool address
     /// @param recipient The recipient of the liquidity tokens
     function portalIn(
-        address router,
+        address uniproxy,
         address token0,
         address token1,
-        address poolAddress,
+        address hypervisor,
         address recipient
     ) external payable whenNotPaused {
-        // Get available balance of token0 and token1
         uint256 balance0 = ERC20(token0).balanceOf(msg.sender);
         uint256 balance1 = ERC20(token1).balanceOf(msg.sender);
 
         // Get Depopsit Amount Options
-        IUniProxy uniProxy = IUniProxy(router);
+        IUniProxy uniProxy = IUniProxy(uniproxy);
 
         (uint256 amount1Start, uint256 amount1End) =
-            uniProxy.getDepositAmount(poolAddress, token0, balance0);
+            uniProxy.getDepositAmount(hypervisor, token0, balance0);
         (uint256 amount0Start, uint256 amount0End) =
-            uniProxy.getDepositAmount(poolAddress, token1, balance1);
+            uniProxy.getDepositAmount(hypervisor, token1, balance1);
 
         uint256 zero = 0;
 
@@ -63,13 +61,13 @@ contract GammaThenaPortal is Owned, Pausable {
             ERC20(token1).safeTransferFrom(
                 msg.sender, address(this), balance1
             );
-            ERC20(token0).safeApprove(poolAddress, balance0);
-            ERC20(token1).safeApprove(poolAddress, balance1);
+            ERC20(token0).safeApprove(hypervisor, balance0);
+            ERC20(token1).safeApprove(hypervisor, balance1);
             uniProxy.deposit(
                 balance0,
                 balance1,
                 recipient,
-                poolAddress,
+                hypervisor,
                 [zero, zero, zero, zero]
             );
             return;
@@ -82,13 +80,13 @@ contract GammaThenaPortal is Owned, Pausable {
             ERC20(token1).safeTransferFrom(
                 msg.sender, address(this), balance1
             );
-            ERC20(token0).safeApprove(poolAddress, amount0End);
-            ERC20(token1).safeApprove(poolAddress, balance1);
+            ERC20(token0).safeApprove(hypervisor, amount0End);
+            ERC20(token1).safeApprove(hypervisor, balance1);
             uniProxy.deposit(
                 amount0End,
                 balance1,
                 recipient,
-                poolAddress,
+                hypervisor,
                 [zero, zero, zero, zero]
             );
             return;
@@ -101,19 +99,19 @@ contract GammaThenaPortal is Owned, Pausable {
             ERC20(token1).safeTransferFrom(
                 msg.sender, address(this), amount1End
             );
-            ERC20(token0).safeApprove(poolAddress, balance0);
-            ERC20(token1).safeApprove(poolAddress, amount1End);
+            ERC20(token0).safeApprove(hypervisor, balance0);
+            ERC20(token1).safeApprove(hypervisor, amount1End);
             uniProxy.deposit(
                 balance0,
                 amount1End,
                 recipient,
-                poolAddress,
+                hypervisor,
                 [zero, zero, zero, zero]
             );
             return;
         }
 
-        revert("GammaThenaPortal: Insufficient balance");
+        revert("GammaThenaPortal: Insufficient balances");
     }
 
     /// @notice Transfers tokens or the network token from the caller to this contract
