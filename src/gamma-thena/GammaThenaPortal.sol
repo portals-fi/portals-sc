@@ -45,29 +45,6 @@ contract GammaThenaPortal is Owned, Pausable {
         // Get Depopsit Amount Options
         IUniProxy uniProxy = IUniProxy(router);
 
-        /*
-        Scenarios
-
-        1. Deposit full Balance Token0 and full balance Token1
-        (uint256 amount0Start, uint256 amount0End) = pool.getDepositAmount(poolAddress, token0, balance0);
-        Required Token1 balance:
-        amountStart uint256 :  290489722586001886166
-        amountEnd   uint256 :  291070992520896475940
-        Token1 balance higher than amountStart  and smaller than amountEnd 
-
-        2. Deposit full Balance Token1 and full balance Token0
-        (uint256 amount0Start, uint256 amount0End) = pool.getDepositAmount(poolAddress, token0, balance0);
-        Required Token1 balance:
-        amountStart uint256 :  290489722586001886166
-        amountEnd   uint256 :  291070992520896475940
-        Token1 balance lower than amountStart 
-        (uint256 amount0Start, uint256 amount0End) = pool.getDepositAmount(poolAddress, token1, balance1);
-         amountStart   uint256 :  691352020065040030778
-         amountEnd   uint256 :  692735415457190175879
-        Token0 balance higher than amountStart 
-
-        */
-
         (uint256 amount1Start, uint256 amount1End) =
             uniProxy.getDepositAmount(poolAddress, token0, balance0);
         (uint256 amount0Start, uint256 amount0End) =
@@ -99,7 +76,6 @@ contract GammaThenaPortal is Owned, Pausable {
         }
 
         if (balance1 <= amount1End && balance0 >= amount0End) {
-            // Tested test_PortalIn_UseFullToken1
             ERC20(token0).safeTransferFrom(
                 msg.sender, address(this), amount0End
             );
@@ -119,7 +95,6 @@ contract GammaThenaPortal is Owned, Pausable {
         }
 
         if (balance1 >= amount1Start && balance1 >= amount1End) {
-            // Tested test_PortalIn_UseFullToken0
             ERC20(token0).safeTransferFrom(
                 msg.sender, address(this), balance0
             );
@@ -138,7 +113,7 @@ contract GammaThenaPortal is Owned, Pausable {
             return;
         }
 
-        revert("Insufficient balance");
+        revert("GammaThenaPortal: Insufficient balance");
     }
 
     /// @notice Transfers tokens or the network token from the caller to this contract
