@@ -43,6 +43,8 @@ Once the funds have been successfully transferred to the `PortalsMulticall` cont
 
 #### Load .env vars for the first time (if necessary)
 
+Note: If encountering `EvmError: NotActivated` errors, ensure that the `evm-version` is set to `shanghai` with `--evm-version shanghai` in the `forge test` command. This error results from PUSH0 being used.
+
 `source .env`
 
 #### Run a specific test
