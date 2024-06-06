@@ -55,6 +55,10 @@ Note: If encountering `EvmError: NotActivated` errors, ensure that the `evm-vers
 
 `forge test`
 
+### Flatten Contracts
+
+`forge flatten --output ./src/portals/collector/PortalsCollectorFlat.sol ./src/portals/collector/PortalsCollector.sol`
+
 ### Deployments
 
 #### Simulate Deployment:

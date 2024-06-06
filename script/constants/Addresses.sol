@@ -25,6 +25,22 @@ contract Addresses {
         BSC["admin"] = 0x5199c0E2726C91a13F8d674c6977c765D61716d9;
         Base["admin"] = 0xb703A646fEB68eB31FBf0E1e2b63F69075EA4440;
         Gnosis["admin"] = 0x4F35cFCFaF3A196f16a1b7dDc37Ea670F6dEa029;
+        Polygon["collector"] =
+            0x508ee1b661c7DeE089A5b5c3fD234f1058F03c38;
+        Ethereum["collector"] =
+            0xFBD4C3D8bE6B15b7cf428Db2838bb44C0054fCd2;
+        Fantom["collector"] =
+            0x9144439a1d4d5Fb371C491101045815F32150444;
+        Avalanche["collector"] =
+            0xdDe0bb7c1F953667538bBf11798F0BbbF90Fa313;
+        Optimism["collector"] =
+            0xd187E2a164d714eA50B7F48D2F7A2579f4de2a67;
+        Arbitrum["collector"] =
+            0x8A37E1808D34f75Db5807198c1A627e048813831;
+        BSC["collector"] = 0x299C651E00BB4864609a3A469bd151d9be4b08Ab;
+        Base["collector"] = 0x8604700ae3c4EA791EB1019238fF07a46E41c77a;
+        Gnosis["collector"] =
+            0xF6C75016Dae9faD1141C7e323F5DcdC368f51F99;
     }
 
     function get(string memory network, string memory name)
