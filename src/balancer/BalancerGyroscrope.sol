@@ -17,6 +17,12 @@ contract BalancerGyroscopePortal is Owned, Pausable {
 
     constructor(address admin) Owned(admin) { }
 
+    /// @notice Add liquidity to Balancer V2 like pools using network tokens/ERC20 tokens
+    /// @param vault The Balancer V2 like vault to be used for adding liquidity
+    /// @param poolId The ID of the pool to add liquidity to
+    /// @param assets The assets to be deposited into the pool
+    /// @param bltOutAmount The quantity of Balancer Pool Tokens (BPT) to be minted
+    /// @param recipient The recipient of the minted BPT
     function portalIn(
         address vault,
         bytes32 poolId,
@@ -58,12 +64,13 @@ contract BalancerGyroscopePortal is Owned, Pausable {
     }
 
     /// @notice Remove liquidity from Balancer V2 like pools into network tokens/ERC20 tokens
+    /// @param vault The Balancer V2 like vault to be used for removing liquidity
+    /// @param poolId The ID of the pool to add liquidity to
     /// @param inputToken The Balancer V2 like pool address (i.e. the LP token address)
     /// @param inputAmount The quantity of inputToken to Portal out
-    /// @param vault The Balancer V2 like vault to be used for removing liquidity
-    /// @param poolId The ID of the pool to remove liquidity from
-    /// @param assets The assets in the pool
-    /// @param recipient The recipient of the withdrawn tokens
+    /// @param assets The assets underlying the pool
+    /// @param minAmountsOut The minimum amounts of each token to be received
+    /// @param recipient The recipient of the output tokens
     function portalOut(
         address vault,
         bytes32 poolId,
