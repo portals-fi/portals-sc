@@ -54,10 +54,9 @@ contract BalancerGyroscopePortal is Owned, Pausable {
             })
         );
 
-        // Return dust
+        // Return dust to recipient
         for (uint256 i = 0; i < assets.length; i++) {
-            uint256 dustBalance =
-                ERC20(assets[i]).balanceOf(address(this));
+            uint256 dustBalance = ERC20(assets[i]).balanceOf(address(this));
 
             ERC20(assets[i]).transfer(recipient, dustBalance);
         }
