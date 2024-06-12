@@ -62,43 +62,6 @@ contract BalancerGyroscopePortal is Owned, Pausable {
         }
     }
 
-    /// @notice Remove liquidity from Balancer V2 like pools into network tokens/ERC20 tokens
-    /// @param vault The Balancer V2 like vault to be used for removing liquidity
-    /// @param poolId The ID of the pool to add liquidity to
-    /// @param inputToken The Balancer V2 like pool address (i.e. the LP token address)
-    /// @param inputAmount The quantity of inputToken to Portal out
-    /// @param assets The assets underlying the pool
-    /// @param minAmountsOut The minimum amounts of each token to be received
-    /// @param recipient The recipient of the output tokens
-    function portalOut(
-        address vault,
-        bytes32 poolId,
-        address inputToken,
-        uint256 inputAmount,
-        address[] calldata assets,
-        uint256[] calldata minAmountsOut,
-        address payable recipient
-    ) external payable whenNotPaused {
-        _transferFromCaller(inputToken, inputAmount);
-
-        // EXACT_BPT_IN_FOR_TOKENS_OUT = 1
-        bytes memory userData = abi.encode(1, inputAmount);
-
-        _approve(inputToken, address(vault));
-
-        IBalancerVault(vault).exitPool(
-            poolId,
-            address(this),
-            payable(recipient),
-            IBalancerVault.ExitPoolRequest({
-                assets: assets,
-                minAmountsOut: minAmountsOut,
-                userData: userData,
-                toInternalBalance: false
-            })
-        );
-    }
-
     /// @notice Transfers tokens or the network token from the caller to this contract
     /// @param token The address of the token to transfer (address(0) if network token)
     /// @param quantity The quantity of tokens to transfer from the caller
