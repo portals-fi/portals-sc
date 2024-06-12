@@ -8,19 +8,10 @@
 pragma solidity 0.8.19;
 
 import "forge-std/Test.sol";
-import "forge-std/console.sol";
 import "forge-std/console2.sol";
 
-import { PortalsRouter } from
-    "../../../src/portals/router/PortalsRouter.sol";
-import { PortalsMulticall } from
-    "../../../src/portals/multicall/PortalsMulticall.sol";
 import { BalancerGyroscopePortal } from
-    "../../../src/balancer/BalancerGyroscrope.sol";
-import { IPortalsRouter } from
-    "../../../src/portals/router/interface/IPortalsRouter.sol";
-import { IPortalsMulticall } from
-    "../../../src/portals/multicall/interface/IPortalsMulticall.sol";
+    "../../../src/balancer/BalancerGyroscopePortal.sol";
 
 import { Quote } from "../../utils/Quote/Quote.sol";
 import { IQuote } from "../../utils/Quote/interface/IQuote.sol";
@@ -56,10 +47,6 @@ contract BalancerGyroTest is Test {
         0xC2AA60465BfFa1A88f5bA471a59cA0435c3ec5c1;
     address internal BalancerV2Vault =
         0xBA12222222228d8Ba445958a75a0704d566BF2C8;
-
-    PortalsMulticall public multicall = new PortalsMulticall();
-
-    PortalsRouter public router = new PortalsRouter(owner, multicall);
 
     Addresses public addresses = new Addresses();
 
@@ -126,5 +113,34 @@ contract BalancerGyroTest is Test {
             finalBalance > 99_000,
             "Balance should be higher after portalIn"
         );
+    }
+
+    function test_Pausable() public {
+        changePrank(owner);
+        assertTrue(!gyroPortal.paused());
+        gyroPortal.pause();
+        assertTrue(gyroPortal.paused());
+    }
+
+    function test_UnPausable() public {
+        changePrank(owner);
+        assertFalse(gyroPortal.paused());
+        gyroPortal.pause();
+        assertTrue(gyroPortal.paused());
+        gyroPortal.unpause();
+        assertFalse(gyroPortal.paused());
+    }
+
+    function testFail_Portal_Reverts_When_Paused() public {
+        changePrank(owner);
+        assertTrue(!gyroPortal.paused());
+        gyroPortal.pause();
+        assertTrue(gyroPortal.paused());
+        test_PortalIn();
+    }
+
+    function testFail_Pausable_by_Admin_Only() public {
+        assertTrue(!gyroPortal.paused());
+        gyroPortal.pause();
     }
 }
