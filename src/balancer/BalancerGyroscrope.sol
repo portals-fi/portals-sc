@@ -1,6 +1,6 @@
 /// SPDX-License-Identifier: GPL-3.0
 
-/// Copyright (C) 2023 Portals.fi
+/// Copyright (C) 2024 Portals.fi
 
 pragma solidity 0.8.19;
 
@@ -56,7 +56,8 @@ contract BalancerGyroscopePortal is Owned, Pausable {
 
         // Return dust to recipient
         for (uint256 i = 0; i < assets.length; i++) {
-            uint256 dustBalance = ERC20(assets[i]).balanceOf(address(this));
+            uint256 dustBalance =
+                ERC20(assets[i]).balanceOf(address(this));
 
             ERC20(assets[i]).transfer(recipient, dustBalance);
         }
