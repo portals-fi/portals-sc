@@ -76,8 +76,8 @@ contract BalancerGyroTest is Test {
         address token1 = WETH;
         address pool = gyroPool2;
         address recipient = user;
-        uint256 amount0 = 0.1 ether;
-        uint256 amount1 = 0.1 ether;
+        uint256 amount0 = 1 ether;
+        uint256 amount1 = 1 ether;
 
         // Mimic sending Tokens to user for the purpose of this test
         deal(token0, recipient, amount0);
@@ -98,7 +98,7 @@ contract BalancerGyroTest is Test {
 
         // Perform the portalIn operation
         gyroPortal.portalIn(
-            BalancerV2Vault, poolId2, recipient
+            BalancerV2Vault, poolId2, recipient, 10 ** 12
         );
 
         uint256 finalBalance = ERC20(pool).balanceOf(recipient);
@@ -110,7 +110,7 @@ contract BalancerGyroTest is Test {
 
         assertTrue(
             finalBalanceToken0 == 0 || finalBalanceToken1 == 0,
-            "One of the tokens should be 0 after portalIn"
+           "Portal Utility Tokens should be 0 after portalIn"
         );
 
         uint256 inputBalance0 =
@@ -154,7 +154,7 @@ contract BalancerGyroTest is Test {
 
         // Perform the portalIn operation
         gyroPortal.portalIn(
-            BalancerV2Vault, poolId, recipient
+            BalancerV2Vault, poolId, recipient, 10 ** 12
         );
 
         uint256 finalBalance = ERC20(pool).balanceOf(recipient);
@@ -165,8 +165,8 @@ contract BalancerGyroTest is Test {
             ERC20(token1).balanceOf(address(gyroPortal));
 
         assertTrue(
-            finalBalanceToken0 == 0 || finalBalanceToken1 == 0,
-            "One of the tokens should be 0 after portalIn"
+            finalBalanceToken0 == 0 && finalBalanceToken1 == 0,
+            "Portal Utility Tokens should be 0 after portalIn"
         );
 
         uint256 inputBalance0 =

@@ -24,7 +24,8 @@ contract BalancerGyroscopePortal is Owned, Pausable {
     function portalIn(
         address vault,
         bytes32 poolId,
-        address recipient
+        address recipient,
+        uint256 slippageCoefficient
     ) external payable whenNotPaused {
         address poolAddress = _getPoolAddress(poolId);
 
@@ -44,7 +45,7 @@ contract BalancerGyroscopePortal is Owned, Pausable {
             _approve(_tokens[i], vault);
 
             uint256 newBltOutAmount = _bltOutAmount(
-                maxAmountsIn[i], _balances[i], poolSupply
+                maxAmountsIn[i], _balances[i], poolSupply, slippageCoefficient
             );
 
             if (newBltOutAmount < bltOutAmount) {
@@ -79,12 +80,13 @@ contract BalancerGyroscopePortal is Owned, Pausable {
     function _bltOutAmount(
         uint256 maxAmountsIn,
         uint256 balance,
-        uint256 poolSupply
+        uint256 poolSupply,
+        uint256 slippageCoefficient
     ) internal pure returns (uint256) {
         uint256 ratio =
-            (maxAmountsIn * 1_000_000_000_000_000_000) / balance;
+            (maxAmountsIn * 10 ** 18) / balance;
         uint256 bltOutAmount =
-            ratio * poolSupply / 1_000_010_000_000_000_000;
+            ratio * poolSupply / (10 ** 18 + slippageCoefficient);
         return bltOutAmount;
     }
 
