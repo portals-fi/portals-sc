@@ -26,28 +26,28 @@ contract BalancerGyroscopePortal is Owned, Pausable {
         bytes32 poolId,
         address recipient
     ) external payable whenNotPaused {
-  
-
         address poolAddress = _getPoolAddress(poolId);
 
         uint256 poolSupply = ERC20(poolAddress).totalSupply();
 
-        (address[] memory _tokens, uint256[] memory _balances,) = IBalancerVault(vault).getPoolTokens(poolId);
+        (address[] memory _tokens, uint256[] memory _balances,) =
+            IBalancerVault(vault).getPoolTokens(poolId);
 
-        // Set to infinite to avoid swap 0 tokens
         uint256 bltOutAmount = 2 ** 255;
 
         uint256[] memory maxAmountsIn = new uint256[](_tokens.length);
-     
+
         for (uint8 i = 0; i < _tokens.length; i++) {
             maxAmountsIn[i] = ERC20(_tokens[i]).balanceOf(msg.sender);
 
             _transferFromCaller(_tokens[i], maxAmountsIn[i]);
             _approve(_tokens[i], vault);
 
-           uint256 newBltOutAmount =  _bltOutAmount(maxAmountsIn[i], _balances[i], poolSupply);
+            uint256 newBltOutAmount = _bltOutAmount(
+                maxAmountsIn[i], _balances[i], poolSupply
+            );
 
-            if(newBltOutAmount < bltOutAmount) {
+            if (newBltOutAmount < bltOutAmount) {
                 bltOutAmount = newBltOutAmount;
             }
         }
@@ -76,9 +76,15 @@ contract BalancerGyroscopePortal is Owned, Pausable {
         }
     }
 
-    function _bltOutAmount(uint256  maxAmountsIn, uint256  balance, uint256 poolSupply) pure internal returns (uint256) {
-        uint256 ratio = (maxAmountsIn * 1000000000000000000) / balance;
-        uint256 bltOutAmount = ratio * poolSupply / 1000000000000000000;
+    function _bltOutAmount(
+        uint256 maxAmountsIn,
+        uint256 balance,
+        uint256 poolSupply
+    ) internal pure returns (uint256) {
+        uint256 ratio =
+            (maxAmountsIn * 1_000_000_000_000_000_000) / balance;
+        uint256 bltOutAmount =
+            ratio * poolSupply / 1_000_000_000_000_000_000;
         return bltOutAmount;
     }
 
@@ -117,11 +123,15 @@ contract BalancerGyroscopePortal is Owned, Pausable {
         }
     }
 
-    function _getPoolAddress(bytes32 poolId) public pure returns (address) {
+    function _getPoolAddress(bytes32 poolId)
+        public
+        pure
+        returns (address)
+    {
         // Extract the first 20 bytes of the poolId
         return address(uint160(uint256(poolId) >> 96));
     }
-    
+
     /// @dev Pause the contract
     function pause() external onlyOwner {
         _pause();
