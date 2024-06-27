@@ -38,13 +38,25 @@ contract BalancerGyroTest is Test {
 
     address internal USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address internal GYD = 0xe07F9D810a48ab5c3c914BA3cA53AF14E4491e8A; // Gyro Dollar
+
+    address internal mevETH = 0x24Ae2dA0f361AA4BE46b48EB19C91e02c5e4f27E;
+    address internal WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // Gyro Dollar
+
+
     address internal ETH = address(0);
 
     bytes32 internal poolId =
         0xc2aa60465bffa1a88f5ba471a59ca0435c3ec5c100020000000000000000062c;
 
+    bytes32 internal poolId2 =
+        0xb3b675a9a3cb0df8f66caf08549371bfb76a9867000200000000000000000611;
+
     address internal gyroPool =
         0xC2AA60465BfFa1A88f5bA471a59cA0435c3ec5c1;
+
+     address internal gyroPool2 =
+        0xb3b675a9A3CB0DF8F66Caf08549371BfB76A9867;
+
     address internal BalancerV2Vault =
         0xBA12222222228d8Ba445958a75a0704d566BF2C8;
 
@@ -59,13 +71,13 @@ contract BalancerGyroTest is Test {
         startHoax(user);
     }
 
-    function test_PortalIn() public {
-        address token0 = USDC;
-        address token1 = GYD;
-        address pool = gyroPool;
+      function test_PortalIn2() public {
+        address token0 = mevETH;
+        address token1 = WETH;
+        address pool = gyroPool2;
         address recipient = user;
-        uint256 amount0 = 10 ** 6;
-        uint256 amount1 = 1 ether;
+        uint256 amount0 = 0.1 ether;
+        uint256 amount1 = 0.1 ether;
 
         // Mimic sending Tokens to user for the purpose of this test
         deal(token0, recipient, amount0);
@@ -86,7 +98,63 @@ contract BalancerGyroTest is Test {
 
         // Perform the portalIn operation
         gyroPortal.portalIn(
-            BalancerV2Vault, poolId, tokens, 1e18, recipient
+            BalancerV2Vault, poolId2, recipient
+        );
+
+        uint256 finalBalance = ERC20(pool).balanceOf(recipient);
+
+        uint256 finalBalanceToken0 =
+            ERC20(token0).balanceOf(address(gyroPortal));
+        uint256 finalBalanceToken1 =
+            ERC20(token1).balanceOf(address(gyroPortal));
+
+        assertTrue(
+            finalBalanceToken0 == 0 || finalBalanceToken1 == 0,
+            "One of the tokens should be 0 after portalIn"
+        );
+
+        uint256 inputBalance0 =
+            ERC20(token0).balanceOf(address(recipient));
+        uint256 inputBalance1 =
+            ERC20(token1).balanceOf(address(recipient));
+
+        console2.log("inputBalance0", inputBalance0);
+        console2.log("inputBalance1", inputBalance1);
+
+        assertTrue(
+            finalBalance > 99_000,
+            "Balance should be higher after portalIn"
+        );
+    }
+
+    function test_PortalIn() public {
+        address token0 = USDC;
+        address token1 = GYD;
+        address pool = gyroPool;
+        address recipient = user;
+        uint256 amount0 = 10 ** 7;
+        uint256 amount1 = 10 ether;
+
+        // Mimic sending Tokens to user for the purpose of this test
+        deal(token0, recipient, amount0);
+        deal(token1, recipient, amount1);
+
+        // Check the initial WBNB balance of the user
+        assertEq(ERC20(token0).balanceOf(recipient), amount0);
+        assertEq(ERC20(token1).balanceOf(recipient), amount1);
+
+        // Approve the amount to spend by the portal
+        ERC20(token0).approve(address(gyroPortal), amount0);
+        ERC20(token1).approve(address(gyroPortal), amount1);
+
+        address[] memory tokens = new address[](2);
+
+        tokens[0] = token0;
+        tokens[1] = token1;
+
+        // Perform the portalIn operation
+        gyroPortal.portalIn(
+            BalancerV2Vault, poolId, recipient
         );
 
         uint256 finalBalance = ERC20(pool).balanceOf(recipient);
