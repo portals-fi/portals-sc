@@ -84,7 +84,7 @@ contract BalancerGyroscopePortal is Owned, Pausable {
         uint256 ratio =
             (maxAmountsIn * 1_000_000_000_000_000_000) / balance;
         uint256 bltOutAmount =
-            ratio * poolSupply / 1_000_000_000_000_000_000;
+            ratio * poolSupply / 1_000_010_000_000_000_000;
         return bltOutAmount;
     }
 
