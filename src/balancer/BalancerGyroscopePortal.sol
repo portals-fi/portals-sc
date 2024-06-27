@@ -20,23 +20,36 @@ contract BalancerGyroscopePortal is Owned, Pausable {
     /// @notice Add liquidity to Balancer V2 like pools using network tokens/ERC20 tokens
     /// @param vault The Balancer V2 like vault to be used for adding liquidity
     /// @param poolId The ID of the pool to add liquidity to
-    /// @param assets The assets to be deposited into the pool
-    /// @param bltOutAmount The quantity of Balancer Pool Tokens (BPT) to be minted
     /// @param recipient The recipient of the minted BPT
     function portalIn(
         address vault,
         bytes32 poolId,
-        address[] calldata assets,
-        uint256 bltOutAmount,
         address recipient
     ) external payable whenNotPaused {
-        uint256[] memory maxAmountsIn = new uint256[](assets.length);
+  
 
-        for (uint256 i = 0; i < assets.length; i++) {
-            maxAmountsIn[i] = ERC20(assets[i]).balanceOf(msg.sender);
+        address poolAddress = _getPoolAddress(poolId);
 
-            _transferFromCaller(assets[i], maxAmountsIn[i]);
-            _approve(assets[i], vault);
+        uint256 poolSupply = ERC20(poolAddress).totalSupply();
+
+        (address[] memory _tokens, uint256[] memory _balances,) = IBalancerVault(vault).getPoolTokens(poolId);
+
+        // Set to infinite to avoid swap 0 tokens
+        uint256 bltOutAmount = 2 ** 255;
+
+        uint256[] memory maxAmountsIn = new uint256[](_tokens.length);
+     
+        for (uint8 i = 0; i < _tokens.length; i++) {
+            maxAmountsIn[i] = ERC20(_tokens[i]).balanceOf(msg.sender);
+
+            _transferFromCaller(_tokens[i], maxAmountsIn[i]);
+            _approve(_tokens[i], vault);
+
+           uint256 newBltOutAmount =  _bltOutAmount(maxAmountsIn[i], _balances[i], poolSupply);
+
+            if(newBltOutAmount < bltOutAmount) {
+                bltOutAmount = newBltOutAmount;
+            }
         }
 
         // ALL_TOKENS_IN_FOR_EXACT_BPT_OUT = 3
@@ -47,7 +60,7 @@ contract BalancerGyroscopePortal is Owned, Pausable {
             address(this),
             recipient,
             IBalancerVault.JoinPoolRequest({
-                assets: assets,
+                assets: _tokens,
                 maxAmountsIn: maxAmountsIn,
                 userData: userData,
                 fromInternalBalance: false
@@ -55,12 +68,18 @@ contract BalancerGyroscopePortal is Owned, Pausable {
         );
 
         // Return dust to recipient
-        for (uint256 i = 0; i < assets.length; i++) {
+        for (uint256 i = 0; i < _tokens.length; i++) {
             uint256 dustBalance =
-                ERC20(assets[i]).balanceOf(address(this));
+                ERC20(_tokens[i]).balanceOf(address(this));
 
-            ERC20(assets[i]).transfer(recipient, dustBalance);
+            ERC20(_tokens[i]).transfer(recipient, dustBalance);
         }
+    }
+
+    function _bltOutAmount(uint256  maxAmountsIn, uint256  balance, uint256 poolSupply) pure internal returns (uint256) {
+        uint256 ratio = (maxAmountsIn * 1000000000000000000) / balance;
+        uint256 bltOutAmount = ratio * poolSupply / 1000000000000000000;
+        return bltOutAmount;
     }
 
     /// @notice Transfers tokens or the network token from the caller to this contract
@@ -98,6 +117,11 @@ contract BalancerGyroscopePortal is Owned, Pausable {
         }
     }
 
+    function _getPoolAddress(bytes32 poolId) public pure returns (address) {
+        // Extract the first 20 bytes of the poolId
+        return address(uint160(uint256(poolId) >> 96));
+    }
+    
     /// @dev Pause the contract
     function pause() external onlyOwner {
         _pause();
