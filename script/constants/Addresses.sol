@@ -11,6 +11,7 @@ contract Addresses {
     mapping(string => address) private BSC;
     mapping(string => address) private Base;
     mapping(string => address) private Gnosis;
+    mapping(string => address) private Fraxtal;
 
     error NoAddress(string network, string name);
 
@@ -25,6 +26,7 @@ contract Addresses {
         BSC["admin"] = 0x5199c0E2726C91a13F8d674c6977c765D61716d9;
         Base["admin"] = 0xb703A646fEB68eB31FBf0E1e2b63F69075EA4440;
         Gnosis["admin"] = 0x4F35cFCFaF3A196f16a1b7dDc37Ea670F6dEa029;
+        Fraxtal["admin"] = 0x68F80Fd72eae6b37d1F70e5cDD8A8E7bA12E3af7;
     }
 
     function get(string memory network, string memory name)
@@ -46,6 +48,12 @@ contract Addresses {
             require(
                 entity != address(0), "Ethereum address not found"
             );
+        } else if (
+            keccak256(abi.encodePacked(network))
+                == keccak256(abi.encodePacked("Fraxtal"))
+        ) {
+            entity = Fraxtal[name];
+            require(entity != address(0), "Fraxtal address not found");
         } else if (
             keccak256(abi.encodePacked(network))
                 == keccak256(abi.encodePacked("Fantom"))

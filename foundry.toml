@@ -22,6 +22,7 @@ bsc = "${BSC_RPC_URL}"
 cronos = "${CRONOS_RPC_URL}"
 base = "${BASE_RPC_URL}"
 gnosis = "${GNOSIS_RPC_URL}"
+fraxtal = "${FRAXTAL_RPC_URL}"
 [etherscan]
 mainnet = { key = "${MAINNET_ETHERSCAN_API_KEY}" }
 fantom = { key = "${FANTOM_ETHERSCAN_API_KEY}" }
@@ -33,10 +34,9 @@ bsc = { key = "${BSC_ETHERSCAN_API_KEY}" }
 cronos = { key = "${CRONOS_ETHERSCAN_API_KEY}" }
 base = { key = "${BASE_ETHERSCAN_API_KEY}" }
 gnosis = { key = "${GNOSIS_ETHERSCAN_API_KEY}", url = "https://api.gnosisscan.io/api" }
+fraxtal = { key = "${FRAXTAL_ETHERSCAN_API_KEY}" }
 [fuzz]
 runs = 16
-
-
 
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
