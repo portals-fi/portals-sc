@@ -112,9 +112,14 @@ contract PortalsQuoter {
             }
         }
 
-        amountOut = ICurvePool(params.pool).get_dy(
-            int128(uint128(i)), int128(uint128(j)), params.amount
-        );
+        try pool.get_dy(i, j, params.amount) returns (uint256 result)
+        {
+            amountOut = result;
+        } catch {
+            amountOut = pool.get_dy(
+                int128(uint128(i)), int128(uint128(j)), params.amount
+            );
+        }
     }
 
     function _quoteSolidly(IPortalsQuoter.QuoteParams memory params)

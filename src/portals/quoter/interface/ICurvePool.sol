@@ -7,6 +7,11 @@ interface ICurvePool {
         view
         returns (uint256 out);
 
+    function get_dy(uint256 i, uint256 j, uint256 dx)
+        external
+        view
+        returns (uint256);
+
     function get_dy_underlying(int128 i, int128 j, uint256 dx)
         external
         view
