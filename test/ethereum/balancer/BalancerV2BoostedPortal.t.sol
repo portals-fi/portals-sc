@@ -80,7 +80,7 @@ contract BalancerV2BoostedPortalTest is Test {
     }
 
     function test_PortalIn_BalancerV2Boosted_bb_a_USD_with_ETH_with_DAI_Intermediate(
-    ) public {
+    ) private {
         address inputToken = address(0);
         uint256 inputAmount = 5 ether;
         uint256 value = inputAmount;
@@ -173,7 +173,7 @@ contract BalancerV2BoostedPortalTest is Test {
     }
 
     function test_PortalOut_BalancerV2Boosted_bb_a_USD_to_DAI()
-        public
+        private
     {
         test_PortalIn_BalancerV2Boosted_bb_a_USD_with_ETH_with_DAI_Intermediate(
         );

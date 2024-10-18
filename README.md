@@ -43,6 +43,8 @@ Once the funds have been successfully transferred to the `PortalsMulticall` cont
 
 #### Load .env vars for the first time (if necessary)
 
+Note: If encountering `EvmError: NotActivated` errors, ensure that the `evm-version` is set to `shanghai` with `--evm-version shanghai` in the `forge test` command. This error results from PUSH0 being used.
+
 `source .env`
 
 #### Run a specific test
@@ -62,3 +64,5 @@ Once the funds have been successfully transferred to the `PortalsMulticall` cont
 #### Broadcast Deployment:
 
 `forge script script/polygon/portals/router/PortalsRouter.s.sol:PortalsRouterDeployer -vvvv --rpc-url $POLYGON_RPC_URL --broadcast`
+
+Note: Ensure that the `ETHERSCAN_API_KEY` environment variable is set to a valid Etherscan API key for the deployment network for verification
