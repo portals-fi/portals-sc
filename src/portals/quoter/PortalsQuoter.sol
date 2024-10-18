@@ -89,37 +89,37 @@ contract PortalsQuoter {
     {
         ICurvePool pool = ICurvePool(params.pool);
 
-        uint256 i = 0;
-        uint256 j = 0;
+        uint256 i;
+        uint256 j;
+        uint256 coinCount;
 
-        uint256 coinIdx = 0;
-
-        while (i == j) {
-            address coin = pool.coins(coinIdx);
-
-            if (coin == params.tokenIn) {
-                i = coinIdx;
-            } else if (coin == params.tokenOut) {
-                j = coinIdx;
-            }
-
-            if (i != j) {
+        while (true) {
+            try pool.coins(coinCount) returns (address coin) {
+                if (coin == params.tokenIn) {
+                    i = coinCount;
+                } else if (coin == params.tokenOut) {
+                    j = coinCount;
+                }
+                coinCount++;
+            } catch {
                 break;
             }
-
-            unchecked {
-                coinIdx++;
-            }
         }
+
+        if (i == j) return 0;
 
         try pool.get_dy(i, j, params.amount) returns (uint256 result)
         {
-            amountOut = result;
-        } catch {
-            amountOut = pool.get_dy(
-                int128(uint128(i)), int128(uint128(j)), params.amount
-            );
-        }
+            return result;
+        } catch { }
+
+        try pool.get_dy(
+            int128(uint128(i)), int128(uint128(j)), params.amount
+        ) returns (uint256 result) {
+            return result;
+        } catch { }
+
+        return 0;
     }
 
     function _quoteSolidly(IPortalsQuoter.QuoteParams memory params)
